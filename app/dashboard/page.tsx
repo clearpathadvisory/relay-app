@@ -927,10 +927,7 @@ export default function Dashboard() {
             ))}
           </nav>
           <div className="sidefoot">
-            <span className={isPro ? 'chip chip-pro' : 'chip'} title={isPro ? 'You are on Pro' : 'You are on the free plan'}>
-              {isPro ? 'Pro' : 'Free'}
-            </span>
-            <button className="btn small ghost" onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }}>Exit</button>
+            <button className="btn small ghost" onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }}>Sign out</button>
           </div>
         </aside>
 

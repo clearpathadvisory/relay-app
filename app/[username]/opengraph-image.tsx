@@ -34,7 +34,7 @@ export default async function OgImage({ params }: { params: { username: string }
   const L = resolveLook(page as Page, theme as Theme)
 
   const name = page.display_name || page.username
-  const bio = (page.bio || '').slice(0, 120)
+  const bio = (page.bio || '').slice(0, 110)
   const initials = name.slice(0, 2).toUpperCase()
   const hasAvatar = !!(page.avatar_url && page.avatar_url.length > 4)
 
@@ -66,12 +66,24 @@ export default async function OgImage({ params }: { params: { username: string }
           )}
         </div>
 
-        <div style={{ display: 'flex', marginTop: 34, color: L.nameColor, fontSize: 62, fontWeight: 700, textAlign: 'center' }}>
+        <div
+          style={{
+            display: 'flex', justifyContent: 'center', marginTop: 34, width: 900,
+            color: L.nameColor, fontSize: 62, fontWeight: 700,
+            textAlign: 'center', lineHeight: 1.15, wordBreak: 'break-word',
+          }}
+        >
           {name}
         </div>
 
         {bio ? (
-          <div style={{ display: 'flex', marginTop: 18, color: L.bioColor, fontSize: 28, textAlign: 'center', maxWidth: 860, lineHeight: 1.4 }}>
+          <div
+            style={{
+              display: 'flex', justifyContent: 'center', marginTop: 18, width: 860,
+              color: L.bioColor, fontSize: 28, textAlign: 'center',
+              lineHeight: 1.4, wordBreak: 'break-word',
+            }}
+          >
             {bio}
           </div>
         ) : null}
@@ -81,6 +93,7 @@ export default async function OgImage({ params }: { params: { username: string }
             display: 'flex', alignItems: 'center', gap: 14, marginTop: 46,
             background: '#FFFFFF', color: '#1B0D44', borderRadius: 999,
             padding: '18px 34px', fontSize: 26, fontWeight: 700,
+            maxWidth: 900, wordBreak: 'break-word',
           }}
         >
           <div style={{ display: 'flex', width: 26, height: 26, borderRadius: 8, background: '#7C5CE6' }} />

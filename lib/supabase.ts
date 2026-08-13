@@ -16,14 +16,14 @@ export function serverClient() {
 const EMOJI = ', "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji"'
 
 export const FONTS = [
-  { id: 'manrope', name: 'Manrope', stack: "Manrope, system-ui, sans-serif" + EMOJI },
-  { id: 'fraunces', name: 'Fraunces', stack: "Fraunces, Georgia, serif" + EMOJI },
-  { id: 'space', name: 'Space Grotesk', stack: "'Space Grotesk', system-ui, sans-serif" + EMOJI },
-  { id: 'dm', name: 'DM Sans', stack: "'DM Sans', system-ui, sans-serif" + EMOJI },
+  { id: 'manrope', name: 'Manrope', stack: "'Manrope Variable', Manrope, system-ui, sans-serif" + EMOJI },
+  { id: 'fraunces', name: 'Fraunces', stack: "'Fraunces Variable', Fraunces, Georgia, serif" + EMOJI },
+  { id: 'space', name: 'Space Grotesk', stack: "'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif" + EMOJI },
+  { id: 'dm', name: 'DM Sans', stack: "'DM Sans Variable', 'DM Sans', system-ui, sans-serif" + EMOJI },
   { id: 'mono', name: 'Space Mono', stack: "'Space Mono', ui-monospace, monospace" + EMOJI },
-  { id: 'playfair', name: 'Playfair', stack: "'Playfair Display', Georgia, serif" + EMOJI },
-  { id: 'nunito', name: 'Nunito', stack: "Nunito, ui-rounded, system-ui, sans-serif" + EMOJI },
-  { id: 'shantell', name: 'Shantell', stack: "'Shantell Sans', 'Comic Sans MS', cursive" + EMOJI },
+  { id: 'playfair', name: 'Playfair', stack: "'Playfair Display Variable', 'Playfair Display', Georgia, serif" + EMOJI },
+  { id: 'nunito', name: 'Nunito', stack: "'Nunito Variable', Nunito, ui-rounded, system-ui, sans-serif" + EMOJI },
+  { id: 'shantell', name: 'Shantell', stack: "'Shantell Sans Variable', 'Shantell Sans', 'Comic Sans MS', cursive" + EMOJI },
 ]
 
 export function fontStack(id: string) {

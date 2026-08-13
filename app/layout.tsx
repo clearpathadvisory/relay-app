@@ -1,3 +1,15 @@
+// Fonts are served from our own domain. Loading them from Google would hand
+// every visitor's IP address to a third party before any consent exists.
+import '@fontsource-variable/manrope'
+import '@fontsource-variable/fraunces'
+import '@fontsource-variable/space-grotesk'
+import '@fontsource-variable/dm-sans'
+import '@fontsource-variable/playfair-display'
+import '@fontsource-variable/nunito'
+import '@fontsource-variable/shantell-sans'
+import '@fontsource/space-mono/400.css'
+import '@fontsource/space-mono/700.css'
+
 import './globals.css'
 import type { Metadata } from 'next'
 
@@ -38,11 +50,6 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@400;600;700&family=Space+Mono:wght@400;700&family=Playfair+Display:wght@400;600;700&family=Nunito:wght@400;600;700;800&family=Shantell+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-      </head>
       <body>{children}</body>
     </html>
   )

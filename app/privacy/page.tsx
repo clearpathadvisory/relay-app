@@ -127,9 +127,14 @@ export default function Privacy() {
             Contractual Clauses, and where applicable the EU–US Data Privacy Framework.
           </p>
           <p>
-            <strong>Third-party content.</strong> Some link icons shown on public pages are fetched
-            from Google&rsquo;s favicon service. When your browser requests those files, Google
-            receives your IP address. We do not control what Google does with it.
+            <strong>Fonts are served from our own servers,</strong> not from a font network, so
+            loading a Relay page does not reveal your IP address to any third party for typography.
+          </p>
+          <p>
+            <strong>One exception.</strong> Where a link&rsquo;s own website does not publish an icon,
+            we fall back to Google&rsquo;s favicon service for that small image. Your browser fetches
+            it directly, so Google receives your IP address for that request. It happens only on pages
+            containing such a link, and only for the icon.
           </p>
 
           <h2>8. How long we keep it</h2>

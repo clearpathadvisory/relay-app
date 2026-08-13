@@ -779,7 +779,7 @@ export default function Dashboard() {
               <div>
                 <div className={isPro ? 'block block-violet' : 'block block-plain'}>
                   <div className="planrow">
-                    <h2 className="bh" style={{ margin: 0 }}>Your account</h2>
+                    <h2 className="bh" style={{ margin: 0 }}>Account settings</h2>
                     <span className={isPro ? 'planbadge pro' : 'planbadge'}>{isPro ? 'PRO' : 'FREE'}</span>
                   </div>
 

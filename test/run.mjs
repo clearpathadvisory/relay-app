@@ -96,6 +96,18 @@ it('falls back to defaults with no theme at all', () => {
 it('falls back to the first font for an unknown id', () => {
   assert.equal(fontStack('nope'), fontStack('manrope'))
 })
+it('marks a tiled theme so nothing stretches it', () => {
+  const doodle = { ...theme, bg: "#F6F3FF url(\"data:image/svg+xml,%3Csvg...\") repeat" }
+  assert.equal(resolveLook({ ...base }, doodle).bgTiled, true)
+})
+it('leaves a flat colour and a gradient free to cover', () => {
+  assert.equal(resolveLook({ ...base }, theme).bgTiled, false)
+  assert.equal(resolveLook({ ...base }, { ...theme, bg: 'linear-gradient(180deg,#fff,#000)' }).bgTiled, false)
+})
+it('a custom colour is never treated as a tile', () => {
+  const L = resolveLook({ ...base, use_custom: true, custom_bg: '#ABCDEF' }, { ...theme, bg: 'x url(y)' })
+  assert.equal(L.bgTiled, false)
+})
 
 console.log('\nscheduleState')
 const T = (iso) => new Date(iso)

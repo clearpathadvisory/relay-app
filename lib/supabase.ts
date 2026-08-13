@@ -75,8 +75,9 @@ export type Page = {
 export function resolveLook(page: Page, theme: Theme | undefined) {
   const t: any = theme || {}
   const c = page.use_custom
+  const bg = (c && page.custom_bg) || t.bg || '#F6F2FF'
   return {
-    bg: (c && page.custom_bg) || t.bg || '#F6F2FF',
+    bg,
     buttonBg: (c && page.custom_button_bg) || t.button_bg || '#FFFFFF',
     buttonText: (c && page.custom_button_text) || t.button_text || '#1B0D44',
     buttonBorder: t.button_border || 'none',
@@ -88,6 +89,11 @@ export function resolveLook(page: Page, theme: Theme | undefined) {
     nameColor: t.name_color || '#1B0D44',
     bioColor: t.bio_color || 'rgba(27,13,68,.7)',
     bgImage: page.bg_image_url || null,
+    // Four themes carry a tiled SVG inside their background shorthand. Those
+    // tiles are meant to repeat at their own size; forcing cover over them
+    // blows one doodle up to fill the screen. A photograph the owner uploaded
+    // is the opposite case and does want cover.
+    bgTiled: typeof bg === 'string' && bg.indexOf('url(') >= 0,
     font: fontStack(page.font_family || 'manrope'),
   }
 }

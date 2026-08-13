@@ -26,7 +26,7 @@ export function Phone({ page, links, theme, showBrand, socials = [] }: { page: P
 
   const shell: any = {
     width: 340, height: 690, borderRadius: 40, overflow: 'hidden',
-    background: L.bg, backgroundSize: 'cover',
+    background: L.bg, ...(L.bgTiled ? {} : { backgroundSize: 'cover' }),
     boxShadow: '0 18px 44px rgba(27,13,68,.18)', fontFamily: L.font,
     border: '9px solid #16102E', flexShrink: 0,
   }

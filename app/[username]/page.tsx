@@ -82,10 +82,15 @@ export default async function PublicPage({ params }: { params: { username: strin
   const hasAvatar = !!(page.avatar_url && page.avatar_url.length > 4)
   const wrap: any = { overflowWrap: 'anywhere', wordBreak: 'break-word' }
 
+  // A tiled theme repeats at its own size; a flat colour or gradient covers.
+  // The two must not be treated alike — cover over a 150px doodle tile blows
+  // one doodle up to fill the whole screen.
+  const fill = L.bgTiled ? {} : { backgroundSize: 'cover' }
+
   // the page behind the card
-  const shell: any = { background: L.bg, backgroundSize: 'cover', fontFamily: L.font }
+  const shell: any = { background: L.bg, ...fill, fontFamily: L.font }
   // the card itself carries the same look, so it reads as one surface with an edge
-  const card: any = { background: L.bg, backgroundSize: 'cover' }
+  const card: any = { background: L.bg, ...fill }
   if (L.bgImage) {
     for (const o of [shell, card]) {
       o.backgroundImage = 'url(' + L.bgImage + ')'

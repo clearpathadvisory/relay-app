@@ -38,8 +38,13 @@ export type Theme = {
   icon_color: string; name_color: string; bio_color: string
 }
 
+export type LinkKind = 'link' | 'heading' | 'divider'
+
 export type Link = {
-  id: string; title: string; url: string; position: number
+  id: string; position: number
+  // a heading has a title and no url; a divider has neither
+  kind: LinkKind
+  title: string | null; url: string | null
   is_active: boolean; is_primary: boolean; click_count: number
   favicon_url: string | null; site_title: string | null
 }

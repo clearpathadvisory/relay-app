@@ -59,12 +59,13 @@ module.exports = withSentryConfig(nextConfig, {
   // blockers stop eating them — and no visitor's browser talks to Sentry direct.
   tunnelRoute: '/monitoring',
 
-  // Strips the SDK's own console noise out of the production bundle.
-  disableLogger: true,
-
   silent: !process.env.CI,
   telemetry: false,
 
-  // Uptime checks against a route we do not have; off.
-  automaticVercelMonitors: false,
+  webpack: {
+    // Strips the SDK's own console noise out of the production bundle.
+    treeshake: { removeDebugLogging: true },
+    // Uptime checks against a route we do not have; off.
+    automaticVercelMonitors: false,
+  },
 })

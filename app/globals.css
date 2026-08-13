@@ -1052,3 +1052,27 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
   .wander { animation: none; }
   .wander .robot-bulb, .wander .robot-eyes { animation: none; }
 }
+
+/* ---------- rows that are not links ---------- */
+/* A heading or a divider sits in the same list as a link and reorders with it,
+   so it keeps the row shape and changes only what it puts inside. */
+.kindmark {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--ink-06); color: var(--muted);
+  font-size: 12px; font-weight: 800;
+}
+.rowtitle-alt {
+  font-size: 12.5px; font-weight: 800;
+  letter-spacing: .07em; text-transform: uppercase; color: var(--muted);
+}
+.icon.icondim { background: none; border: none; cursor: default; }
+
+.addtabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.addtab {
+  border: none; cursor: pointer; font-family: inherit;
+  padding: 8px 15px; border-radius: 999px;
+  font-size: 13.5px; font-weight: 700; color: var(--muted);
+  background: var(--ink-06);
+}
+.addtab.on { background: var(--ink); color: var(--on-ink); }
+.addtab:focus-visible { outline: 3px solid var(--violet); outline-offset: 3px; }

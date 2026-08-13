@@ -51,6 +51,8 @@ export default function Dashboard() {
   const [saved, setSaved] = useState(false)
   const dragFrom = useRef<number | null>(null)
   const [dragOver, setDragOver] = useState<number | null>(null)
+  const [addKind, setAddKind] = useState<'link' | 'heading'>('link')
+  const [headingText, setHeadingText] = useState('')
   const firstRun = useRef(true)
   const bioRef = useRef<HTMLTextAreaElement | null>(null)
   const [pending, setPending] = useState<any>({})
@@ -392,13 +394,42 @@ export default function Dashboard() {
     const finalTitle = title.trim() || meta.title || host
 
     const { error } = await supabase.from('links').insert({
-      page_id: page.id, title: finalTitle, url: u, position: links.length,
+      page_id: page.id, kind: 'link', title: finalTitle, url: u, position: links.length,
       favicon_url: meta.favicon || null, site_title: null,
     })
     setAdding(false)
     if (error) { setErr(error.message); return }
     setTitle(''); setUrl('')
     await loadLinks(page.id)
+    pushLive()
+  }
+
+  // A row that is not a link. Past about eight links a page becomes a wall,
+  // and a heading every few rows is the cheapest way to make it readable.
+  async function addHeading() {
+    if (!page) return
+    const t = headingText.trim()
+    if (!t) { setErr('Give the heading some words.'); return }
+    setErr('')
+    const { error } = await supabase.from('links').insert({
+      page_id: page.id, kind: 'heading', title: t, url: null, position: links.length,
+    })
+    if (error) { setErr(error.message); return }
+    setHeadingText(''); setAddKind('link')
+    await loadLinks(page.id)
+    pushLive()
+  }
+
+  async function addDivider() {
+    if (!page) return
+    setErr('')
+    const { error } = await supabase.from('links').insert({
+      page_id: page.id, kind: 'divider', title: null, url: null, position: links.length,
+    })
+    if (error) { setErr(error.message); return }
+    setAddKind('link')
+    await loadLinks(page.id)
+    pushLive()
   }
 
   async function removeLink(id: string) {
@@ -590,6 +621,7 @@ export default function Dashboard() {
   ]
 
   // --- everything the Stats tab shows, worked out from the raw events ---
+  const linkCount = links.filter((l) => l.kind === 'link').length
   const totalTaps = links.reduce((n, l) => n + (l.click_count || 0), 0)
   const now = Date.now()
   // a row with a link on it is a tap; a row without one is a page view
@@ -625,7 +657,8 @@ export default function Dashboard() {
     refCount[h] = (refCount[h] || 0) + 1
   })
   const topRefs = Object.keys(refCount).map((k) => ({ host: k, n: refCount[k] })).sort((a, b) => b.n - a.n).slice(0, 5)
-  const topLinks = links.slice().sort((a, b) => (b.click_count || 0) - (a.click_count || 0)).slice(0, 6)
+  // headings and dividers are rows, not destinations: they never appear here
+  const topLinks = links.filter((l) => l.kind === 'link').slice().sort((a, b) => (b.click_count || 0) - (a.click_count || 0)).slice(0, 8)
 
   return (
     <main style={{ background: 'var(--base)', minHeight: '100vh' }}>
@@ -711,7 +744,7 @@ export default function Dashboard() {
                 <div className="block block-mint">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 }}>
                     <h2 className="bh">Your links</h2>
-                    <span className="counter">{links.length} {links.length === 1 ? 'link' : 'links'}</span>
+                    <span className="counter">{linkCount} {linkCount === 1 ? 'link' : 'links'}</span>
                   </div>
                   <p className="bsub">Drag the handle to reorder, or use the arrows on a phone. Star makes it the big button. The eye hides it without deleting.</p>
 
@@ -724,27 +757,41 @@ export default function Dashboard() {
                       onDragEnd={() => { dragFrom.current = null; setDragOver(null) }}
                       className={(dragOver === i ? 'row rowover' : 'row') + (l.is_active ? '' : ' hiddenrow')}>
                       <span className="grip">⠿</span>
-                      {l.favicon_url ? <img className="fav" src={l.favicon_url} alt="" /> : <span className="fav favblank" />}
+                      {l.kind === 'link' && (l.favicon_url ? <img className="fav" src={l.favicon_url} alt="" /> : <span className="fav favblank" />)}
+                      {l.kind === 'heading' && <span className="fav kindmark" aria-hidden="true">H</span>}
+                      {l.kind === 'divider' && <span className="fav kindmark" aria-hidden="true">—</span>}
                       <div style={{ flex: 1, minWidth: 90 }}>
-                        <p className="rowtitle">{l.title}</p>
-                        <p className="rowmeta">{l.is_active ? '' : 'Hidden · '}{l.click_count} taps</p>
+                        <p className={l.kind === 'link' ? 'rowtitle' : 'rowtitle rowtitle-alt'}>
+                          {l.kind === 'divider' ? 'Divider' : l.title}
+                        </p>
+                        <p className="rowmeta">
+                          {l.is_active ? '' : 'Hidden · '}
+                          {l.kind === 'link' ? l.click_count + ' taps' : l.kind === 'heading' ? 'Heading' : 'A line across the page'}
+                        </p>
                       </div>
                       <div className="movecol">
-                        <button className="icon move" title="Move up" aria-label={'Move ' + l.title + ' up'}
+                        <button className="icon move" title="Move up" aria-label={'Move ' + (l.title || 'divider') + ' up'}
                           disabled={i === 0} onClick={() => move(i, -1)}>▲</button>
-                        <button className="icon move" title="Move down" aria-label={'Move ' + l.title + ' down'}
+                        <button className="icon move" title="Move down" aria-label={'Move ' + (l.title || 'divider') + ' down'}
                           disabled={i === links.length - 1} onClick={() => move(i, 1)}>▼</button>
                       </div>
                       <button className="icon eyebtn" title={l.is_active ? 'Hide from your page' : 'Show on your page'} onClick={() => toggleActive(l.id)}>{l.is_active ? '◉' : '○'}</button>
-                      <button className={l.is_primary ? 'icon on' : 'icon'} title="Make this the main link" onClick={() => makePrimary(l.id)}>★</button>
-                      <button className="icon" title="Delete" aria-label={'Delete ' + l.title} onClick={() => setConfirmLink(l.id)}>✕</button>
+                      {l.kind === 'link'
+                        ? <button className={l.is_primary ? 'icon on' : 'icon'} title="Make this the main link" onClick={() => makePrimary(l.id)}>★</button>
+                        : <span className="icon icondim" aria-hidden="true" />}
+                      <button className="icon" title="Delete" aria-label={'Delete ' + (l.title || 'divider')} onClick={() => setConfirmLink(l.id)}>✕</button>
                     </div>
                   ))}
                   {confirmLink && (
                     <div className="confirmrow">
                       <p>
-                        Delete <strong>{(links.filter((l) => l.id === confirmLink)[0] || { title: 'this link' }).title}</strong>?
-                        Its {(links.filter((l) => l.id === confirmLink)[0] || { click_count: 0 }).click_count} taps go with it, and that cannot be undone.
+                        {(() => {
+                          const row = links.filter((l) => l.id === confirmLink)[0]
+                          if (!row) return 'Delete this row?'
+                          if (row.kind === 'divider') return 'Delete this divider?'
+                          if (row.kind === 'heading') return <>Delete the heading <strong>{row.title}</strong>?</>
+                          return <>Delete <strong>{row.title}</strong>? Its {row.click_count} taps go with it, and that cannot be undone.</>
+                        })()}
                       </p>
                       <button className="btn small dangerbtn" onClick={() => removeLink(confirmLink)}>Delete it</button>
                       <button className="btn small ghost" onClick={() => setConfirmLink(null)}>Keep it</button>
@@ -753,11 +800,42 @@ export default function Dashboard() {
                   {links.length === 0 && <p className="bsub">Nothing to relay yet. Add your first link below.</p>}
 
                   <div style={{ marginTop: 18, paddingTop: 18, borderTop: '1px solid var(--ink-12)' }}>
-                      <input className="field" placeholder="https://..." value={url} onChange={(e) => setUrl(e.target.value)} />
-                      <input className="field" style={{ marginTop: 10 }} placeholder="Title (optional — we read it from the site)" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={60} />
-                    <button className="btn" style={{ marginTop: 12, width: '100%' }} onClick={addLink} disabled={adding}>
-                      {adding ? 'Reading the site…' : 'Add link'}
-                    </button>
+                    <div className="addtabs" role="tablist">
+                      <button role="tab" aria-selected={addKind === 'link'}
+                        className={addKind === 'link' ? 'addtab on' : 'addtab'}
+                        onClick={() => { setAddKind('link'); setErr('') }}>Link</button>
+                      <button role="tab" aria-selected={addKind === 'heading'}
+                        className={addKind === 'heading' ? 'addtab on' : 'addtab'}
+                        onClick={() => { setAddKind('heading'); setErr('') }}>Heading</button>
+                    </div>
+
+                    {addKind === 'link' ? (
+                      <>
+                        <input className="field" placeholder="https://..." value={url}
+                          onChange={(e) => setUrl(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter' && !adding) addLink() }} />
+                        <input className="field" style={{ marginTop: 10 }} placeholder="Title (optional — we read it from the site)"
+                          value={title} onChange={(e) => setTitle(e.target.value)} maxLength={60}
+                          onKeyDown={(e) => { if (e.key === 'Enter' && !adding) addLink() }} />
+                        <button className="btn" style={{ marginTop: 12, width: '100%' }} onClick={addLink} disabled={adding}>
+                          {adding ? 'Reading the site…' : 'Add link'}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <input className="field" placeholder="Music, Shop, Listen…" value={headingText}
+                          maxLength={40} onChange={(e) => setHeadingText(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') addHeading() }} />
+                        <p className="bsub" style={{ margin: '8px 0 0', fontSize: 13.5 }}>
+                          A heading names the links under it. A divider is just a line — useful when
+                          the grouping is obvious and a word would be noise.
+                        </p>
+                        <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
+                          <button className="btn" style={{ flex: 1, minWidth: 150 }} onClick={addHeading}>Add heading</button>
+                          <button className="btn ghost" style={{ flex: 1, minWidth: 150 }} onClick={addDivider}>Add a divider</button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -1183,6 +1261,10 @@ export default function Dashboard() {
                   <button className="btn" onClick={copyUrl}>{copied ? 'Copied' : 'Copy link'}</button>
                   <a className="btn ghost" href={'/' + page.username} target="_blank" rel="noopener">Open page</a>
                   <button className="btn ghost" onClick={makeQr}>Make a QR code</button>
+                  <a className="btn ghost" href={'/api/story?u=' + page.username}
+                     download={page.username + '-relay-story.png'} target="_blank" rel="noopener">
+                    Make a story image
+                  </a>
                 </div>
                 {qr && (
                   <div style={{ marginTop: 20, textAlign: 'center' }}>

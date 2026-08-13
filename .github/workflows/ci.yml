@@ -1,0 +1,36 @@
+name: CI
+
+# The 17 assertions and the build were only ever run by hand. This runs both on
+# every push and every pull request, so a broken main is caught before it is
+# deployed rather than after.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Types
+        run: npx tsc --noEmit
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        # Sentry needs no auth token here; source maps are uploaded by the
+        # Vercel build, not this one.
+        env:
+          SENTRY_AUTH_TOKEN: ''
+        run: npx next build

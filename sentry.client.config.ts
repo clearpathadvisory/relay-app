@@ -1,5 +1,7 @@
-// Runs in the visitor's browser. Next 14 loads this file by name; the
-// instrumentation-client.ts convention is Next 15 and later.
+// Runs in the visitor's browser. Next 14 loads this file by name. The SDK warns
+// that instrumentation-client.ts is preferred — that is a Next 15 file
+// convention and would simply not be loaded here, so this stays until the
+// project moves to 15.
 import * as Sentry from '@sentry/nextjs'
 
 Sentry.init({

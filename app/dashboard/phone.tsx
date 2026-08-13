@@ -81,7 +81,15 @@ export function Phone({ page, links, theme, showBrand, socials = [] }: { page: P
           )}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: tight ? 8 : many ? 9 : 11 }}>
-            {shown.map((l) => (
+            {shown.map((l) => l.kind === 'divider' ? (
+              <hr key={l.id} style={{ border: 'none', height: 1, margin: '6px 14px', background: L.bioColor, opacity: .28 }} />
+            ) : l.kind === 'heading' ? (
+              <p key={l.id} style={{
+                margin: '8px 2px 0', fontSize: tight ? 9 : 9.5, fontWeight: 800,
+                letterSpacing: '.08em', textTransform: 'uppercase', textAlign: 'center',
+                color: L.bioColor, lineHeight: 1.4, ...wrap,
+              }}>{l.title}</p>
+            ) : (
               <div key={l.id} className={l.is_primary ? 'jiggle' : undefined} style={{
                 display: 'flex', alignItems: 'center', gap: 10, minHeight: 46, padding: tight ? '10px 12px' : many ? '12px 13px' : '14px 14px', fontSize: tight ? 12.5 : 13,
                 fontWeight: l.is_primary ? 700 : 500, borderRadius: L.buttonRadius,

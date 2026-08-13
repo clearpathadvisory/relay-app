@@ -1,7 +1,7 @@
 import { serverClient, Theme, Link, Page, Social, resolveLook } from '../../lib/supabase'
 import { SocialIcon, socialHref, socialName } from '../socialicons'
 import { Blob } from '../blob'
-import { LinkButton } from './linkbutton'
+import { Row } from './row'
 import { ShareButton } from './sharebutton'
 import { PageView } from './pageview'
 import { redirect } from 'next/navigation'
@@ -139,7 +139,7 @@ export default async function PublicPage({ params }: { params: { username: strin
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 28 }}>
-          {links.map((l) => <LinkButton key={l.id} link={l} look={L} />)}
+          {links.map((l) => <Row key={l.id} link={l} look={L} />)}
           {links.length === 0 && (
             <p style={{ textAlign: 'center', color: L.bioColor, fontSize: 14 }}>Nothing to relay yet.</p>
           )}

@@ -118,6 +118,8 @@ export async function POST(req: NextRequest) {
         if (theme && theme.tier === 'pro') {
           await sb.from('pages').update({ theme_id: 'sherbet', use_custom: false, bg_image_url: null, font_family: 'manrope' }).eq('id', page.id)
         }
+        // the badge is a paid removal, so it comes back when Pro ends
+        await sb.from('pages').update({ show_branding: true }).eq('id', page.id)
       }
     }
   }

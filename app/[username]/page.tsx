@@ -98,12 +98,14 @@ export default async function PublicPage({ params }: { params: { username: strin
           )}
         </div>
 
-        <div style={{ marginTop: 44, textAlign: 'center' }}>
-          <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#FFFFFF', color: '#1B0D44', padding: '13px 24px', borderRadius: 999, fontSize: 14, fontWeight: 700 }}>
-            <span style={{ width: 16, height: 16, borderRadius: 5, background: '#7C5CE6', display: 'inline-block' }} />
-            Join {page.username} on Relay
-          </a>
-        </div>
+        {page.show_branding !== false && (
+          <div style={{ marginTop: 44, textAlign: 'center' }}>
+            <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#FFFFFF', color: '#1B0D44', padding: '13px 24px', borderRadius: 999, fontSize: 14, fontWeight: 700 }}>
+              <span style={{ width: 16, height: 16, borderRadius: 5, background: '#7C5CE6', display: 'inline-block' }} />
+              Join {page.username} on Relay
+            </a>
+          </div>
+        )}
       </div>
     </main>
   )

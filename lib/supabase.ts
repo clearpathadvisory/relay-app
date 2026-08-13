@@ -54,7 +54,7 @@ export type Page = {
   bg_image_url: string | null; font_family: string
   custom_bg: string | null; custom_button_bg: string | null
   custom_button_text: string | null; custom_accent_bg: string | null
-  use_custom: boolean
+  use_custom: boolean; show_branding: boolean
 }
 
 export function resolveLook(page: Page, theme: Theme | undefined) {

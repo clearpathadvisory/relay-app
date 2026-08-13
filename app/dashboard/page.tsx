@@ -661,7 +661,7 @@ export default function Dashboard() {
               <div>
                 <div className="block block-sun">
                   <h2 className="bh">Pick a look</h2>
-                  <p className="bsub">Two are free. Tap any Pro one to try it — the preview updates straight away.</p>
+                  <p className="bsub">Two are free, including four doodle themes. Tap any Pro one to try it — the preview updates straight away.</p>
                   <div className="themegrid">
                     {themes.map((t) => {
                       const locked = t.tier === 'pro' && !isPro
@@ -681,7 +681,7 @@ export default function Dashboard() {
                 {!isPro && (
                   <div className="block block-bloom">
                     <h2 className="bh">Unlock the rest</h2>
-                    <p className="bsub">Thirty themes, six fonts, your own colours and a background image. Try any of it now — you only pay to keep it.</p>
+                    <p className="bsub">Forty themes, eight fonts, your own colours, a background image, and no Relay badge. Try any of it now — you only pay to keep it.</p>
                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
                       <button className="btn" onClick={() => startCheckout('year')} disabled={busy}>{busy ? 'One moment…' : '$30 a year'}</button>
                       <button className="btn ghost" onClick={() => startCheckout('month')} disabled={busy}>$4 a month</button>
@@ -750,6 +750,25 @@ export default function Dashboard() {
 
                 <div className="block block-plain">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 }}>
+                    <h2 className="bh">The Relay badge</h2>
+                    {!isPro && <span className="prodot">Pro</span>}
+                  </div>
+                  <p className="bsub">
+                    A small &ldquo;Join {page.username} on Relay&rdquo; button sits at the foot of your public
+                    page. Pro can turn it off. Free accounts can try it, Pro keeps it.
+                  </p>
+                  <label className="switch">
+                    <input type="checkbox" checked={view.show_branding === false}
+                      onChange={(e) => {
+                        const f = { show_branding: !e.target.checked }
+                        isPro ? patch(f) : preview(f)
+                      }} />
+                    <span>Hide the Relay badge on my page</span>
+                  </label>
+                </div>
+
+                <div className="block block-plain">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 }}>
                     <h2 className="bh">Background image</h2>
                     {!isPro && <span className="prodot">Pro</span>}
                   </div>
@@ -767,7 +786,7 @@ export default function Dashboard() {
                 {!isPro && (
                   <div className="block block-bloom">
                     <h2 className="bh">Make it yours</h2>
-                    <p className="bsub">Fonts, colours and backgrounds are part of Pro.</p>
+                    <p className="bsub">Fonts, colours, backgrounds and removing the Relay badge are part of Pro.</p>
                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
                       <button className="btn" onClick={() => startCheckout('year')} disabled={busy}>$30 a year</button>
                       <button className="btn ghost" onClick={() => startCheckout('month')} disabled={busy}>$4 a month</button>
@@ -901,7 +920,7 @@ export default function Dashboard() {
             <Star color="#F0A2FD" size={18} style={{ position: 'absolute', top: 250, left: 0 }} />
             <Star color="#B0A0FF" size={22} style={{ position: 'absolute', bottom: 60, right: 14 }} />
             <div className="previewinner">
-              <Phone page={view} links={links} theme={theme} showBrand={true} socials={socials} />
+              <Phone page={view} links={links} theme={theme} showBrand={view.show_branding !== false} socials={socials} />
               <p className="previewcap">Live preview</p>
               {links.filter((l) => l.is_active).length > 5 && (
                 <p className="previewhint">Scroll inside the phone to see the rest</p>

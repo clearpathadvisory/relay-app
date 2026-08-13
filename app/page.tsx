@@ -74,10 +74,11 @@ export default function Home() {
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'rgba(27,13,68,.75)' }}>Everything, and the cheapest way to get it.</p>
               <ul className="feat on-dark">
                 <li>Everything in Free</li>
-                <li>All thirty themes</li>
-                <li>All six fonts</li>
+                <li>All forty themes, four of them doodles</li>
+                <li>All eight fonts</li>
                 <li>Your own colours, four slots</li>
                 <li>Background image</li>
+                <li>Remove the Relay badge from your page</li>
                 <li>Try it all before you pay</li>
                 <li><strong>Save $18 against monthly</strong></li>
                 <li><strong>One payment, then nothing to think about for a year</strong></li>
@@ -96,10 +97,11 @@ export default function Home() {
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'rgba(27,13,68,.75)' }}>The same Pro, paid in small pieces.</p>
               <ul className="feat on-dark">
                 <li>Everything in Free</li>
-                <li>All thirty themes</li>
-                <li>All six fonts</li>
+                <li>All forty themes, four of them doodles</li>
+                <li>All eight fonts</li>
                 <li>Your own colours, four slots</li>
                 <li>Background image</li>
+                <li>Remove the Relay badge from your page</li>
                 <li>Try it all before you pay</li>
                 <li>Cancel any month you like</li>
               </ul>

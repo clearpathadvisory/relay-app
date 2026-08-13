@@ -1213,3 +1213,38 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
   background: var(--ink-06); color: var(--muted);
 }
 .subtag.ok { background: #EAF7D4; color: #3B6D11; }
+
+/* ---------- a link row on a phone ---------- */
+/* Six controls and a title will not sit on one line at 390px. They used to try,
+   and the row scrolled sideways with the delete button off the edge. The title
+   keeps the top line to itself and the controls get their own beneath it,
+   spread across the full width — nothing shrinks, nothing is out of reach. */
+.rowtext { flex: 1; min-width: 90px; }
+.rowctl { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+@media (max-width: 700px) {
+  .row { flex-wrap: wrap; row-gap: 10px; }
+  .rowtext { flex: 1 1 auto; min-width: 0; }
+  .rowctl {
+    flex: 1 1 100%;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+    gap: 4px;
+  }
+  /* the title now has the width to be read rather than cut to three words */
+  .rowtitle { white-space: normal; overflow: visible; text-overflow: clip; }
+}
+
+/* ---------- the rail and Sign out on a phone ---------- */
+/* The nav scrolls horizontally and Sign out sat on top of the last tab. Giving
+   the footer its own column stops the two overlapping. */
+@media (max-width: 700px) {
+  .side { align-items: center; }
+  .sidefoot {
+    position: sticky; right: 0;
+    background: var(--base);
+    box-shadow: -10px 0 10px -6px var(--shadow);
+    padding-left: 8px; margin-left: 2px;
+  }
+}

@@ -1022,7 +1022,7 @@ export default function Dashboard() {
                       )}
                       {l.kind === 'heading' && <span className="fav kindmark" aria-hidden="true">H</span>}
                       {l.kind === 'divider' && <span className="fav kindmark" aria-hidden="true">—</span>}
-                      <div style={{ flex: 1, minWidth: 90 }}>
+                      <div className="rowtext">
                         <p className={l.kind === 'link' ? 'rowtitle' : 'rowtitle rowtitle-alt'}>
                           {l.kind === 'divider' ? 'Divider' : l.title}
                         </p>
@@ -1045,6 +1045,7 @@ export default function Dashboard() {
                               : l.kind === 'heading' ? 'Heading' : 'A line across the page'}
                         </p>
                       </div>
+                      <div className="rowctl">
                       <div className="movecol">
                         <button className="icon move" title="Move up" aria-label={'Move ' + (l.title || 'divider') + ' up'}
                           disabled={i === 0} onClick={() => move(i, -1)}>▲</button>
@@ -1077,6 +1078,7 @@ export default function Dashboard() {
                       )}
                       <button className="icon" title="Delete" aria-label={'Delete ' + (l.title || 'divider')}
                         onClick={() => { setScheduleFor(null); setThumbFor(null); setConfirmLink(confirmLink === l.id ? null : l.id) }}>✕</button>
+                      </div>
                     </div>
 
                     {scheduleFor === l.id && (

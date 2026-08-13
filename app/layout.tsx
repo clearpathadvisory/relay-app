@@ -32,6 +32,7 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
   category: 'technology',
+  verification: { google: 'kVsSAKVGkkj-5X00u9M-wpnO4ZaWoiWfmQCBe71NgKQ' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

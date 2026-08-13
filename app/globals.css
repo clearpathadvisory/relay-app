@@ -507,6 +507,12 @@ textarea.field { overflow: hidden; }
 .legal li { font-size: 15.5px; line-height: 1.7; color: #3A2B63; margin-bottom: 7px; }
 .legal a { color: var(--violet); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
 .legal a:hover { color: var(--ink); }
+/* A button inside a legal page is a button, not a link. Without this it takes
+   the underline, the violet, and on hover the ink colour — which on a dark
+   button means the label disappears into its own background. */
+.legal a.btn { color: var(--on-ink); text-decoration: none; }
+.legal a.btn:hover { color: var(--on-ink); opacity: .88; }
+.legal a.btn.ghost, .legal a.btn.ghost:hover { color: var(--ink); }
 .legal strong { color: var(--ink); font-weight: 700; }
 
 .legaltable { width: 100%; border-collapse: collapse; margin: 4px 0 18px; }

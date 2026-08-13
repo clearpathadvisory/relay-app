@@ -1250,17 +1250,29 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
     overflow: visible;
     gap: 6px;
   }
-  /* Seven tabs will not fit one line beside the buttons, and a horizontal
-     scroll hides whatever is off the edge — which is how Account went missing.
-     They wrap onto a second row instead: every tab visible, nothing to
-     discover by swiping. */
+  /* Six tabs, a plan badge and Exit, all on one line. Share moved out of the
+     rail and into the top bar, where it already had a button — that freed the
+     slot that made this fit without wrapping or scrolling. */
   .sidenav {
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    flex-wrap: nowrap;
     overflow: visible;
-    row-gap: 2px;
+    gap: 1px;
   }
-  .navitem { flex: 1 1 auto; min-width: 58px; max-width: 90px; }
+  .navitem {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+    padding: 5px 1px;
+    font-size: 9px;
+    gap: 2px;
+  }
+  .navicon { width: 26px; height: 26px; font-size: 12px; border-radius: 9px; }
+  /* one line, no hyphenation, and the ellipsis only if a phone is narrower
+     than anything we expect */
+  .navitem span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sidefoot { gap: 5px; padding-left: 5px; }
+  .sidefoot .btn { padding: 6px 9px; font-size: 11px; }
+  .sidefoot .chip { padding: 4px 7px; font-size: 10px; }
   .sidefoot {
     position: static;
     box-shadow: none;

@@ -843,8 +843,7 @@ export default function Dashboard() {
     { id: 'design', label: 'Design', icon: '◐' },
     { id: 'brand', label: 'Brand', icon: '✎' },
     { id: 'stats', label: 'Stats', icon: '◴' },
-    { id: 'audience', label: 'Audience', icon: '✉' },
-    { id: 'share', label: 'Share', icon: '↗' },
+    { id: 'audience', label: 'Emails', icon: '✉' },
     { id: 'account', label: 'Account', icon: '⚙' },
   ]
 
@@ -912,7 +911,9 @@ export default function Dashboard() {
           </a>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {saved && <span className="saved">Saved</span>}
-            <button className="btn small" onClick={copyUrl}>{copied ? 'Copied' : 'Share'}</button>
+            <button className={tab === 'share' ? 'btn small' : 'btn small ghost'}
+              aria-current={tab === 'share' ? 'page' : undefined}
+              onClick={() => setTab('share')}>Share</button>
           </div>
         </header>
 
@@ -929,7 +930,7 @@ export default function Dashboard() {
             <span className={isPro ? 'chip chip-pro' : 'chip'} title={isPro ? 'You are on Pro' : 'You are on the free plan'}>
               {isPro ? 'Pro' : 'Free'}
             </span>
-            <button className="btn small ghost" onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }}>Sign out</button>
+            <button className="btn small ghost" onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }}>Exit</button>
           </div>
         </aside>
 

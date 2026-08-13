@@ -20,7 +20,7 @@ const ROWS: { label: string; relay: string; rt: Tone; other: string; ot: Tone; o
   { label: 'Themes in total', relay: '47, including seasonal', rt: 'yes', other: 'Many, most behind a plan', ot: 'yes' },
   { label: 'Try paid styling before paying', relay: 'The whole editor', rt: 'yes', other: 'No', ot: 'no', ours: true },
   { label: 'Remove the maker\u2019s badge', relay: 'Included in Pro', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },
-  { label: 'Yearly price', relay: '$30', rt: 'yes', other: 'More on comparable tiers', ot: 'yes', ours: true },
+  { label: 'Yearly price', relay: '$30 plus VAT', rt: 'yes', other: 'More on comparable tiers', ot: 'yes', ours: true },
   { label: 'Advertising on your page', relay: 'None, ever', rt: 'yes', other: 'None on paid tiers', ot: 'yes', ours: true },
   { label: 'Third-party fonts and trackers', relay: 'None \u2014 fonts self-hosted', rt: 'yes', other: 'Third-party requests present', ot: 'no', ours: true },
   { label: 'Where your data sits', relay: 'European Union', rt: 'yes', other: 'United States', ot: 'yes', ours: true },
@@ -77,7 +77,7 @@ export default function VsLinktree() {
           <div className="cmphead cmpmine">
             <p className="cmpbrand">Relay</p>
             <p className="cmpprice">$30<span>/year</span></p>
-            <p className="cmpnote">Or $4 a month. Free plan with no time limit.</p>
+            <p className="cmpnote">Or $4 a month, plus VAT. Free plan with no time limit.</p>
           </div>
           <div className="cmphead cmptheirs">
             <p className="cmpbrand">Linktree</p>

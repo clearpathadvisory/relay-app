@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { STRIPE_API_VERSION } from '../../../lib/stripe'
-import { sendMail, subscriptionCancelledEmail, subscriptionEndedEmail } from '../../../lib/email'
+import { sendMail, subscriptionCancelledEmail, subscriptionEndedEmail, paymentFailedEmail } from '../../../lib/email'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -144,6 +144,34 @@ export async function POST(req: NextRequest) {
       event.type === 'customer.subscription.deleted'
     ) {
       await syncFromSubscription(event.data.object)
+    } else if (event.type === 'invoice.payment_failed') {
+      // Stripe retries a failed card for a couple of weeks before it gives up
+      // and the subscription ends. Nothing changes on the account here — the
+      // page keeps its Pro styling throughout — but the person deserves to
+      // hear it from us while there is still time to fix the card.
+      const invoice: any = event.data.object
+      const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id
+      if (customerId) {
+        const { data: row } = await sb
+          .from('subscriptions')
+          .select('owner_id')
+          .eq('stripe_customer_id', customerId)
+          .maybeSingle()
+
+        if (row && row.owner_id) {
+          try {
+            const { data: who } = await sb.auth.admin.getUserById(row.owner_id)
+            const addr = who && who.user ? who.user.email || '' : ''
+            if (addr) {
+              await sendMail(
+                addr,
+                'Your Relay payment did not go through',
+                paymentFailedEmail(!!invoice.next_payment_attempt)
+              )
+            }
+          } catch (e) {}
+        }
+      }
     }
   } catch (err) {
     return NextResponse.json({ error: 'handler failed' }, { status: 500 })

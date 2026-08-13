@@ -68,7 +68,23 @@ export async function POST(req: NextRequest) {
       line_items: [{ price: interval === 'month' ? PRICE_MONTHLY : PRICE_ANNUAL, quantity: 1 }],
       client_reference_id: user.id,
       subscription_data: { metadata: { supabase_uid: user.id } },
-      allow_promotion_codes: true,
+
+      // Prices are set VAT-exclusive, so Stripe works out the rate for the
+      // buyer's country and adds it. It cannot do that without knowing where
+      // they are, which is what the two lines below are for — automatic_tax
+      // is rejected outright unless customer_update allows the address to be
+      // written back to the customer record.
+      automatic_tax: { enabled: true },
+      customer_update: { address: 'auto', name: 'auto' },
+      billing_address_collection: 'required',
+
+      // A business buyer in another EU country can enter a VAT number here and
+      // have the charge reverse-charged to them, which is the main reason
+      // exclusive pricing is worth having.
+      tax_id_collection: { enabled: true },
+
+      // The box was on with no codes in existence, so it could only ever fail.
+      allow_promotion_codes: false,
       success_url: SITE_URL + '/dashboard?upgraded=1',
       cancel_url: SITE_URL + '/dashboard',
     })

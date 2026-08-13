@@ -1547,7 +1547,7 @@ export default function Dashboard() {
                     <li><span>Signed in as</span><span style={{ overflowWrap: 'anywhere' }}>{userEmail || '—'}</span></li>
                     <li><span>Your page</span><span style={{ overflowWrap: 'anywhere' }}>relayme.bio/{page.username}</span></li>
                     <li><span>Page status</span><span>{page.is_published ? 'Live' : 'Not published'}</span></li>
-                    <li><span>Plan</span><span>{isPro ? (sub && sub.price_interval === 'month' ? 'Pro, $4 a month' : 'Pro, $30 a year') : 'Free'}</span></li>
+                    <li><span>Plan</span><span>{isPro ? (sub && sub.price_interval === 'month' ? 'Pro, $4 a month + VAT' : 'Pro, $30 a year + VAT') : 'Free'}</span></li>
                     {isPro && sub && sub.current_period_end && (
                       <li>
                         <span>{sub.cancel_at_period_end ? 'Pro ends' : 'Renews'}</span>

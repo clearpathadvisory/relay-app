@@ -128,9 +128,10 @@ export default function Home() {
               </p>
               <p style={{ margin: '6px 0 4px', fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em' }}>
                 $30<span style={{ fontSize: 15, fontWeight: 600 }}>/year</span>
+                <span style={{ fontSize: 14, fontWeight: 600 }}> + VAT</span>
               </p>
               <p style={{ margin: '0 0 12px', fontSize: 13.5, fontWeight: 600, color: 'rgba(27,13,68,.6)' }}>
-                $2.50 a month, billed once
+                $2.50 a month, billed once. VAT added at checkout.
               </p>
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'rgba(27,13,68,.75)' }}>Everything, and the cheapest way to get it.</p>
               <ul className="feat on-dark">
@@ -155,9 +156,10 @@ export default function Home() {
               <p style={{ margin: 0, fontWeight: 700, fontSize: 16 }}>Pro monthly</p>
               <p style={{ margin: '6px 0 4px', fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em' }}>
                 $4<span style={{ fontSize: 15, fontWeight: 600 }}>/month</span>
+                <span style={{ fontSize: 14, fontWeight: 600 }}> + VAT</span>
               </p>
               <p style={{ margin: '0 0 12px', fontSize: 13.5, fontWeight: 600, color: 'rgba(27,13,68,.6)' }}>
-                $48 across a year
+                $48 across a year. VAT added at checkout.
               </p>
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'rgba(27,13,68,.75)' }}>The same Pro, paid in small pieces.</p>
               <ul className="feat on-dark">

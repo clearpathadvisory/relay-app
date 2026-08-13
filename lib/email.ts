@@ -120,3 +120,17 @@ export function newSubscriberEmail(pageName: string, total: number) {
     'You are the controller of that list. Relay stores it for you and never contacts anyone on it.'
   )
 }
+
+export function paymentFailedEmail(willRetry: boolean) {
+  return shell(
+    'Your payment did not go through',
+    `<p style="margin:0 0 14px;">Your card was declined, so this month&rsquo;s Relay payment has not gone through.</p>
+     <p style="margin:0 0 14px;"><strong>Your page is still live and nothing has changed.</strong> ${
+       willRetry
+         ? 'We will try the card again over the next few days.'
+         : 'This was the last attempt, so your subscription will end shortly and your page will go back to the free look.'
+     }</p>
+     <p style="margin:0 0 8px;"><a href="https://relayme.bio/dashboard" style="display:inline-block;background:#1B0D44;color:#ffffff;text-decoration:none;padding:13px 22px;border-radius:12px;font-weight:600;">Update my card</a></p>`,
+    'Your links, photo, bio and statistics are kept whatever happens to the subscription.'
+  )
+}

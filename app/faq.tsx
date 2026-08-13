@@ -7,7 +7,7 @@ export const FAQS = [
   },
   {
     q: 'What do I get for paying?',
-    a: 'All 47 themes including doodles and seasonal sets, all 8 fonts, your own 4-colour palette, a background image, your own image on every link, links that appear and disappear on a schedule, music and video that plays on your page, collecting email addresses, and the option to take the Relay badge off your page. $30 a year, or $4 a month.',
+    a: 'All 47 themes including doodles and seasonal sets, all 8 fonts, your own 4-colour palette, a background image, your own image on every link, links that appear and disappear on a schedule, music and video that plays on your page, collecting email addresses, and the option to take the Relay badge off your page. $30 a year, or $4 a month. VAT is added at checkout at your country\u2019s rate, and a business can enter a VAT number to have it reverse-charged.',
   },
   {
     q: 'Can I try the paid features before I pay?',

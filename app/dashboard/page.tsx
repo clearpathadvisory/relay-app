@@ -215,6 +215,28 @@ export default function Dashboard() {
     try { window.localStorage.setItem(PKEY, JSON.stringify(next)) } catch (e) {}
   }
 
+  function unpreview(keys: string[]) {
+    const next = { ...pending }
+    keys.forEach((k) => { delete next[k] })
+    setPending(next)
+    try {
+      if (Object.keys(next).length) window.localStorage.setItem(PKEY, JSON.stringify(next))
+      else window.localStorage.removeItem(PKEY)
+    } catch (e) {}
+  }
+
+  const COLOUR_KEYS = ['use_custom', 'custom_bg', 'custom_button_bg', 'custom_button_text', 'custom_accent_bg']
+
+  function resetColours() {
+    setErr('')
+    if (isPro) {
+      patch({ use_custom: false, custom_bg: null, custom_button_bg: null, custom_button_text: null, custom_accent_bg: null })
+    } else {
+      // for a free account these were only ever a preview, so take them back out
+      unpreview(COLOUR_KEYS)
+    }
+  }
+
   function discardPreview() {
     setPending({})
     try { window.localStorage.removeItem(PKEY) } catch (e) {}
@@ -746,6 +768,15 @@ export default function Dashboard() {
                       </div>
                     ))}
                   </div>
+
+                  {(view.use_custom || view.custom_bg || view.custom_button_bg || view.custom_button_text || view.custom_accent_bg) && (
+                    <div className="resetrow">
+                      <button className="btn small ghost" onClick={resetColours}>
+                        Reset to {theme ? theme.name : 'theme'} colours
+                      </button>
+                      <span>Puts all four back to the theme. Your links and photo are untouched.</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="block block-plain">

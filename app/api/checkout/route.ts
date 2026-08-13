@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { tooMany } from '../../../lib/ratelimit'
 import { PRICE_ANNUAL, PRICE_MONTHLY, SITE_URL, STRIPE_API_VERSION } from '../../../lib/stripe'
 
 export const runtime = 'nodejs'
@@ -28,6 +29,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Sign in first.' }, { status: 401 })
   }
   const user = userRes.user
+  if (tooMany('checkout', userRes.user.id, 8, 60000)) {
+    return NextResponse.json({ error: 'Too many attempts. Wait a minute and try again.' }, { status: 429 })
+  }
 
   let interval = 'year'
   try {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { tooMany } from '../../../lib/ratelimit'
 import { STRIPE_API_VERSION } from '../../../lib/stripe'
 import { sendMail, accountClosedEmail } from '../../../lib/email'
 
@@ -23,6 +24,9 @@ export async function POST(req: NextRequest) {
 
   const { data: userRes, error: authErr } = await admin.auth.getUser(token)
   if (authErr || !userRes.user) return NextResponse.json({ error: 'Sign in first.' }, { status: 401 })
+  if (tooMany('delete', userRes.user.id, 5, 300000)) {
+    return NextResponse.json({ error: 'Too many attempts. Wait five minutes.' }, { status: 429 })
+  }
 
   const uid = userRes.user.id
   const email = userRes.user.email || ''
@@ -38,8 +42,15 @@ export async function POST(req: NextRequest) {
   const { data: page } = await admin.from('pages').select('id, username').eq('owner_id', uid).maybeSingle()
   const username = page ? page.username : ''
 
-  if (username && typed !== username) {
-    return NextResponse.json({ error: 'Type your username exactly to confirm.' }, { status: 400 })
+  // An account with no page row used to skip this check entirely, so the one
+  // safeguard on an irreversible action could be bypassed by never claiming a
+  // name. The word DELETE stands in when there is no username to type.
+  const expected = username || 'delete'
+  if (typed !== expected) {
+    return NextResponse.json(
+      { error: username ? 'Type your username exactly to confirm.' : 'Type DELETE to confirm.' },
+      { status: 400 }
+    )
   }
 
   // 1. Stop the money first. Deleting the account while a subscription is live

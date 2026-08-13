@@ -66,21 +66,32 @@ export default function Dashboard() {
   const [confirmLink, setConfirmLink] = useState<string | null>(null)
   const [editSocial, setEditSocial] = useState<string | null>(null)
   const [editSocialUrl, setEditSocialUrl] = useState('')
+  const socFrom = useRef<number | null>(null)
+  const [socOver, setSocOver] = useState<number | null>(null)
   const [totalViews, setTotalViews] = useState(0)
   const [seoTitle, setSeoTitle] = useState('')
   const [seoDesc, setSeoDesc] = useState('')
   const [pubBusy, setPubBusy] = useState(false)
   const liveTimer = useRef<any>(null)
+  const [dark, setDark] = useState(false)
 
   const isPro = plan === 'pro'
 
   useEffect(() => {
     let cancelled = false
     async function waitForSession() {
+      // A session that exists is in localStorage already, so the first read
+      // finds it. The polling is only for the moment just after a magic link,
+      // when the token is still being exchanged — and that only happens when
+      // there is something in the URL to exchange.
+      const { data: first } = await supabase.auth.getSession()
+      if (first.session) return first.session
+      const arriving = typeof window !== 'undefined' && (window.location.hash || window.location.search)
+      if (!arriving) return null
       for (let i = 0; i < 12; i++) {
+        await new Promise((r) => setTimeout(r, 200))
         const { data } = await supabase.auth.getSession()
         if (data.session) return data.session
-        await new Promise((r) => setTimeout(r, 200))
       }
       return null
     }
@@ -123,6 +134,19 @@ export default function Dashboard() {
   useEffect(() => {
     if (tab === 'stats' && page && !statsLoaded) loadStats(page.id)
   }, [tab, page, statsLoaded])
+
+  // The inline script in the layout has already applied the choice before
+  // paint; this only syncs the button to what it decided.
+  useEffect(() => {
+    setDark(document.documentElement.getAttribute('data-theme') === 'dark')
+  }, [])
+
+  function toggleTheme() {
+    const next = !dark
+    setDark(next)
+    document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light')
+    try { window.localStorage.setItem('relay.theme', next ? 'dark' : 'light') } catch (e) {}
+  }
 
   // a fixed-height textarea hides the end of a long bio, so grow it to fit
   useEffect(() => {
@@ -233,17 +257,30 @@ export default function Dashboard() {
     pushLive()
   }
 
-  async function moveSocial(i: number, by: number) {
-    const to = i + by
-    if (to < 0 || to >= socials.length) return
-    const next = socials.slice()
-    const [row] = next.splice(i, 1)
-    next.splice(to, 0, row)
+  async function saveSocialOrder(next: Social[]) {
     setSocials(next)
     for (let k = 0; k < next.length; k++) {
       await supabase.from('socials').update({ position: k }).eq('id', next[k].id)
     }
     pushLive()
+  }
+
+  function moveSocial(i: number, by: number) {
+    const to = i + by
+    if (to < 0 || to >= socials.length) return
+    const next = socials.slice()
+    const [row] = next.splice(i, 1)
+    next.splice(to, 0, row)
+    saveSocialOrder(next)
+  }
+
+  function onSocialDrop(to: number) {
+    const from = socFrom.current
+    socFrom.current = null; setSocOver(null)
+    if (from === null || from === to) return
+    const next = socials.slice()
+    next.splice(to, 0, next.splice(from, 1)[0])
+    saveSocialOrder(next)
   }
 
   // Publishing is a switch, not a deletion. Someone who wants their page down
@@ -545,7 +582,7 @@ export default function Dashboard() {
         <div style={{ maxWidth: 400, width: '100%', textAlign: 'center' }}>
           <Blob size={130} />
           <h1 style={{ fontSize: 32, margin: '12px 0 6px' }}>Pick your name</h1>
-          <p style={{ color: 'rgba(27,13,68,.7)', fontSize: 15, margin: '0 0 20px' }}>relayme.bio/<strong>{claim || 'yourname'}</strong></p>
+          <p style={{ color: 'var(--ink-70)', fontSize: 15, margin: '0 0 20px' }}>relayme.bio/<strong>{claim || 'yourname'}</strong></p>
           <input className="field" placeholder="yourname" value={claim} onChange={(e) => setClaim(e.target.value)} />
           <button className="btn" style={{ marginTop: 14, width: '100%' }} onClick={claimName}>Claim it</button>
           {err && <p className="err">{err}</p>}
@@ -631,6 +668,10 @@ export default function Dashboard() {
             <span className={isPro ? 'chip chip-pro' : 'chip'} title={isPro ? 'You are on Pro' : 'You are on the free plan'}>
               {isPro ? 'Pro' : 'Free'}
             </span>
+            <button className="themetoggle" onClick={toggleTheme} title={dark ? 'Switch to light' : 'Switch to dark'}
+              aria-label={dark ? 'Switch to the light editor' : 'Switch to the dark editor'}>
+              {dark ? '☀' : '☾'}
+            </button>
             <button className="btn small ghost" onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }}>Sign out</button>
           </div>
         </aside>
@@ -681,7 +722,7 @@ export default function Dashboard() {
                   <input className="field" value={name} onChange={(e) => setName(e.target.value)} maxLength={40} />
                   <label className="label" style={{ marginTop: 14 }}>Bio</label>
                   <textarea ref={bioRef} className="field" rows={3} value={bio} placeholder="What do you make? Emoji welcome 🎧" onChange={(e) => setBio(clampChars(e.target.value, 200))} />
-                  <p style={{ margin: '6px 0 0', fontSize: 12, color: 'rgba(27,13,68,.55)' }}>{chars(bio).length}/200</p>
+                  <p style={{ margin: '6px 0 0', fontSize: 12, color: 'var(--ink-60)' }}>{chars(bio).length}/200</p>
                 </div>
 
                 <div className="block block-mint">
@@ -689,7 +730,7 @@ export default function Dashboard() {
                     <h2 className="bh">Your links</h2>
                     <span className="counter">{links.length} {links.length === 1 ? 'link' : 'links'}</span>
                   </div>
-                  <p className="bsub">Drag to reorder. Star makes it the big button. The eye hides it without deleting.</p>
+                  <p className="bsub">Drag the handle to reorder, or use the arrows on a phone. Star makes it the big button. The eye hides it without deleting.</p>
 
                   {links.map((l, i) => (
                     <div key={l.id} draggable
@@ -728,7 +769,7 @@ export default function Dashboard() {
                   )}
                   {links.length === 0 && <p className="bsub">Nothing to relay yet. Add your first link below.</p>}
 
-                  <div style={{ marginTop: 18, paddingTop: 18, borderTop: '1px solid rgba(27,13,68,.12)' }}>
+                  <div style={{ marginTop: 18, paddingTop: 18, borderTop: '1px solid var(--ink-12)' }}>
                       <input className="field" placeholder="https://..." value={url} onChange={(e) => setUrl(e.target.value)} />
                       <input className="field" style={{ marginTop: 10 }} placeholder="Title (optional — we read it from the site)" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={60} />
                     <button className="btn" style={{ marginTop: 12, width: '100%' }} onClick={addLink} disabled={adding}>
@@ -747,8 +788,15 @@ export default function Dashboard() {
                   {socials.length > 0 && (
                     <div className="socrow">
                       {socials.map((sc, i) => (
-                        <div key={sc.id} className="socpill">
-                          <SocialIcon id={sc.platform} color="#1B0D44" size={18} />
+                        <div key={sc.id} className={socOver === i ? 'socpill rowover' : 'socpill'}
+                          draggable={editSocial !== sc.id}
+                          onDragStart={() => { socFrom.current = i }}
+                          onDragOver={(e) => { e.preventDefault(); setSocOver(i) }}
+                          onDragLeave={() => setSocOver(null)}
+                          onDrop={() => onSocialDrop(i)}
+                          onDragEnd={() => { socFrom.current = null; setSocOver(null) }}>
+                          <span className="grip">⠿</span>
+                          <SocialIcon id={sc.platform} color="currentColor" size={18} />
                           {editSocial === sc.id ? (
                             <>
                               <input className="field socedit" value={editSocialUrl} autoFocus
@@ -887,7 +935,7 @@ export default function Dashboard() {
               <div>
                 <div className="block block-sun">
                   <h2 className="bh">Pick a look</h2>
-                  <p className="bsub">Two are free, including four doodle themes. Tap any Pro one to try it — the preview updates straight away.</p>
+                  <p className="bsub">Five are free. Tap any Pro one to try it — the preview updates straight away, and nothing saves until you subscribe.</p>
                   <div className="themegrid">
                     {themes.map((t) => {
                       const locked = t.tier === 'pro' && !isPro
@@ -1135,7 +1183,7 @@ export default function Dashboard() {
                           Keep my account
                         </button>
                       </div>
-                      <p style={{ margin: '12px 0 0', fontSize: 12.5, color: 'rgba(27,13,68,.6)' }}>
+                      <p style={{ margin: '12px 0 0', fontSize: 12.5, color: 'var(--ink-60)' }}>
                         We will email you a confirmation once it is done.
                       </p>
                     </div>

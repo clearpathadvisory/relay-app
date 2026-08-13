@@ -2,6 +2,8 @@ import { Blob, Star, Robot, Bear, Rocket, Squiggle } from './blob'
 import { SignupModal } from './signupmodal'
 import { ClosedNotice } from './closednotice'
 import { jsonLdScript } from '../lib/jsonld'
+import { HeroMock } from './heromock'
+import { FAQS } from './faq'
 
 export default function Home() {
   const jsonLd = {
@@ -28,6 +30,15 @@ export default function Home() {
           addressCountry: 'PL',
         },
         email: 'hello@relayme.bio',
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': 'https://relayme.bio/#faq',
+        mainEntity: FAQS.map((f) => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
       },
       {
         '@type': 'SoftwareApplication',
@@ -79,7 +90,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="heroblob"><Blob size={210} /></div>
+          <div className="heroblob"><HeroMock /></div>
         </section>
 
         <section style={{ marginTop: 80, position: 'relative' }}>
@@ -97,7 +108,7 @@ export default function Home() {
                 <li>Unlimited links</li>
                 <li>Your own photo and bio</li>
                 <li>A row of social icons</li>
-                <li>Two themes, one font</li>
+                <li>Five themes, one font</li>
                 <li>Automatic titles and icons</li>
                 <li>Tap stats and a QR code</li>
               </ul>
@@ -164,6 +175,24 @@ export default function Home() {
             <Star color="#C6F15C" size={20} style={{ position: 'absolute', top: 14, right: 128 }} />
             <Squiggle color="#B0A0FF" size={44} style={{ position: 'absolute', bottom: 8, left: 92 }} />
           </span>
+        </section>
+
+        <section style={{ marginTop: 72, position: 'relative' }}>
+          <span className="heroart">
+            <Star color="#C6F15C" size={20} style={{ position: 'absolute', top: -14, right: 40 }} />
+          </span>
+          <h2 className="sech">Questions people actually ask</h2>
+          <div className="faqgrid">
+            {FAQS.map((f) => (
+              <details key={f.q} className="faq">
+                <summary>{f.q}</summary>
+                <p>{f.a}</p>
+              </details>
+            ))}
+          </div>
+          <p style={{ marginTop: 20, fontSize: 15, color: 'rgba(27,13,68,.7)' }}>
+            Coming from somewhere else? <a href="/vs-linktree" style={{ color: 'var(--violet)', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: 2 }}>Relay next to Linktree</a>.
+          </p>
         </section>
 
         <footer style={{ marginTop: 60, fontSize: 14, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>

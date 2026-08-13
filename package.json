@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "tsc lib/net.ts lib/jsonld.ts lib/supabase.ts app/socialicons.tsx --outDir .test --module esnext --target es2020 --moduleResolution bundler --jsx react-jsx --skipLibCheck --allowJs && node test/run.mjs"
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "^5.3.0",

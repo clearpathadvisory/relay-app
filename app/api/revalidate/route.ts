@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@supabase/supabase-js'
+import { tooMany } from '../../../lib/ratelimit'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -21,6 +22,9 @@ export async function POST(req: NextRequest) {
 
   const { data: userRes, error } = await admin.auth.getUser(token)
   if (error || !userRes.user) return NextResponse.json({ ok: false }, { status: 401 })
+  if (tooMany('revalidate', userRes.user.id, 30, 60000)) {
+    return NextResponse.json({ error: 'Too many refreshes.' }, { status: 429 })
+  }
 
   const { data: page } = await admin
     .from('pages')

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { tooMany } from '../../../lib/ratelimit'
 import { SITE_URL, STRIPE_API_VERSION } from '../../../lib/stripe'
 
 export const runtime = 'nodejs'
@@ -24,6 +25,9 @@ export async function POST(req: NextRequest) {
 
   const { data: userRes, error } = await admin.auth.getUser(token)
   if (error || !userRes.user) return NextResponse.json({ error: 'Sign in first.' }, { status: 401 })
+  if (tooMany('portal', userRes.user.id, 8, 60000)) {
+    return NextResponse.json({ error: 'Too many attempts. Wait a minute and try again.' }, { status: 429 })
+  }
 
   const { data: sub } = await admin
     .from('subscriptions')

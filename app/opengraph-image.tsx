@@ -35,7 +35,7 @@ export default function OgImage() {
             marginTop: 26, maxWidth: 820, lineHeight: 1.4,
           }}
         >
-          Unlimited links, your own photo, forty themes. Free to start.
+          Unlimited links, your own photo, 40 themes. Free to start.
         </div>
 
         <div

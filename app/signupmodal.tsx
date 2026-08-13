@@ -76,7 +76,7 @@ export function SignupModal() {
         </p>
 
         <a href="/login" className="btn modalcta">Grab your name →</a>
-        <p className="modalfine">Takes about forty seconds. No card, no password.</p>
+        <p className="modalfine">Takes about 40 seconds. No card, no password.</p>
       </div>
     </div>
   )

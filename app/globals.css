@@ -327,7 +327,7 @@ textarea.field { resize: none; min-height: 104px; line-height: 1.5; }
 .statrownum { flex: 0 0 44px; text-align: right; font-size: 14px; font-weight: 700; }
 
 /* --- homepage: fluid hero --- */
-.hero { display: grid; grid-template-columns: minmax(0,1.15fr) 210px; gap: 30px; align-items: center; position: relative; }
+.hero { display: grid; grid-template-columns: minmax(0,1.15fr) 260px; gap: 30px; align-items: center; position: relative; overflow: visible; }
 .heroart { display: contents; }
 .herotitle { font-size: clamp(30px, 7.4vw, 52px); line-height: 1.05; margin: 18px 0 0; letter-spacing: -0.035em; font-weight: 800; }
 .herosub { font-size: clamp(15.5px, 3.6vw, 18px); line-height: 1.6; color: rgba(27,13,68,.7); margin: 16px 0 24px; max-width: 500px; }
@@ -424,12 +424,14 @@ textarea.field { resize: none; min-height: 104px; line-height: 1.5; }
 /* the bio grows with its content, so nothing is clipped */
 textarea.field { overflow: hidden; }
 
-/* mascot rides beside the call to action instead of eating a screen of height */
-.ctablob { display: none; }
+/* The mascot sits beside the call to action, awake: it floats, blinks, winks
+   and smiles on its own. A page whose headline promises better than a sad grey
+   link should not itself be sitting still. */
+.ctablob { display: block; line-height: 0; margin-left: 4px; }
 
 @media (max-width: 760px) {
   .heroblob { display: none; }
-  .ctablob { display: block; margin-left: auto; line-height: 0; }
+  .ctablob { margin-left: auto; }
 }
 
 /* the sticky rail must sit above the phone preview, not under it */
@@ -581,14 +583,13 @@ a.topurl:hover .topurlgo { opacity: 1; }
 .rocketfly { animation: rocketFly 7.5s cubic-bezier(.35,.05,.35,1) infinite; will-change: transform; }
 .rocketfly .rocket-flame { animation: rocketFlame .28s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: top center; }
 
+/* This one stays inside its card. The old version climbed 78px out of the
+   section and clipped through whatever sat above it. */
 @keyframes rocketFly {
-  0%   { transform: translateY(52px) rotate(-9deg); opacity: 0; }
-  12%  { transform: translateY(14px) rotate(-3deg); opacity: 1; }
-  32%  { transform: translateY(-6px) rotate(3deg); }
-  50%  { transform: translateY(2px)  rotate(-2deg); }
-  70%  { transform: translateY(-9px) rotate(4deg); }
-  88%  { transform: translateY(-44px) rotate(-3deg); opacity: 1; }
-  100% { transform: translateY(-78px) rotate(-7deg); opacity: 0; }
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  25%      { transform: translateY(-9px) rotate(3deg); }
+  50%      { transform: translateY(-3px) rotate(-2deg); }
+  75%      { transform: translateY(-11px) rotate(4deg); }
 }
 @keyframes rocketFlame {
   from { transform: scaleY(.7) scaleX(.9); opacity: .55; }
@@ -930,4 +931,73 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 
 @media (max-width: 620px) {
   .cmplist li { min-height: 0; }
+}
+
+/* ---------- the rocket's run to Sign in ---------- */
+/* It used to sit in the corner bobbing on the spot and overlapping whatever was
+   behind it. Now it sets off from beside the mascot, climbs across the hero and
+   arrives beneath the Sign in button before fading — a moving thing the eye
+   follows, pointing at the one action on the page. */
+.flight {
+  position: absolute; left: 8px; bottom: -6px;
+  z-index: 3; pointer-events: none; line-height: 0;
+  animation: flightPath 11s cubic-bezier(.42,0,.35,1) infinite;
+  will-change: transform, opacity;
+}
+.flight .rocket-flame {
+  transform-box: fill-box; transform-origin: top center;
+  animation: rocketFlame .26s ease-in-out infinite alternate;
+}
+
+@keyframes flightPath {
+  0%   { transform: translate(0, 0) rotate(-4deg); opacity: 0; }
+  6%   { transform: translate(30px, -26px) rotate(6deg); opacity: 1; }
+  26%  { transform: translate(230px, -120px) rotate(24deg); opacity: 1; }
+  48%  { transform: translate(430px, -228px) rotate(34deg); opacity: 1; }
+  68%  { transform: translate(618px, -336px) rotate(30deg); opacity: 1; }
+  82%  { transform: translate(742px, -422px) rotate(16deg); opacity: 1; }
+  /* arrives under Sign in, hovers a beat, then goes */
+  88%  { transform: translate(770px, -452px) rotate(2deg); opacity: 1; }
+  94%  { transform: translate(776px, -470px) rotate(-2deg); opacity: .35; }
+  100% { transform: translate(780px, -486px) rotate(-6deg); opacity: 0; }
+}
+
+/* ---------- the robot, off its corner ---------- */
+.wander {
+  position: absolute; right: 2%; top: 8px;
+  z-index: 2; pointer-events: none; line-height: 0;
+  animation: wander 16s ease-in-out infinite;
+  will-change: transform;
+}
+.wander .robot-bulb {
+  transform-box: fill-box; transform-origin: center;
+  animation: bulbPulse 1.5s ease-in-out infinite;
+}
+.wander .robot-eyes {
+  transform-box: fill-box; transform-origin: center;
+  animation: robotBlink 4.2s ease-in-out infinite;
+}
+
+@keyframes wander {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  14%  { transform: translate(-120px, 46px) rotate(-8deg); }
+  30%  { transform: translate(-330px, 18px) rotate(5deg); }
+  46%  { transform: translate(-560px, 92px) rotate(-6deg); }
+  60%  { transform: translate(-780px, 40px) rotate(7deg); }
+  76%  { transform: translate(-520px, 128px) rotate(-4deg); }
+  90%  { transform: translate(-210px, 62px) rotate(6deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* Both are decoration on a fixed-width canvas, so they stand down on a phone
+   where there is neither the room nor the distance to travel. */
+@media (max-width: 860px) {
+  .flight, .wander { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flight { animation: none; opacity: 1; transform: translate(770px, -452px); }
+  .flight .rocket-flame { animation: none; }
+  .wander { animation: none; }
+  .wander .robot-bulb, .wander .robot-eyes { animation: none; }
 }

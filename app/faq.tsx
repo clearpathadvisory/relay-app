@@ -3,11 +3,11 @@
 export const FAQS = [
   {
     q: 'Is the free plan actually free, or a trial?',
-    a: 'Free, with no time limit and no card. Unlimited links, your own photo and bio, a row of social icons, five themes, tap statistics and a QR code. We do not remove anything later.',
+    a: 'Free, with no time limit and no card. Unlimited links, your own photo and bio, a row of social icons, 5 themes, tap statistics and a QR code. We do not remove anything later.',
   },
   {
     q: 'What do I get for paying?',
-    a: 'All forty themes including four doodle backgrounds, all eight fonts, your own four-colour palette, a background image, and the option to take the Relay badge off your page. Thirty dollars a year, or four a month.',
+    a: 'All 40 themes including 4 doodle backgrounds, all 8 fonts, your own 4-colour palette, a background image, and the option to take the Relay badge off your page. $30 a year, or $4 a month.',
   },
   {
     q: 'Can I try the paid features before I pay?',
@@ -36,6 +36,14 @@ export const FAQS = [
   {
     q: 'Where is my data held, and can I get it out?',
     a: 'On servers in the European Union. You can ask for a copy of everything we hold, ask us to correct it, or delete the whole account yourself from the dashboard \u2014 which also cancels any subscription first.',
+  },
+  {
+    q: 'How long does setting a page up take?',
+    a: 'About 40 seconds to claim a name and add your first link, and as long as you like after that. There is nothing to install, no card to enter and no password to invent \u2014 we email you a sign-in link each time.',
+  },
+  {
+    q: 'Does my page work on every phone and browser?',
+    a: 'Yes. A Relay page is an ordinary web page, so it opens anywhere a link opens \u2014 including inside the in-app browsers on Instagram and TikTok, which is where most people will meet it. There is no app to download on either side.',
   },
   {
     q: 'Who makes Relay?',

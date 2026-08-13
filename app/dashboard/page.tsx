@@ -218,7 +218,7 @@ export default function Dashboard() {
     if (!page) return
     const v = socUrl.trim()
     if (!v) { setErr('Add a handle or a link first.'); return }
-    if (socials.length >= 8) { setErr('Eight icons is the most a row can hold.'); return }
+    if (socials.length >= 8) { setErr('8 icons is the most a row can hold.'); return }
     setErr('')
     const { error } = await supabase.from('socials').insert({ page_id: page.id, platform: socPlat, url: v, position: socials.length })
     if (error) { setErr(error.message); return }
@@ -918,7 +918,7 @@ export default function Dashboard() {
               <div>
                 <div className="block block-sun">
                   <h2 className="bh">Pick a look</h2>
-                  <p className="bsub">Five are free. Tap any Pro one to try it — the preview updates straight away, and nothing saves until you subscribe.</p>
+                  <p className="bsub">5 are free. Tap any Pro one to try it — the preview updates straight away, and nothing saves until you subscribe.</p>
                   <div className="themegrid">
                     {themes.map((t) => {
                       const locked = t.tier === 'pro' && !isPro
@@ -938,7 +938,7 @@ export default function Dashboard() {
                 {!isPro && (
                   <div className="block block-bloom">
                     <h2 className="bh">Unlock the rest</h2>
-                    <p className="bsub">Forty themes, eight fonts, your own colours, a background image, and no Relay badge. Try any of it now — you only pay to keep it.</p>
+                    <p className="bsub">40 themes, 8 fonts, your own colours, a background image, and no Relay badge. Try any of it now — you only pay to keep it.</p>
                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
                       <button className="btn" onClick={() => startCheckout('year')} disabled={busy}>{busy ? 'One moment…' : '$30 a year'}</button>
                       <button className="btn ghost" onClick={() => startCheckout('month')} disabled={busy}>$4 a month</button>

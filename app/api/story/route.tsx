@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { serverClient, resolveLook, Page, Theme } from '../../../lib/supabase'
 import { manropeFonts } from '../../../lib/ogfont'
+import { cardText } from '../../../lib/cardtext'
 
 // Node rather than edge: the QR is generated with the same qrcode package the
 // dashboard already uses, and that is not an edge-safe dependency.
@@ -29,8 +30,8 @@ export async function GET(req: Request) {
   const { data: theme } = await sb.from('themes').select('*').eq('id', page.theme_id).maybeSingle()
   const L = resolveLook(page as Page, theme as Theme)
 
-  const name = page.display_name || page.username
-  const bio = (page.bio || '').slice(0, 120)
+  const name = cardText(page.display_name || page.username, page.username)
+  const bio = cardText(page.bio, '').slice(0, 120)
   const initials = name.slice(0, 2).toUpperCase()
   const hasAvatar = !!(page.avatar_url && page.avatar_url.length > 4)
 
@@ -122,6 +123,6 @@ export async function GET(req: Request) {
         </div>
       </div>
     ),
-    { width: 1080, height: 1920, ...fontOption, emoji: 'twemoji' }
+    { width: 1080, height: 1920, ...fontOption }
   )
 }

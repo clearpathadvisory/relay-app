@@ -8,6 +8,7 @@ const { socialHref, socialName } = await import('../.test/app/socialicons.js')
 const { resolveLook, fontStack } = await import('../.test/lib/supabase.js')
 const { scheduleState, scheduleLabel } = await import('../.test/lib/schedule.js')
 const { detectEmbed, oembedUrl, tidyTitle } = await import('../.test/lib/embed.js')
+const { cardText } = await import('../.test/lib/cardtext.js')
 
 let passed = 0
 function it(name, fn) {
@@ -204,6 +205,25 @@ it('rejects a title that is only the site name', () => {
 })
 it('leaves a real title alone', () => {
   assert.equal(tidyTitle('Nightink — a private diary', 'nightink.app'), 'Nightink — a private diary')
+})
+
+console.log('\ncardText')
+it('takes emoji out so the renderer has something to draw', () => {
+  assert.equal(cardText('\u{1F680}\u{1F680}\u{1F680} Songs'), 'Songs')
+  assert.equal(cardText('Songs \u2728 and stories'), 'Songs and stories')
+})
+it('falls back when emoji were the whole thing', () => {
+  assert.equal(cardText('\u{1F680}\u{1F680}\u{1F680}', 'Links from Ada'), 'Links from Ada')
+  assert.equal(cardText('', 'Links from Ada'), 'Links from Ada')
+  assert.equal(cardText(null, 'Links from Ada'), 'Links from Ada')
+})
+it('leaves ordinary text and punctuation alone', () => {
+  const t = 'Songs, mostly \u2014 somewhere between a lullaby & a "warning" (2026)'
+  assert.equal(cardText(t), t)
+})
+it('does not strip accents or non-latin script', () => {
+  assert.equal(cardText('Zażółć gęślą jaźń'), 'Zażółć gęślą jaźń')
+  assert.equal(cardText('日本語のテキスト'), '日本語のテキスト')
 })
 
 console.log('\n' + passed + ' assertions passed\n')

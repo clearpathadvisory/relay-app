@@ -52,6 +52,6 @@ export default async function OgImage() {
         </div>
       </div>
     ),
-    { ...size, emoji: 'twemoji' }
+    { ...size }
   )
 }

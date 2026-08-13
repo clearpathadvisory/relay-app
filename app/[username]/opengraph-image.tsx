@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { serverClient, resolveLook, Page, Theme } from '../../lib/supabase'
+import { cardText } from '../../lib/cardtext'
 
 // Edge, as it always was. It was moved to node so it could read the committed
 // Manrope files from disk, and it has returned 500 in production ever since —
@@ -16,9 +17,9 @@ export const contentType = 'image/png'
 export const revalidate = 0
 
 // Satori's default font carries no emoji, so a bio of 🚀🚀🚀 drew literally
-// nothing — a 755-byte blank card rather than an error. twemoji fetches the
-// picture for each one at render time. That request is made by our server, not
-// by anyone's browser, so it costs a visitor nothing.
+// nothing — a 755-byte blank card rather than an error. Asking it to fetch
+// emoji pictures instead did not work either, so cardText takes them out and
+// puts something readable in their place.
 
 // Rendered once per page and cached by Vercel, so a share on Instagram, X or
 // WhatsApp shows the person's actual page rather than a bare grey card.
@@ -40,15 +41,16 @@ export default async function OgImage({ params }: { params: { username: string }
           relayme.bio
         </div>
       ),
-      { ...size, emoji: 'twemoji' }
+      { ...size }
     )
   }
 
   const { data: theme } = await sb.from('themes').select('*').eq('id', page.theme_id).maybeSingle()
   const L = resolveLook(page as Page, theme as Theme)
 
-  const name = page.display_name || page.username
-  const bio = (page.bio || '').slice(0, 110)
+  const rawName = page.display_name || page.username
+  const name = cardText(rawName, page.username)
+  const bio = cardText(page.bio, 'Links from ' + name).slice(0, 110)
   const initials = name.slice(0, 2).toUpperCase()
   const hasAvatar = !!(page.avatar_url && page.avatar_url.length > 4)
 
@@ -115,6 +117,6 @@ export default async function OgImage({ params }: { params: { username: string }
         </div>
       </div>
     ),
-    { ...size, emoji: 'twemoji' }
+    { ...size }
   )
 }

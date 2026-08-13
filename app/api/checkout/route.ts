@@ -50,6 +50,20 @@ export async function POST(req: NextRequest) {
 
     let customerId = existing ? existing.stripe_customer_id : null
 
+    // A stored customer can stop existing: the account was switched from
+    // sandbox to live, or the customer was deleted in the Stripe dashboard.
+    // Either way the id is stale and checkout fails with "No such customer"
+    // before it can charge anything. Check it, and fall through to making a
+    // new one rather than handing the person an error they cannot act on.
+    if (customerId) {
+      try {
+        const found: any = await stripe.customers.retrieve(customerId)
+        if (!found || found.deleted) customerId = null
+      } catch (e) {
+        customerId = null
+      }
+    }
+
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: user.email || undefined,

@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect } from 'react'
+import * as Sentry from '@sentry/nextjs'
 import { Blob } from './blob'
 
 // A thrown error would otherwise render Next's unstyled default. This keeps a
 // bad moment inside the product, and offers the one thing that usually fixes it.
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  useEffect(() => { console.error(error) }, [error])
+  useEffect(() => { Sentry.captureException(error) }, [error])
 
   return (
     <main className="centre">

@@ -1,12 +1,14 @@
 import { ImageResponse } from 'next/og'
+import { manropeFonts } from '../lib/ogfont'
 
-export const runtime = 'edge'
+// node rather than edge so the committed Manrope files can be read from disk
+export const runtime = 'nodejs'
 export const alt = 'Relay — one link for everything you make'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
 // The card people see when relayme.bio itself is shared.
-export default function OgImage() {
+export default async function OgImage() {
   return new ImageResponse(
     (
       <div
@@ -48,6 +50,6 @@ export default function OgImage() {
         </div>
       </div>
     ),
-    size
+    { ...size, fonts: await manropeFonts() }
   )
 }

@@ -406,30 +406,39 @@ export default function Dashboard() {
 
   // A row that is not a link. Past about eight links a page becomes a wall,
   // and a heading every few rows is the cheapest way to make it readable.
-  async function addHeading() {
+  // A heading exists to head the rows after it. Appended to the bottom there
+  // are none, so it heads nothing and looks broken. It goes to the top, where
+  // it immediately groups the whole list, and the arrows walk it down to where
+  // the group actually starts.
+  async function addRow(kind: 'heading' | 'divider', title: string | null) {
     if (!page) return
-    const t = headingText.trim()
-    if (!t) { setErr('Give the heading some words.'); return }
     setErr('')
     const { error } = await supabase.from('links').insert({
-      page_id: page.id, kind: 'heading', title: t, url: null, position: links.length,
+      page_id: page.id, kind, title, url: null, position: -1,
     })
     if (error) { setErr(error.message); return }
+
+    const { data: fresh } = await supabase
+      .from('links').select('*').eq('page_id', page.id)
+      .order('position').order('created_at')
+    const rows = (fresh || []) as Link[]
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i].position !== i) await supabase.from('links').update({ position: i }).eq('id', rows[i].id)
+    }
+
     setHeadingText(''); setAddKind('link')
     await loadLinks(page.id)
     pushLive()
   }
 
+  async function addHeading() {
+    const t = headingText.trim()
+    if (!t) { setErr('Give the heading some words.'); return }
+    await addRow('heading', t)
+  }
+
   async function addDivider() {
-    if (!page) return
-    setErr('')
-    const { error } = await supabase.from('links').insert({
-      page_id: page.id, kind: 'divider', title: null, url: null, position: links.length,
-    })
-    if (error) { setErr(error.message); return }
-    setAddKind('link')
-    await loadLinks(page.id)
-    pushLive()
+    await addRow('divider', null)
   }
 
   async function removeLink(id: string) {
@@ -622,6 +631,17 @@ export default function Dashboard() {
 
   // --- everything the Stats tab shows, worked out from the raw events ---
   const linkCount = links.filter((l) => l.kind === 'link').length
+  // A heading or divider with no link beneath it before the next heading is
+  // decoration heading nothing. Worth pointing out, not worth forbidding.
+  function emptyGroup(i: number) {
+    const row = links[i]
+    if (!row || row.kind === 'link') return false
+    for (let k = i + 1; k < links.length; k++) {
+      if (links[k].kind === 'link') return false
+      if (links[k].kind === 'heading') return true
+    }
+    return true
+  }
   const totalTaps = links.reduce((n, l) => n + (l.click_count || 0), 0)
   const now = Date.now()
   // a row with a link on it is a tap; a row without one is a page view
@@ -764,9 +784,13 @@ export default function Dashboard() {
                         <p className={l.kind === 'link' ? 'rowtitle' : 'rowtitle rowtitle-alt'}>
                           {l.kind === 'divider' ? 'Divider' : l.title}
                         </p>
-                        <p className="rowmeta">
+                        <p className={emptyGroup(i) ? 'rowmeta rowmeta-warn' : 'rowmeta'}>
                           {l.is_active ? '' : 'Hidden · '}
-                          {l.kind === 'link' ? l.click_count + ' taps' : l.kind === 'heading' ? 'Heading' : 'A line across the page'}
+                          {l.kind === 'link'
+                            ? l.click_count + ' taps'
+                            : emptyGroup(i)
+                              ? 'Nothing under it yet — move it above some links'
+                              : l.kind === 'heading' ? 'Heading' : 'A line across the page'}
                         </p>
                       </div>
                       <div className="movecol">
@@ -828,7 +852,8 @@ export default function Dashboard() {
                           onKeyDown={(e) => { if (e.key === 'Enter') addHeading() }} />
                         <p className="bsub" style={{ margin: '8px 0 0', fontSize: 13.5 }}>
                           A heading names the links under it. A divider is just a line — useful when
-                          the grouping is obvious and a word would be noise.
+                          the grouping is obvious and a word would be noise. New ones arrive at the
+                          top of the list; walk it down with the arrows to where the group starts.
                         </p>
                         <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
                           <button className="btn" style={{ flex: 1, minWidth: 150 }} onClick={addHeading}>Add heading</button>

@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { serverClient, resolveLook, Page, Theme } from '../../../lib/supabase'
+import { manropeFonts } from '../../../lib/ogfont'
 
 // Node rather than edge: the QR is generated with the same qrcode package the
 // dashboard already uses, and that is not an edge-safe dependency.
@@ -35,6 +36,8 @@ export async function GET(req: Request) {
 
   // Rendered white-on-white so it reads on any theme, and encoded inline
   // because satori will not fetch a relative image.
+  const fonts = await manropeFonts()
+
   let qrDataUrl = ''
   try {
     const mod: any = await import('qrcode')
@@ -118,6 +121,6 @@ export async function GET(req: Request) {
         </div>
       </div>
     ),
-    { width: 1080, height: 1920 }
+    { width: 1080, height: 1920, fonts }
   )
 }

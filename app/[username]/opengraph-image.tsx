@@ -1,7 +1,9 @@
 import { ImageResponse } from 'next/og'
 import { serverClient, resolveLook, Page, Theme } from '../../lib/supabase'
+import { manropeFonts } from '../../lib/ogfont'
 
-export const runtime = 'edge'
+// node rather than edge so the committed Manrope files can be read from disk
+export const runtime = 'nodejs'
 export const alt = 'A Relay page'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
@@ -26,7 +28,7 @@ export default async function OgImage({ params }: { params: { username: string }
           relayme.bio
         </div>
       ),
-      size
+      { ...size, fonts: await manropeFonts() }
     )
   }
 
@@ -101,6 +103,6 @@ export default async function OgImage({ params }: { params: { username: string }
         </div>
       </div>
     ),
-    size
+    { ...size, fonts: await manropeFonts() }
   )
 }

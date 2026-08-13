@@ -1076,3 +1076,8 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 }
 .addtab.on { background: var(--ink); color: var(--on-ink); }
 .addtab:focus-visible { outline: 3px solid var(--violet); outline-offset: 3px; }
+
+/* A heading with nothing beneath it heads nothing. Said quietly in the row
+   rather than enforced, because a rule that refuses the save would also refuse
+   the perfectly normal moment between adding a heading and moving it. */
+.rowmeta-warn { color: #A24B12; font-weight: 600; }

@@ -438,10 +438,15 @@ textarea.field { overflow: hidden; }
 /* --- account tab --- */
 .planrow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
 .planbadge {
-  font-size: 13px; font-weight: 800; letter-spacing: .02em; padding: 7px 14px;
-  border-radius: 999px; background: rgba(27,13,68,.08); color: var(--ink);
+  font-size: 12px; font-weight: 800; letter-spacing: .09em; padding: 7px 15px;
+  border-radius: 999px; background: rgba(27,13,68,.10); color: rgba(27,13,68,.66);
+  border: 1px solid rgba(27,13,68,.10);
 }
-.planbadge.pro { background: var(--lime); }
+/* Pro should look earned, not like another grey label */
+.planbadge.pro {
+  background: var(--ink); color: var(--lime); border-color: var(--ink);
+  box-shadow: 0 3px 12px rgba(27,13,68,.28);
+}
 .planfacts { list-style: none; margin: 14px 0 0; padding: 0; }
 .planfacts li {
   display: flex; justify-content: space-between; gap: 14px;

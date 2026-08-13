@@ -11,10 +11,10 @@ export const alt = 'A Relay page'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-// Not cached. revalidate = 0 also opts the read behind it out of the App
-// Router's fetch cache, which is what made the card show a bio edited hours
-// earlier. force-dynamic was the wrong tool here and returned a blank image.
-export const revalidate = 0
+// No caching directive on purpose. force-dynamic returned a blank image, and
+// revalidate = 0 did the same. The version that renders has neither, so
+// freshness is handled by the editor calling revalidatePath on this exact
+// route after every save, rather than by anything declared here.
 
 // Satori's default font carries no emoji, so a bio of 🚀🚀🚀 drew literally
 // nothing — a 755-byte blank card rather than an error. Asking it to fetch

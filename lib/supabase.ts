@@ -7,9 +7,17 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true, flowType: 'implicit' },
 })
 
-export function serverClient() {
+// The App Router caches fetch() by default, and supabase-js goes through
+// fetch. That is what kept a share card showing a bio edited hours earlier:
+// the image was regenerating, but the read behind it was being served from
+// Next's data cache. Freshness is decided by the route's own revalidate
+// setting, not silently here.
+export function serverClient(fresh = false) {
   return createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    global: fresh
+      ? { fetch: (input: any, init?: any) => fetch(input, { ...(init || {}), cache: 'no-store' }) }
+      : undefined,
   })
 }
 

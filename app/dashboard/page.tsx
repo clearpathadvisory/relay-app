@@ -987,7 +987,7 @@ export default function Dashboard() {
                     <h2 className="bh">Your links</h2>
                     <span className="counter">{linkCount} {linkCount === 1 ? 'link' : 'links'}</span>
                   </div>
-                  <p className="bsub">Drag the handle to reorder, or use the arrows on a phone. Star makes it the big button. The eye hides it without deleting.</p>
+                  <p className="bsub">Drag the handle to reorder, or use the arrows on a phone. Star makes it the big button. The eye hides it without deleting. Leave the title empty and we read it from the site.</p>
 
                   {/* Every panel opens directly beneath the row it belongs to. They
                       used to render after the whole list, so clicking the clock on the
@@ -1176,7 +1176,7 @@ export default function Dashboard() {
                         <input className="field" placeholder="https://..." value={url}
                           onChange={(e) => setUrl(e.target.value)}
                           onKeyDown={(e) => { if (e.key === 'Enter' && !adding) addLink() }} />
-                        <input className="field" style={{ marginTop: 10 }} placeholder="Title (optional — we read it from the site)"
+                        <input className="field" style={{ marginTop: 10 }} placeholder="Title (optional)"
                           value={title} onChange={(e) => setTitle(e.target.value)} maxLength={60}
                           onKeyDown={(e) => { if (e.key === 'Enter' && !adding) addLink() }} />
                         <button className="btn" style={{ marginTop: 12, width: '100%' }} onClick={addLink} disabled={adding}>

@@ -443,12 +443,10 @@ textarea.field { overflow: hidden; }
   .navitem { min-width: 52px; font-size: 9.5px; padding: 5px 2px; gap: 2px; }
   .navicon { width: 27px; height: 27px; font-size: 12px; border-radius: 10px; }
 
-  /* pin Sign out to the right edge so it can never scroll out of reach */
-  .sidefoot {
-    position: sticky; right: 0; z-index: 2;
-    background: var(--base); padding-left: 10px; margin-left: 2px;
-    box-shadow: -10px 0 10px -6px var(--base);
-  }
+  /* Sign out used to be pinned here with position:sticky. Pinning keeps it in
+     reach and still lets the tabs pass underneath it — which is exactly the
+     overlap it was meant to prevent. The grid further down solves it properly;
+     this rule is gone so the stylesheet has one answer rather than two. */
   .sidefoot .chip { display: none; }
   .sidefoot .btn { padding: 6px 9px; font-size: 11px; white-space: nowrap; }
 
@@ -1237,14 +1235,30 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 }
 
 /* ---------- the rail and Sign out on a phone ---------- */
-/* The nav scrolls horizontally and Sign out sat on top of the last tab. Giving
-   the footer its own column stops the two overlapping. */
+/* Sign out sat on top of the last tab, because the rail scrolled horizontally
+   with the footer inside it. Sticky only moved the overlap rather than removing
+   it: a pinned element still covers whatever passes beneath.
+   The rail is now two columns — the tabs scroll inside the first, the buttons
+   own the second — so there is no shared space for them to fight over. */
 @media (max-width: 700px) {
-  .side { align-items: center; }
+  .side {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    overflow: visible;
+    gap: 6px;
+  }
+  .sidenav {
+    overflow-x: auto;
+    min-width: 0;
+    scrollbar-width: none;
+  }
+  .sidenav::-webkit-scrollbar { display: none; }
+  .navitem { flex: 0 0 auto; min-width: 62px; }
   .sidefoot {
-    position: sticky; right: 0;
-    background: var(--base);
-    box-shadow: -10px 0 10px -6px var(--shadow);
-    padding-left: 8px; margin-left: 2px;
+    position: static;
+    box-shadow: none;
+    padding-left: 6px;
+    border-left: 1px solid var(--line);
   }
 }

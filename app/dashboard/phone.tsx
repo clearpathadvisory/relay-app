@@ -97,8 +97,8 @@ export function Phone({ page, links, theme, showBrand, socials = [] }: { page: P
                 color: l.is_primary ? L.accentText : L.buttonText,
                 border: l.is_primary ? 'none' : L.buttonBorder, boxShadow: L.buttonShadow,
               }}>
-                {l.favicon_url ? (
-                  <img src={l.favicon_url} alt="" style={{ width: 24, height: 24, borderRadius: 7, objectFit: 'cover', flexShrink: 0 }} />
+                {(l.image_url || l.favicon_url) ? (
+                  <img src={(l.image_url || l.favicon_url) as string} alt="" style={{ width: 24, height: 24, borderRadius: 7, objectFit: 'cover', flexShrink: 0 }} />
                 ) : (
                   <span style={{ width: 24, flexShrink: 0 }} />
                 )}

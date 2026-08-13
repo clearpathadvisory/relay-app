@@ -45,8 +45,10 @@ export function LinkButton({ link, look }: { link: Link; look: any }) {
         border: primary ? 'none' : look.buttonBorder,
         boxShadow: look.buttonShadow,
       }}>
-      {link.favicon_url ? (
-        <img src={link.favicon_url} alt="" width={28} height={28} loading="lazy" decoding="async"
+      {/* an uploaded thumbnail wins over the favicon we fetched */}
+      {(link.image_url || link.favicon_url) ? (
+        <img src={(link.image_url || link.favicon_url) as string} alt="" width={28} height={28}
+          loading="lazy" decoding="async"
           style={{ width: 28, height: 28, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
       ) : (
         <span style={{ width: 28, flexShrink: 0 }} />

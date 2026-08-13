@@ -47,6 +47,8 @@ export type Link = {
   title: string | null; url: string | null
   is_active: boolean; is_primary: boolean; click_count: number
   favicon_url: string | null; site_title: string | null
+  // a Pro thumbnail, which wins over the fetched favicon when present
+  image_url: string | null
 }
 
 export type Social = {

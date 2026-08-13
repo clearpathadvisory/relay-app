@@ -3,11 +3,11 @@
 export const FAQS = [
   {
     q: 'Is the free plan actually free, or a trial?',
-    a: 'Free, with no time limit and no card. Unlimited links, your own photo and bio, a row of social icons, 5 themes, tap statistics and a QR code. We do not remove anything later.',
+    a: 'Free, with no time limit and no card. Unlimited links, your own photo and bio, a row of social icons, 5 themes, headings and dividers, tap and view statistics, a QR code and a story-sized image of your page. We do not remove anything later.',
   },
   {
     q: 'What do I get for paying?',
-    a: 'All 40 themes including 4 doodle backgrounds, all 8 fonts, your own 4-colour palette, a background image, and the option to take the Relay badge off your page. $30 a year, or $4 a month.',
+    a: 'All 40 themes including 4 doodle backgrounds, all 8 fonts, your own 4-colour palette, a background image, your own image on every link, and the option to take the Relay badge off your page. $30 a year, or $4 a month.',
   },
   {
     q: 'Can I try the paid features before I pay?',

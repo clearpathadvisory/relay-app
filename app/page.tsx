@@ -115,6 +115,8 @@ export default function Home() {
                 <li>Your own photo and bio</li>
                 <li>A row of social icons</li>
                 <li>5 themes, 1 font</li>
+                <li>Headings and dividers to group your links</li>
+                <li>A story-sized image of your page, ready to post</li>
                 <li>Automatic titles and icons</li>
                 <li>Tap stats and a QR code</li>
               </ul>
@@ -137,6 +139,7 @@ export default function Home() {
                 <li>All 8 fonts</li>
                 <li>Your own colours, 4 slots</li>
                 <li>Background image</li>
+                <li>Your own image on every link</li>
                 <li>Remove the Relay badge from your page</li>
                 <li>Try it all before you pay</li>
                 <li><strong>Save $18 against monthly</strong></li>
@@ -160,6 +163,7 @@ export default function Home() {
                 <li>All 8 fonts</li>
                 <li>Your own colours, 4 slots</li>
                 <li>Background image</li>
+                <li>Your own image on every link</li>
                 <li>Remove the Relay badge from your page</li>
                 <li>Try it all before you pay</li>
                 <li>Cancel any month you like</li>

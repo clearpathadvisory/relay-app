@@ -1081,3 +1081,29 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
    rather than enforced, because a rule that refuses the save would also refuse
    the perfectly normal moment between adding a heading and moving it. */
 .rowmeta-warn { color: #A24B12; font-weight: 600; }
+
+/* ---------- per-link image ---------- */
+/* The row's icon becomes the control, because that is the thing being changed —
+   a separate button somewhere else would need explaining. */
+.thumbbtn {
+  position: relative; border: none; background: none; padding: 0;
+  cursor: pointer; line-height: 0; flex-shrink: 0; border-radius: 12px;
+}
+.thumbbtn:focus-visible { outline: 3px solid var(--violet); outline-offset: 3px; }
+.thumbpen {
+  position: absolute; right: -4px; bottom: -4px;
+  width: 17px; height: 17px; border-radius: 50%;
+  background: var(--ink); color: var(--on-ink);
+  font-size: 9px; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .14s ease;
+}
+.thumbbtn:hover .thumbpen, .thumbbtn:focus-visible .thumbpen { opacity: 1; }
+@media (hover: none) { .thumbpen { opacity: .9; } }
+
+.thumbpanel {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 18px; padding: 15px 18px; margin-bottom: 12px;
+}
+.thumbpanel p { margin: 0 0 12px; font-size: 14px; line-height: 1.55; color: var(--ink-70); }
+.thumbactions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.thumbactions label.btn { cursor: pointer; }

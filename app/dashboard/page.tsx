@@ -53,6 +53,8 @@ export default function Dashboard() {
   const [dragOver, setDragOver] = useState<number | null>(null)
   const [addKind, setAddKind] = useState<'link' | 'heading'>('link')
   const [headingText, setHeadingText] = useState('')
+  const [thumbBusy, setThumbBusy] = useState<string | null>(null)
+  const [thumbFor, setThumbFor] = useState<string | null>(null)
   const firstRun = useRef(true)
   const bioRef = useRef<HTMLTextAreaElement | null>(null)
   const [pending, setPending] = useState<any>({})
@@ -366,6 +368,35 @@ export default function Dashboard() {
     const { data, error } = await supabase.from('pages').insert({ owner_id: userId, username: n, display_name: n }).select().single()
     if (error) { setErr(error.message.indexOf('duplicate') >= 0 ? 'That name is taken. Try another.' : error.message); return }
     setPage(data as Page); setName(n)
+  }
+
+  // Reuses the shrink and upload path the avatar already uses. 256 square is
+  // ample for a 28px circle on a phone and keeps the page light.
+  async function uploadThumb(linkId: string, file: File) {
+    if (!isPro) { setErr('Your own image on a link is a Pro feature.'); return }
+    if (!file.type.startsWith('image/')) { setErr('That needs to be an image.'); return }
+    if (file.size > 4 * 1024 * 1024) { setErr('Under 4MB, please.'); return }
+    setErr(''); setThumbBusy(linkId)
+
+    const body = await shrink(file, 256, true)
+    const path = userId + '/' + linkId + '-' + Date.now() + '.jpg'
+    const { error: e } = await supabase.storage.from('thumbs').upload(path, body, {
+      upsert: true, contentType: body.type || 'image/jpeg',
+    })
+    if (e) { setErr(e.message); setThumbBusy(null); return }
+
+    const { data } = supabase.storage.from('thumbs').getPublicUrl(path)
+    await supabase.from('links').update({ image_url: data.publicUrl }).eq('id', linkId)
+    setThumbBusy(null)
+    if (page) await loadLinks(page.id)
+    pushLive()
+  }
+
+  async function clearThumb(linkId: string) {
+    setErr('')
+    await supabase.from('links').update({ image_url: null }).eq('id', linkId)
+    if (page) await loadLinks(page.id)
+    pushLive()
   }
 
   async function addLink() {
@@ -777,7 +808,16 @@ export default function Dashboard() {
                       onDragEnd={() => { dragFrom.current = null; setDragOver(null) }}
                       className={(dragOver === i ? 'row rowover' : 'row') + (l.is_active ? '' : ' hiddenrow')}>
                       <span className="grip">⠿</span>
-                      {l.kind === 'link' && (l.favicon_url ? <img className="fav" src={l.favicon_url} alt="" /> : <span className="fav favblank" />)}
+                      {l.kind === 'link' && (
+                        <button className="thumbbtn" title={isPro ? 'Change this image' : 'Your own image is a Pro feature'}
+                          aria-label={'Change the image for ' + l.title}
+                          onClick={() => (isPro ? setThumbFor(thumbFor === l.id ? null : l.id) : setErr('Your own image on a link is a Pro feature.'))}>
+                          {(l.image_url || l.favicon_url)
+                            ? <img className="fav" src={(l.image_url || l.favicon_url) as string} alt="" />
+                            : <span className="fav favblank" />}
+                          <span className="thumbpen" aria-hidden="true">✎</span>
+                        </button>
+                      )}
                       {l.kind === 'heading' && <span className="fav kindmark" aria-hidden="true">H</span>}
                       {l.kind === 'divider' && <span className="fav kindmark" aria-hidden="true">—</span>}
                       <div style={{ flex: 1, minWidth: 90 }}>
@@ -806,6 +846,32 @@ export default function Dashboard() {
                       <button className="icon" title="Delete" aria-label={'Delete ' + (l.title || 'divider')} onClick={() => setConfirmLink(l.id)}>✕</button>
                     </div>
                   ))}
+
+                  {thumbFor && (
+                    <div className="thumbpanel">
+                      <p>
+                        <strong>Your own image for this link.</strong> Square works best — we crop
+                        to the middle and shrink it before it leaves your browser.
+                      </p>
+                      <div className="thumbactions">
+                        <label className="btn small">
+                          {thumbBusy === thumbFor ? 'Uploading…' : 'Choose an image'}
+                          <input type="file" accept="image/*" style={{ display: 'none' }}
+                            onChange={(e) => {
+                              const f = e.target.files && e.target.files[0]
+                              if (f) uploadThumb(thumbFor, f)
+                              e.target.value = ''
+                            }} />
+                        </label>
+                        {(links.filter((l) => l.id === thumbFor)[0] || {}).image_url && (
+                          <button className="btn small ghost" onClick={() => clearThumb(thumbFor)}>
+                            Back to the site&rsquo;s own icon
+                          </button>
+                        )}
+                        <button className="btn small ghost" onClick={() => setThumbFor(null)}>Done</button>
+                      </div>
+                    </div>
+                  )}
                   {confirmLink && (
                     <div className="confirmrow">
                       <p>

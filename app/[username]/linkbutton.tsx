@@ -18,7 +18,7 @@ export function LinkButton({ link, look }: { link: Link; look: any }) {
   }
 
   return (
-    <a href={link.url} onClick={go}
+    <a href={link.url} onClick={go} className={primary ? 'jiggle' : undefined}
       style={{
         display: 'flex', alignItems: 'center', gap: 12, padding: '16px 18px',
         fontSize: 15, fontWeight: primary ? 700 : 500,

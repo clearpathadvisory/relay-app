@@ -22,6 +22,8 @@ export const FONTS = [
   { id: 'dm', name: 'DM Sans', stack: "'DM Sans', system-ui, sans-serif" + EMOJI },
   { id: 'mono', name: 'Space Mono', stack: "'Space Mono', ui-monospace, monospace" + EMOJI },
   { id: 'playfair', name: 'Playfair', stack: "'Playfair Display', Georgia, serif" + EMOJI },
+  { id: 'nunito', name: 'Nunito', stack: "Nunito, ui-rounded, system-ui, sans-serif" + EMOJI },
+  { id: 'caveat', name: 'Caveat', stack: "Caveat, 'Segoe Script', cursive" + EMOJI },
 ]
 
 export function fontStack(id: string) {

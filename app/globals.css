@@ -536,3 +536,19 @@ a.topurl:hover .topurlgo { opacity: 1; }
   .navitem { min-width: 43px; font-size: 8.5px; }
   .navicon { width: 24px; height: 24px; font-size: 11px; }
 }
+
+/* --- the starred link gives a small wave every three seconds --- */
+.jiggle { animation: jiggle 3s ease-in-out infinite; transform-origin: center; will-change: transform; }
+
+@keyframes jiggle {
+  0%, 84%, 100% { transform: none; }
+  86%           { transform: rotate(-1.6deg) scale(1.025); }
+  89%           { transform: rotate(1.6deg)  scale(1.025); }
+  92%           { transform: rotate(-1.1deg) scale(1.015); }
+  95%           { transform: rotate(.7deg); }
+  98%           { transform: rotate(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jiggle { animation: none; }
+}

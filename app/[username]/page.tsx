@@ -47,14 +47,16 @@ export default async function PublicPage({ params }: { params: { username: strin
   const hasAvatar = !!(page.avatar_url && page.avatar_url.length > 4)
   const wrap: any = { overflowWrap: 'anywhere', wordBreak: 'break-word' }
 
-  const shell: any = {
-    background: L.bg, backgroundSize: 'cover', minHeight: '100vh', padding: '54px 20px 40px',
-    display: 'flex', justifyContent: 'center', fontFamily: L.font,
-  }
+  // the page behind the card
+  const shell: any = { background: L.bg, backgroundSize: 'cover', fontFamily: L.font }
+  // the card itself carries the same look, so it reads as one surface with an edge
+  const card: any = { background: L.bg, backgroundSize: 'cover' }
   if (L.bgImage) {
-    shell.backgroundImage = 'url(' + L.bgImage + ')'
-    shell.backgroundSize = 'cover'
-    shell.backgroundPosition = 'center'
+    for (const o of [shell, card]) {
+      o.backgroundImage = 'url(' + L.bgImage + ')'
+      o.backgroundSize = 'cover'
+      o.backgroundPosition = 'center'
+    }
     shell.backgroundAttachment = 'fixed'
   }
 
@@ -66,8 +68,9 @@ export default async function PublicPage({ params }: { params: { username: strin
   if (!hasAvatar) { av.backgroundColor = L.accentBg; av.color = L.accentText }
 
   return (
-    <main style={shell}>
-      <div style={{ width: '100%', maxWidth: 520 }}>
+    <main className="pubwrap" style={shell}>
+      <div className="pubcard" style={card}>
+        <div className="pubinner">
         <div style={av}>
           {hasAvatar ? <img src={page.avatar_url as string} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}
         </div>
@@ -98,14 +101,23 @@ export default async function PublicPage({ params }: { params: { username: strin
           )}
         </div>
 
-        {page.show_branding !== false && (
-          <div style={{ marginTop: 44, textAlign: 'center' }}>
-            <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#FFFFFF', color: '#1B0D44', padding: '13px 24px', borderRadius: 999, fontSize: 14, fontWeight: 700 }}>
-              <span style={{ width: 16, height: 16, borderRadius: 5, background: '#7C5CE6', display: 'inline-block' }} />
-              Join {page.username} on Relay
-            </a>
+          {page.show_branding !== false && (
+            <div style={{ marginTop: 44, textAlign: 'center' }}>
+              <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#FFFFFF', color: '#1B0D44', padding: '13px 24px', borderRadius: 999, fontSize: 14, fontWeight: 700 }}>
+                <span style={{ width: 16, height: 16, borderRadius: 5, background: '#7C5CE6', display: 'inline-block' }} />
+                Join {page.username} on Relay
+              </a>
+            </div>
+          )}
+
+          <div className="publegal" style={{ color: L.bioColor }}>
+            <a href="/privacy" style={{ color: L.bioColor }}>Privacy</a>
+            <span aria-hidden="true">·</span>
+            <a href="/terms" style={{ color: L.bioColor }}>Terms</a>
+            <span aria-hidden="true">·</span>
+            <a href="/" style={{ color: L.bioColor }}>Made with Relay</a>
           </div>
-        )}
+        </div>
       </div>
     </main>
   )

@@ -70,3 +70,35 @@ export function embedName(kind: EmbedKind): string {
   if (kind === 'spotify') return 'Spotify'
   return 'SoundCloud'
 }
+
+// The endpoint each service publishes for exactly this: give it a url, get the
+// real title back. Scraping YouTube or Spotify for a title does not work —
+// they render the page in the browser and hand a bot the site name at best.
+export function oembedUrl(raw: string): string | null {
+  const e = detectEmbed(raw)
+  if (!e) return null
+  const target = encodeURIComponent(raw)
+  if (e.kind === 'youtube') return 'https://www.youtube.com/oembed?format=json&url=' + target
+  if (e.kind === 'spotify') return 'https://open.spotify.com/oembed?url=' + target
+  return 'https://soundcloud.com/oembed?format=json&url=' + target
+}
+
+// Sites append their own name to a title. "Never Gonna Give You Up - YouTube"
+// is the page's title; the useful part is everything before the tail.
+export function tidyTitle(title: string, host: string): string {
+  let t = (title || '').trim()
+  const tails = [
+    / [-|–—] YouTube$/i, / on Spotify$/i, / \| Spotify$/i,
+    / by .+ \| Free Listening on SoundCloud$/i, / \| SoundCloud$/i,
+    / [-|–—] Apple Music$/i,
+  ]
+  for (const re of tails) t = t.replace(re, '')
+  t = t.trim()
+  // A title that is only the site's own name is no better than the address.
+  // Compare against every label, not just the first: open.spotify.com starts
+  // with "open", and the name being matched is "spotify".
+  const bare = t.toLowerCase().replace(/[^a-z0-9]/g, '')
+  const labels = host.toLowerCase().split('.').map((x) => x.replace(/[^a-z0-9]/g, ''))
+  if (bare && labels.indexOf(bare) >= 0) return ''
+  return t
+}

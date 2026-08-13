@@ -7,7 +7,7 @@ const { jsonLdScript } = await import('../.test/lib/jsonld.js')
 const { socialHref, socialName } = await import('../.test/app/socialicons.js')
 const { resolveLook, fontStack } = await import('../.test/lib/supabase.js')
 const { scheduleState, scheduleLabel } = await import('../.test/lib/schedule.js')
-const { detectEmbed } = await import('../.test/lib/embed.js')
+const { detectEmbed, oembedUrl, tidyTitle } = await import('../.test/lib/embed.js')
 
 let passed = 0
 function it(name, fn) {
@@ -167,6 +167,31 @@ it('returns nothing for anything else', () => {
 it('refuses a lookalike host', () => {
   assert.equal(detectEmbed('https://youtube.com.evil.example/watch?v=dQw4w9WgXcQ'), null)
   assert.equal(detectEmbed('https://open.spotify.com.evil.example/track/4cOdK2wGLETKBW3PvgPWqT'), null)
+})
+
+console.log('\noembedUrl')
+it('points each service at its own endpoint', () => {
+  assert.ok(oembedUrl('https://youtu.be/dQw4w9WgXcQ').startsWith('https://www.youtube.com/oembed'))
+  assert.ok(oembedUrl('https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT').startsWith('https://open.spotify.com/oembed'))
+  assert.ok(oembedUrl('https://soundcloud.com/artist/a-track').startsWith('https://soundcloud.com/oembed'))
+})
+it('returns nothing for a site with no endpoint', () => {
+  assert.equal(oembedUrl('https://example.com'), null)
+})
+
+console.log('\ntidyTitle')
+it('strips the site name a service appends', () => {
+  assert.equal(tidyTitle('Never Gonna Give You Up - YouTube', 'youtube.com'), 'Never Gonna Give You Up')
+  assert.equal(tidyTitle('A Bar Song (Tipsy) | Spotify', 'open.spotify.com'), 'A Bar Song (Tipsy)')
+  assert.equal(tidyTitle('Some Track by Someone | Free Listening on SoundCloud', 'soundcloud.com'), 'Some Track')
+})
+it('rejects a title that is only the site name', () => {
+  assert.equal(tidyTitle('YouTube', 'www.youtube.com'), '')
+  assert.equal(tidyTitle('Spotify', 'open.spotify.com'), '')
+  assert.equal(tidyTitle('MSN', 'msn.com'), '')
+})
+it('leaves a real title alone', () => {
+  assert.equal(tidyTitle('Nightink — a private diary', 'nightink.app'), 'Nightink — a private diary')
 })
 
 console.log('\n' + passed + ' assertions passed\n')

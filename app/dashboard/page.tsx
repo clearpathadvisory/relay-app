@@ -58,6 +58,7 @@ export default function Dashboard() {
   const [thumbBusy, setThumbBusy] = useState<string | null>(null)
   const [thumbFor, setThumbFor] = useState<string | null>(null)
   const [socSuggest, setSocSuggest] = useState<string | null>(null)
+  const [titleBusy, setTitleBusy] = useState<string | null>(null)
   const [subs, setSubs] = useState<any[]>([])
   const [subsLoaded, setSubsLoaded] = useState(false)
   const [capHeading, setCapHeading] = useState('')
@@ -517,6 +518,36 @@ export default function Dashboard() {
     setSocUrl('')
     await loadLinks(page.id)
     pushLive()
+  }
+
+  // Titles fetched before the lookup was fixed read as "Spotify" or a bare
+  // hostname. Deleting and re-adding would throw away that link's taps, so the
+  // title can be fetched again in place.
+  async function refetchTitle(linkId: string) {
+    const row = links.filter((l) => l.id === linkId)[0]
+    if (!row || !row.url) return
+    setErr(''); setTitleBusy(linkId)
+    try {
+      const { data: sess } = await supabase.auth.getSession()
+      const r = await fetch('/api/linkmeta', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (sess.session ? sess.session.access_token : '') },
+        body: JSON.stringify({ url: row.url }),
+      })
+      const meta = await r.json()
+      if (meta && meta.title) {
+        const patchRow: any = { title: meta.title }
+        if (meta.favicon && !row.image_url) patchRow.favicon_url = meta.favicon
+        await supabase.from('links').update(patchRow).eq('id', linkId)
+        if (page) await loadLinks(page.id)
+        pushLive()
+      } else {
+        setErr('That site did not give us a title.')
+      }
+    } catch (e) {
+      setErr('Could not reach that site.')
+    }
+    setTitleBusy(null)
   }
 
   async function toggleEmbed(linkId: string) {
@@ -1038,6 +1069,12 @@ export default function Dashboard() {
                       {l.kind === 'link'
                         ? <button className={l.is_primary ? 'icon on' : 'icon'} title="Make this the main link" onClick={() => makePrimary(l.id)}>★</button>
                         : <span className="icon icondim" aria-hidden="true" />}
+                      {l.kind === 'link' && (
+                        <button className="icon" title="Read the title from the site again"
+                          aria-label={'Refresh the title for ' + l.title}
+                          disabled={titleBusy === l.id}
+                          onClick={() => refetchTitle(l.id)}>{titleBusy === l.id ? '…' : '⟳'}</button>
+                      )}
                       <button className="icon" title="Delete" aria-label={'Delete ' + (l.title || 'divider')}
                         onClick={() => { setScheduleFor(null); setThumbFor(null); setConfirmLink(confirmLink === l.id ? null : l.id) }}>✕</button>
                     </div>

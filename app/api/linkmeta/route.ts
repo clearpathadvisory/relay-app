@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { lookup } from 'dns/promises'
 import { isPrivateAddress } from '../../../lib/net'
+import { oembedUrl, tidyTitle } from '../../../lib/embed'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -84,6 +85,27 @@ export async function POST(req: NextRequest) {
   const host = u.hostname
   const fallbackIcon = 'https://www.google.com/s2/favicons?sz=128&domain=' + host
 
+  // YouTube, Spotify and SoundCloud render their pages in the browser and hand
+  // a bot the site's own name at best — which is why a track came back called
+  // "Spotify". Each publishes an oEmbed endpoint for exactly this question.
+  const oembed = oembedUrl(u.toString())
+  if (oembed) {
+    try {
+      const ctrl = new AbortController()
+      const timer = setTimeout(() => ctrl.abort(), 5000)
+      const r = await fetch(oembed, { signal: ctrl.signal, headers: { Accept: 'application/json' } })
+      clearTimeout(timer)
+      if (r.ok) {
+        const j: any = await r.json()
+        const title = tidyTitle(decode(String(j.title || '')), host).slice(0, 58)
+        const thumb = typeof j.thumbnail_url === 'string' && /^https:\/\//.test(j.thumbnail_url) ? j.thumbnail_url : ''
+        if (title) return NextResponse.json({ title, favicon: thumb || fallbackIcon })
+      }
+    } catch (e) {
+      // fall through to reading the page like any other site
+    }
+  }
+
   try {
     const ctrl = new AbortController()
     const timer = setTimeout(() => ctrl.abort(), 6000)
@@ -117,13 +139,16 @@ export async function POST(req: NextRequest) {
     const buf = await res.arrayBuffer()
     const html = new TextDecoder('utf-8').decode(buf.slice(0, 220000))
 
+    // og:site_name used to be read first, so any site that sets it returned
+    // its own name instead of the page's — "Spotify" rather than the track.
+    // It is now the last resort, below every field that describes the page.
     let title = pick(html, [
-      /<meta[^>]+property=["']og:site_name["'][^>]+content=["']([^"']+)["']/i,
       /<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i,
       /<meta[^>]+name=["']twitter:title["'][^>]+content=["']([^"']+)["']/i,
       /<title[^>]*>([^<]+)<\/title>/i,
+      /<meta[^>]+property=["']og:site_name["'][^>]+content=["']([^"']+)["']/i,
     ])
-    title = decode(title).slice(0, 58).trim() || host
+    title = tidyTitle(decode(title), host).slice(0, 58).trim() || host
 
     let icon = pick(html, [
       /<link[^>]+rel=["'][^"']*apple-touch-icon[^"']*["'][^>]+href=["']([^"']+)["']/i,

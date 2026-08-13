@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
       /<meta[^>]+name=["']twitter:title["'][^>]+content=["']([^"']+)["']/i,
       /<title[^>]*>([^<]+)<\/title>/i,
     ])
-    title = decode(title).slice(0, 90) || host
+    title = decode(title).slice(0, 58).trim() || host
 
     let icon = pick(html, [
       /<link[^>]+rel=["'][^"']*apple-touch-icon[^"']*["'][^>]+href=["']([^"']+)["']/i,

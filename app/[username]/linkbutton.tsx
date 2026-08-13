@@ -20,7 +20,7 @@ export function LinkButton({ link, look }: { link: Link; look: any }) {
   return (
     <a href={link.url} onClick={go} className={primary ? 'jiggle' : undefined}
       style={{
-        display: 'flex', alignItems: 'center', gap: 12, padding: '16px 18px',
+        display: 'flex', alignItems: 'center', gap: 12, minHeight: 56, padding: '16px 18px',
         fontSize: 15, fontWeight: primary ? 700 : 500,
         borderRadius: look.buttonRadius,
         background: primary ? look.accentBg : look.buttonBg,
@@ -33,7 +33,7 @@ export function LinkButton({ link, look }: { link: Link; look: any }) {
       ) : (
         <span style={{ width: 28, flexShrink: 0 }} />
       )}
-      <span style={{ flex: 1, minWidth: 0, textAlign: 'center', lineHeight: 1.35, paddingRight: 28, overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{link.title}</span>
+      <span className="linklabel" style={{ flex: 1, minWidth: 0, textAlign: 'center', lineHeight: 1.35, paddingRight: 40, overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{link.title}</span>
     </a>
   )
 }

@@ -70,7 +70,7 @@ export function Phone({ page, links, theme, showBrand, socials = [] }: { page: P
           <div style={{ display: 'flex', flexDirection: 'column', gap: tight ? 8 : many ? 9 : 11 }}>
             {shown.map((l) => (
               <div key={l.id} className={l.is_primary ? 'jiggle' : undefined} style={{
-                display: 'flex', alignItems: 'center', gap: 10, padding: tight ? '10px 12px' : many ? '12px 13px' : '14px 14px', fontSize: tight ? 12.5 : 13,
+                display: 'flex', alignItems: 'center', gap: 10, minHeight: 46, padding: tight ? '10px 12px' : many ? '12px 13px' : '14px 14px', fontSize: tight ? 12.5 : 13,
                 fontWeight: l.is_primary ? 700 : 500, borderRadius: L.buttonRadius,
                 background: l.is_primary ? L.accentBg : L.buttonBg,
                 color: l.is_primary ? L.accentText : L.buttonText,
@@ -81,7 +81,7 @@ export function Phone({ page, links, theme, showBrand, socials = [] }: { page: P
                 ) : (
                   <span style={{ width: 24, flexShrink: 0 }} />
                 )}
-                <span style={{ flex: 1, minWidth: 0, textAlign: 'center', lineHeight: 1.32, paddingRight: 24, ...wrap }}>{l.title}</span>
+                <span className="linklabel" style={{ flex: 1, minWidth: 0, textAlign: 'center', lineHeight: 1.32, paddingRight: 34, ...wrap }}>{l.title}</span>
               </div>
             ))}
             {shown.length === 0 && (

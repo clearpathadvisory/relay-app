@@ -10,6 +10,12 @@ export const alt = 'A Relay page'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
+// Without this Next treats the image as static and generates it once, so a
+// card kept showing a bio that had been edited hours earlier. Five minutes is
+// short enough that a stale card is a curiosity rather than a complaint, and
+// the editor pushes this path through on every save anyway.
+export const revalidate = 300
+
 // Rendered once per page and cached by Vercel, so a share on Instagram, X or
 // WhatsApp shows the person's actual page rather than a bare grey card.
 export default async function OgImage({ params }: { params: { username: string } }) {

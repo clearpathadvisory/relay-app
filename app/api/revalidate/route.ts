@@ -34,6 +34,11 @@ export async function POST(req: NextRequest) {
 
   if (!page || !page.username) return NextResponse.json({ ok: false }, { status: 404 })
 
+  // The page and its share card are separate cached things. Revalidating the
+  // page alone left the card showing an old avatar and an old bio — which is
+  // the copy every friend sees when the link is pasted into a chat.
   revalidatePath('/' + page.username)
+  revalidatePath('/' + page.username + '/opengraph-image')
+
   return NextResponse.json({ ok: true })
 }

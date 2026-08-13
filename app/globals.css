@@ -1179,3 +1179,37 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 /* A link that could play inline but is still a plain button. The ▶ is already
    on the row; this is what tells you it is worth pressing. */
 .rowmeta-hint { color: var(--violet); font-weight: 600; }
+
+/* ---------- email capture on a public page ---------- */
+.capture { padding: 18px 18px 16px; margin-top: 4px; }
+.capheading { margin: 0 0 12px; font-size: 15px; font-weight: 700; line-height: 1.35; }
+.caprow { display: flex; gap: 8px; flex-wrap: wrap; }
+.capinput {
+  flex: 1; min-width: 150px; padding: 12px 14px; font: inherit; font-size: 15px;
+  background: transparent; border: 1px solid; border-radius: 12px;
+  opacity: .95; outline: none;
+}
+.capinput::placeholder { color: currentColor; opacity: .45; }
+.capinput:focus-visible { outline: 2px solid currentColor; outline-offset: 1px; }
+.capbtn {
+  border: none; cursor: pointer; font: inherit; font-size: 15px; font-weight: 700;
+  padding: 12px 20px; flex-shrink: 0;
+}
+.capbtn:disabled { opacity: .7; cursor: default; }
+.capbtn:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+.caperr { margin: 10px 0 0; font-size: 13px; font-weight: 600; }
+.capnote { margin: 12px 0 0; font-size: 11.5px; line-height: 1.5; opacity: .72; }
+
+/* ---------- the subscriber list ---------- */
+.sublist { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.subrow {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border-radius: 14px; padding: 10px 12px;
+}
+.submail { flex: 1; min-width: 0; font-size: 14px; overflow-wrap: anywhere; }
+.subtag {
+  flex-shrink: 0; font-size: 11px; font-weight: 800; letter-spacing: .04em;
+  text-transform: uppercase; padding: 4px 9px; border-radius: 999px;
+  background: var(--ink-06); color: var(--muted);
+}
+.subtag.ok { background: #EAF7D4; color: #3B6D11; }

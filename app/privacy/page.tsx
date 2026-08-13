@@ -127,6 +127,14 @@ export default function Privacy() {
             Contractual Clauses, and where applicable the EU–US Data Privacy Framework.
           </p>
           <p>
+            <strong>If you give a Relay page your email address.</strong> Some pages carry a card
+            asking for one. That address belongs to the person whose page it is, not to us &mdash;
+            they decide what to send you and they are responsible for it. We store it for them,
+            send you one message to check the address is really yours, and store nothing at all
+            until you click the link in it. Every message includes a way to leave, and leaving
+            deletes the address rather than marking it. Relay itself will never email you.
+          </p>
+          <p>
             <strong>Links that play on a page.</strong> A Pro account can set a YouTube, Spotify or
             SoundCloud link to play where it stands rather than sending you elsewhere. Until you
             press play, nothing is requested from any of them &mdash; the card you see is drawn by

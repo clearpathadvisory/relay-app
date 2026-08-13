@@ -29,7 +29,7 @@ const ROWS: { label: string; relay: string; rt: Tone; other: string; ot: Tone; o
   { label: 'Story-sized image of your page', relay: 'Free plan', rt: 'yes', other: 'Paid tiers', ot: 'yes', ours: true },
   { label: 'Your own image on every link', relay: 'Included in Pro', rt: 'yes', other: 'Yes', ot: 'yes' },
   { label: 'Links on a schedule', relay: 'Included in Pro', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },
-  { label: 'Email capture', relay: 'In build', rt: 'soon', other: 'Yes', ot: 'yes' },
+  { label: 'Email capture', relay: 'Included in Pro, confirmed opt-in', rt: 'yes', other: 'Yes', ot: 'yes', ours: true },
   { label: 'Music and video embeds', relay: 'Included in Pro, click to play', rt: 'yes', other: 'Yes', ot: 'yes', ours: true },
   { label: 'Your own domain', relay: 'No', rt: 'no', other: 'Yes, on higher tiers', ot: 'yes' },
   { label: 'Payments and tipping', relay: 'No', rt: 'no', other: 'Yes', ot: 'yes' },
@@ -108,8 +108,8 @@ export default function VsLinktree() {
           <h2>Who should pick which</h2>
           <p>
             <strong>Take Linktree</strong> if you need to sell or take tips straight from the page,
-            if embedded players are the point of your page, or if you want your own domain in front
-            of it. Those are real features and we do not have them yet.
+            or if you want your own domain in front of it. Those are real features and we do not
+            have them.
           </p>
           <p>
             <strong>Take Relay</strong> if you want a page that looks made rather than generated, if
@@ -120,9 +120,9 @@ export default function VsLinktree() {
 
           <h2>The honest gaps</h2>
           <p>
-            Email capture is being built and will arrive on Pro. A custom domain is not
-            planned for this year. Payments are not planned at all &mdash; taking money on behalf of
-            other people is a regulated business and not one we intend to enter.
+            A custom domain is not planned for this year. Payments are not planned at all &mdash;
+            taking money on behalf of other people is a regulated business and not one we intend to
+            enter.
           </p>
 
           <div className="legalend">

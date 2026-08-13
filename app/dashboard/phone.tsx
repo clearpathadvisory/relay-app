@@ -112,6 +112,31 @@ export function Phone({ page, links, theme, showBrand, socials = [] }: { page: P
             )}
           </div>
 
+          {page.capture_on && (
+            <div style={{
+              marginTop: 10, padding: '12px 12px 10px', borderRadius: L.buttonRadius,
+              background: L.buttonBg, color: L.buttonText, border: L.buttonBorder,
+            }}>
+              <p style={{ margin: '0 0 8px', fontSize: 10.5, fontWeight: 700, lineHeight: 1.35, ...wrap }}>
+                {page.capture_heading || 'Get my emails'}
+              </p>
+              <div style={{ display: 'flex', gap: 5 }}>
+                <span style={{
+                  flex: 1, minWidth: 0, padding: '7px 8px', fontSize: 9,
+                  border: '1px solid currentColor', borderRadius: 9, opacity: .45,
+                }}>you@email.com</span>
+                <span style={{
+                  padding: '7px 10px', fontSize: 9, fontWeight: 700, borderRadius: L.buttonRadius,
+                  background: L.accentBg, color: L.accentText, whiteSpace: 'nowrap',
+                }}>{page.capture_button || 'Sign me up'}</span>
+              </div>
+              <p style={{ margin: '8px 0 0', fontSize: 7.5, lineHeight: 1.45, opacity: .7, ...wrap }}>
+                {page.capture_note ? page.capture_note + ' ' : ''}
+                We will email you once to check it is really you.
+              </p>
+            </div>
+          )}
+
           {showBrand && (
             <div style={{ textAlign: 'center', marginTop: 'auto', paddingTop: many ? 20 : 30 }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fff', color: '#1B0D44', padding: '10px 17px', borderRadius: 999, fontSize: 11.5, fontWeight: 700 }}>

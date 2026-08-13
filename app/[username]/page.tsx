@@ -2,6 +2,7 @@ import { serverClient, Theme, Link, Page, Social, resolveLook } from '../../lib/
 import { SocialIcon, socialHref, socialName } from '../socialicons'
 import { Blob } from '../blob'
 import { Row } from './row'
+import { Capture } from './capture'
 import { ShareButton } from './sharebutton'
 import { PageView } from './pageview'
 import { redirect } from 'next/navigation'
@@ -152,6 +153,16 @@ export default async function PublicPage({ params }: { params: { username: strin
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 28 }}>
           {links.map((l) => <Row key={l.id} link={l} look={L} />)}
+
+          {page.capture_on && (
+            <Capture
+              pageId={page.id}
+              heading={page.capture_heading}
+              button={page.capture_button}
+              note={page.capture_note}
+              look={L}
+            />
+          )}
           {links.length === 0 && (
             <p style={{ textAlign: 'center', color: L.bioColor, fontSize: 14 }}>Nothing to relay yet.</p>
           )}

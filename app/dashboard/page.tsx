@@ -58,6 +58,11 @@ export default function Dashboard() {
   const [thumbBusy, setThumbBusy] = useState<string | null>(null)
   const [thumbFor, setThumbFor] = useState<string | null>(null)
   const [socSuggest, setSocSuggest] = useState<string | null>(null)
+  const [subs, setSubs] = useState<any[]>([])
+  const [subsLoaded, setSubsLoaded] = useState(false)
+  const [capHeading, setCapHeading] = useState('')
+  const [capButton, setCapButton] = useState('')
+  const [capNote, setCapNote] = useState('')
   const [scheduleFor, setScheduleFor] = useState<string | null>(null)
   const firstRun = useRef(true)
   const bioRef = useRef<HTMLTextAreaElement | null>(null)
@@ -130,7 +135,8 @@ export default function Dashboard() {
           } else if (hasSaved) {
             setPending(saved)
           }
-          setPage(pg as Page); setName(pg.display_name || ''); setBio(pg.bio || ''); setSeoTitle(pg.seo_title || ''); setSeoDesc(pg.seo_desc || ''); await loadLinks(pg.id); await loadSocials(pg.id); await loadSub(uid)
+          setPage(pg as Page); setName(pg.display_name || ''); setBio(pg.bio || ''); setSeoTitle(pg.seo_title || ''); setSeoDesc(pg.seo_desc || '');
+          setCapHeading(pg.capture_heading || ''); setCapButton(pg.capture_button || ''); setCapNote(pg.capture_note || ''); await loadLinks(pg.id); await loadSocials(pg.id); await loadSub(uid)
         }
       }
       setReady(true)
@@ -140,7 +146,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (tab === 'stats' && page && !statsLoaded) loadStats(page.id)
-  }, [tab, page, statsLoaded])
+    if (tab === 'audience' && page && !subsLoaded) loadSubs(page.id)
+  }, [tab, page, statsLoaded, subsLoaded])
 
 
   // a fixed-height textarea hides the end of a long bio, so grow it to fit
@@ -300,6 +307,48 @@ export default function Dashboard() {
   async function saveSeo() {
     if (!page) return
     await patch({ seo_title: seoTitle.trim() || null, seo_desc: seoDesc.trim() || null })
+  }
+
+  async function loadSubs(pageId: string) {
+    const { data } = await supabase
+      .from('subscribers')
+      .select('id, email, created_at, confirmed_at')
+      .eq('page_id', pageId)
+      .order('created_at', { ascending: false })
+      .limit(2000)
+    setSubs(data || [])
+    setSubsLoaded(true)
+  }
+
+  // Only confirmed addresses leave the building. An unconfirmed one is a
+  // stranger's typing, not a subscriber, and exporting it would hand the owner
+  // a list they have no permission to email.
+  function downloadList() {
+    const rows = subs.filter((x) => x.confirmed_at)
+    const csv = ['email,confirmed_at']
+      .concat(rows.map((r) => '"' + String(r.email).replace(/"/g, '""') + '","' + r.confirmed_at + '"'))
+      .join('\n')
+    // the mascot component is also called Blob, so reach for the browser's one
+    const blob = new window.Blob([csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = (page ? page.username : 'relay') + '-subscribers.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  async function removeSub(id: string) {
+    setSubs(subs.filter((x) => x.id !== id))
+    await supabase.from('subscribers').delete().eq('id', id)
+  }
+
+  async function saveCapture() {
+    await patch({
+      capture_heading: capHeading.trim() || null,
+      capture_button: capButton.trim() || null,
+      capture_note: capNote.trim() || null,
+    })
   }
 
   async function loadStats(pageId: string) {
@@ -762,12 +811,15 @@ export default function Dashboard() {
     { id: 'design', label: 'Design', icon: '◐' },
     { id: 'brand', label: 'Brand', icon: '✎' },
     { id: 'stats', label: 'Stats', icon: '◴' },
+    { id: 'audience', label: 'Audience', icon: '✉' },
     { id: 'share', label: 'Share', icon: '↗' },
     { id: 'account', label: 'Account', icon: '⚙' },
   ]
 
   // --- everything the Stats tab shows, worked out from the raw events ---
   const linkCount = links.filter((l) => l.kind === 'link').length
+  const confirmedSubs = subs.filter((x) => x.confirmed_at)
+  const pendingSubs = subs.filter((x) => !x.confirmed_at)
   // A heading or divider with no link beneath it before the next heading is
   // decoration heading nothing. Worth pointing out, not worth forbidding.
   function emptyGroup(i: number) {
@@ -1556,6 +1608,109 @@ export default function Dashboard() {
                   )}
                 </div>
               </div>
+            )}
+
+            {tab === 'audience' && (
+              <>
+                <div className={isPro ? 'block block-violet' : 'block block-plain'}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 }}>
+                    <h2 className="bh">Collect emails</h2>
+                    {!isPro && <span className="prodot">Pro</span>}
+                  </div>
+                  <p className="bsub">
+                    A card at the bottom of your page asking for an email address. The list is
+                    yours: download it whenever you like and take it wherever you go.
+                  </p>
+
+                  <label className="switch">
+                    <input type="checkbox" checked={!!view.capture_on}
+                      onChange={(e) => (isPro ? patch({ capture_on: e.target.checked }) : preview({ capture_on: e.target.checked }))} />
+                    <span>Show the card on my page</span>
+                  </label>
+
+                  {view.capture_on && (
+                    <div style={{ marginTop: 16 }}>
+                      <label className="label">Heading</label>
+                      <input className="field" value={capHeading} maxLength={60} placeholder="Get my emails"
+                        onChange={(e) => setCapHeading(e.target.value.slice(0, 60))} onBlur={saveCapture} />
+
+                      <label className="label" style={{ marginTop: 12 }}>Button</label>
+                      <input className="field" value={capButton} maxLength={30} placeholder="Sign me up"
+                        onChange={(e) => setCapButton(e.target.value.slice(0, 30))} onBlur={saveCapture} />
+
+                      <label className="label" style={{ marginTop: 12 }}>A line of your own (optional)</label>
+                      <input className="field" value={capNote} maxLength={140} placeholder="One email a month, about the record."
+                        onChange={(e) => setCapNote(e.target.value.slice(0, 140))} onBlur={saveCapture} />
+                      <p className="bsub" style={{ margin: '10px 0 0', fontSize: 13 }}>
+                        Whatever you write, the card also tells people their address goes to you
+                        rather than to Relay, that we will check it is really them, and how to leave.
+                        That part is not editable, because it is what makes asking lawful.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="block block-plain">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 }}>
+                    <h2 className="bh">Your list</h2>
+                    <span className="counter">{confirmedSubs.length} confirmed</span>
+                  </div>
+
+                  {!subsLoaded && <p className="bsub">Fetching…</p>}
+
+                  {subsLoaded && subs.length === 0 && (
+                    <p className="bsub" style={{ marginBottom: 0 }}>
+                      Nobody yet. Addresses appear here once the person has clicked the link we
+                      email them.
+                    </p>
+                  )}
+
+                  {subsLoaded && subs.length > 0 && (
+                    <>
+                      {pendingSubs.length > 0 && (
+                        <p className="bsub">
+                          {pendingSubs.length} {pendingSubs.length === 1 ? 'address has' : 'addresses have'} not
+                          confirmed yet. They are not on your list and are not in the download.
+                        </p>
+                      )}
+
+                      <div className="sublist">
+                        {subs.slice(0, 50).map((x) => (
+                          <div key={x.id} className="subrow">
+                            <span className="submail">{x.email}</span>
+                            <span className={x.confirmed_at ? 'subtag ok' : 'subtag'}>
+                              {x.confirmed_at ? 'Confirmed' : 'Waiting'}
+                            </span>
+                            <button className="icon" title="Remove" aria-label={'Remove ' + x.email}
+                              onClick={() => removeSub(x.id)}>✕</button>
+                          </div>
+                        ))}
+                      </div>
+                      {subs.length > 50 && (
+                        <p className="bsub" style={{ marginTop: 12 }}>
+                          Showing the 50 most recent. The download has all of them.
+                        </p>
+                      )}
+
+                      <div style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
+                        <button className="btn" onClick={downloadList} disabled={confirmedSubs.length === 0}>
+                          Download as CSV
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div className="block block-plain">
+                  <h2 className="bh">What you are agreeing to</h2>
+                  <p className="bsub" style={{ marginBottom: 0 }}>
+                    These are other people&rsquo;s addresses, so the law treats you as responsible
+                    for them, not us. Email only what they signed up for, put a way out in every
+                    message, and delete anyone who asks. If you would rather not carry that, leave
+                    the card switched off &mdash; the rest of your page works exactly the same.
+                  </p>
+                </div>
+              </>
             )}
 
             {tab === 'share' && (

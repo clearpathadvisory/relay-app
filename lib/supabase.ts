@@ -67,6 +67,9 @@ export type Page = {
   custom_button_text: string | null; custom_accent_bg: string | null
   use_custom: boolean; show_branding: boolean
   seo_title: string | null; seo_desc: string | null
+  // the email capture card, all Pro
+  capture_on: boolean
+  capture_heading: string | null; capture_button: string | null; capture_note: string | null
 }
 
 export function resolveLook(page: Page, theme: Theme | undefined) {

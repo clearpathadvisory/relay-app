@@ -142,6 +142,7 @@ export default function Home() {
                 <li>Your own image on every link</li>
                 <li>Links that appear and disappear on a schedule</li>
                 <li>Music and video that plays on your page</li>
+                <li>Collect email addresses, and take the list with you</li>
                 <li>Remove the Relay badge from your page</li>
                 <li>Try it all before you pay</li>
                 <li><strong>Save $18 against monthly</strong></li>
@@ -168,6 +169,7 @@ export default function Home() {
                 <li>Your own image on every link</li>
                 <li>Links that appear and disappear on a schedule</li>
                 <li>Music and video that plays on your page</li>
+                <li>Collect email addresses, and take the list with you</li>
                 <li>Remove the Relay badge from your page</li>
                 <li>Try it all before you pay</li>
                 <li>Cancel any month you like</li>

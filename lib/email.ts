@@ -99,3 +99,24 @@ export function subscriptionEndedEmail() {
      ${button('https://relayme.bio/dashboard', 'Back to your page')}`
   )
 }
+
+// --- email capture ---
+
+export function confirmSubscriptionEmail(pageName: string, pageUrl: string, confirmUrl: string) {
+  return shell(
+    'Confirm you want ' + pageName + '&rsquo;s emails',
+    `<p style="margin:0 0 14px;">Someone entered this address on <a href="${pageUrl}" style="color:#7C5CE6;">${pageUrl}</a>.</p>
+     <p style="margin:0 0 20px;">If that was you, confirm below and ${pageName} will be able to email you. If it was not you, ignore this and nothing happens &mdash; we will not store your address.</p>
+     <p style="margin:0 0 8px;"><a href="${confirmUrl}" style="display:inline-block;background:#1B0D44;color:#ffffff;text-decoration:none;padding:13px 22px;border-radius:12px;font-weight:600;">Yes, confirm</a></p>`,
+    'Relay sent this on behalf of ' + pageName + '. Relay does not email you itself, and you can leave at any time from any message they send.'
+  )
+}
+
+export function newSubscriberEmail(pageName: string, total: number) {
+  return shell(
+    'Someone joined your list',
+    `<p style="margin:0 0 14px;">A new confirmed subscriber on <strong>${pageName}</strong>. That is ${total} in total.</p>
+     <p style="margin:0;">You can see and download the list from the Audience tab in your dashboard.</p>`,
+    'You are the controller of that list. Relay stores it for you and never contacts anyone on it.'
+  )
+}

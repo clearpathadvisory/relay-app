@@ -7,6 +7,7 @@ const { jsonLdScript } = await import('../.test/lib/jsonld.js')
 const { socialHref, socialName } = await import('../.test/app/socialicons.js')
 const { resolveLook, fontStack } = await import('../.test/lib/supabase.js')
 const { scheduleState, scheduleLabel } = await import('../.test/lib/schedule.js')
+const { detectEmbed } = await import('../.test/lib/embed.js')
 
 let passed = 0
 function it(name, fn) {
@@ -121,6 +122,51 @@ it('a start exactly now counts as live, matching the database filter', () => {
 it('an ended label names the end and a waiting label names the start', () => {
   assert.ok(scheduleLabel({ starts_at: null, ends_at: '2026-08-12T12:00:00Z' }, now).startsWith('Ended'))
   assert.ok(scheduleLabel({ starts_at: '2026-08-14T12:00:00Z', ends_at: null }, now).startsWith('Live from'))
+})
+
+console.log('\ndetectEmbed')
+it('reads every shape of YouTube link', () => {
+  for (const u of [
+    'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    'https://youtu.be/dQw4w9WgXcQ',
+    'https://www.youtube.com/shorts/dQw4w9WgXcQ',
+    'https://m.youtube.com/watch?v=dQw4w9WgXcQ&t=30s',
+  ]) {
+    const e = detectEmbed(u)
+    assert.ok(e, u)
+    assert.equal(e.kind, 'youtube')
+    assert.equal(e.src, 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ')
+  }
+})
+it('always uses the nocookie host', () => {
+  assert.equal(detectEmbed('https://www.youtube.com/watch?v=dQw4w9WgXcQ').src.includes('youtube-nocookie.com'), true)
+})
+it('reads Spotify tracks, albums and localised links', () => {
+  const t = detectEmbed('https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT')
+  assert.equal(t.kind, 'spotify')
+  assert.equal(t.src, 'https://open.spotify.com/embed/track/4cOdK2wGLETKBW3PvgPWqT')
+  assert.equal(t.height, 152)
+  const a = detectEmbed('https://open.spotify.com/intl-de/album/4cOdK2wGLETKBW3PvgPWqT')
+  assert.equal(a.kind, 'spotify')
+  assert.equal(a.height, 352)
+})
+it('reads a SoundCloud track and encodes the url it passes on', () => {
+  const e = detectEmbed('https://soundcloud.com/artist/a-track')
+  assert.equal(e.kind, 'soundcloud')
+  assert.equal(e.src.includes(encodeURIComponent('https://soundcloud.com/artist/a-track')), true)
+})
+it('returns nothing for anything else', () => {
+  for (const u of [
+    'https://example.com', 'https://youtube.com', 'https://open.spotify.com',
+    'https://open.spotify.com/track/', 'https://soundcloud.com', null, '', 'not a url',
+    'javascript:alert(1)', 'https://notyoutube.com/watch?v=dQw4w9WgXcQ',
+  ]) {
+    assert.equal(detectEmbed(u), null, String(u))
+  }
+})
+it('refuses a lookalike host', () => {
+  assert.equal(detectEmbed('https://youtube.com.evil.example/watch?v=dQw4w9WgXcQ'), null)
+  assert.equal(detectEmbed('https://open.spotify.com.evil.example/track/4cOdK2wGLETKBW3PvgPWqT'), null)
 })
 
 console.log('\n' + passed + ' assertions passed\n')

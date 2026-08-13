@@ -30,7 +30,7 @@ const ROWS: { label: string; relay: string; rt: Tone; other: string; ot: Tone; o
   { label: 'Your own image on every link', relay: 'Included in Pro', rt: 'yes', other: 'Yes', ot: 'yes' },
   { label: 'Links on a schedule', relay: 'Included in Pro', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },
   { label: 'Email capture', relay: 'In build', rt: 'soon', other: 'Yes', ot: 'yes' },
-  { label: 'Music and video embeds', relay: 'In build', rt: 'soon', other: 'Yes', ot: 'yes' },
+  { label: 'Music and video embeds', relay: 'Included in Pro, click to play', rt: 'yes', other: 'Yes', ot: 'yes', ours: true },
   { label: 'Your own domain', relay: 'No', rt: 'no', other: 'Yes, on higher tiers', ot: 'yes' },
   { label: 'Payments and tipping', relay: 'No', rt: 'no', other: 'Yes', ot: 'yes' },
 ]
@@ -120,7 +120,7 @@ export default function VsLinktree() {
 
           <h2>The honest gaps</h2>
           <p>
-            Email capture and embeds are being built and will arrive on Pro. A custom domain is not
+            Email capture is being built and will arrive on Pro. A custom domain is not
             planned for this year. Payments are not planned at all &mdash; taking money on behalf of
             other people is a regulated business and not one we intend to enter.
           </p>

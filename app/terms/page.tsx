@@ -89,7 +89,7 @@ export default function Terms() {
           </p>
           <p>
             <strong>Pro</strong> unlocks all 40 themes, all 8 fonts, your own colours, a background
-            image, your own image on every link and scheduled links. It costs <strong>$30 a year</strong> or <strong>$4 a month</strong>.
+            image, your own image on every link, scheduled links, and music and video that plays on your page. It costs <strong>$30 a year</strong> or <strong>$4 a month</strong>.
           </p>
           <p>
             <strong>Trying Pro before you buy.</strong> Free accounts can switch on any Pro feature and

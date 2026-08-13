@@ -127,6 +127,15 @@ export default function Privacy() {
             Contractual Clauses, and where applicable the EU–US Data Privacy Framework.
           </p>
           <p>
+            <strong>Links that play on a page.</strong> A Pro account can set a YouTube, Spotify or
+            SoundCloud link to play where it stands rather than sending you elsewhere. Until you
+            press play, nothing is requested from any of them &mdash; the card you see is drawn by
+            us, from the page&rsquo;s own colours. Press play and the player loads from that
+            company, which is the moment your browser first contacts them and the point at which
+            their own terms and cookies apply, not ours. YouTube is loaded through its
+            no-cookie domain.
+          </p>
+          <p>
             <strong>Counting a visit.</strong> When someone opens a Relay page or taps a link, we
             record the event so the page&rsquo;s owner can see how it is doing. To avoid counting the
             same person over and over, we take a one-way hash of their IP address, keep only the

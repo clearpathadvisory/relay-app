@@ -4,6 +4,7 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import { supabase, Theme, Link, Page, Social, FONTS } from '../../lib/supabase'
 import { SOCIALS, SocialIcon, socialHref, socialName } from '../socialicons'
 import { scheduleState, scheduleLabel } from '../../lib/schedule'
+import { detectEmbed, embedName } from '../../lib/embed'
 import { Blob, Star, Robot, Bear, Rocket, Squiggle } from '../blob'
 import { Phone } from './phone'
 
@@ -427,6 +428,21 @@ export default function Dashboard() {
     pushLive()
   }
 
+  async function toggleEmbed(linkId: string) {
+    if (!isPro) { setErr('Playing a link inline is a Pro feature.'); return }
+    const row = links.filter((l) => l.id === linkId)[0]
+    if (!row) return
+    const playable = detectEmbed(row.url)
+    if (!playable) { setErr('That link is not something we can play here.'); return }
+
+    const next = row.embed_kind ? null : playable.kind
+    setErr('')
+    setLinks(links.map((l) => (l.id === linkId ? { ...l, embed_kind: next } : l)))
+    await supabase.from('links').update({ embed_kind: next }).eq('id', linkId)
+    if (page) await loadLinks(page.id)
+    pushLive()
+  }
+
   async function clearWindow(linkId: string) {
     setErr('')
     await supabase.from('links').update({ starts_at: null, ends_at: null }).eq('id', linkId)
@@ -468,9 +484,13 @@ export default function Dashboard() {
     try { host = new URL(u).hostname.replace(/^www\./, '') } catch (e) {}
     const finalTitle = title.trim() || meta.title || host
 
+    // if it can play inline, it does — a Pro account should not have to find a
+    // switch to get the thing the feature is for
+    const playable = detectEmbed(u)
     const { error } = await supabase.from('links').insert({
       page_id: page.id, kind: 'link', title: finalTitle, url: u, position: links.length,
       favicon_url: meta.favicon || null, site_title: null,
+      embed_kind: isPro && playable ? playable.kind : null,
     })
     setAdding(false)
     if (error) { setErr(error.message); return }
@@ -879,7 +899,11 @@ export default function Dashboard() {
                         <p className={emptyGroup(i) || scheduleState(l) === 'ended' ? 'rowmeta rowmeta-warn' : 'rowmeta'}>
                           {l.is_active ? '' : 'Hidden · '}
                           {l.kind === 'link'
-                            ? (scheduleState(l) === 'none' ? l.click_count + ' taps' : scheduleLabel(l) + ' · ' + l.click_count + ' taps')
+                            ? [
+                                l.embed_kind ? 'Plays here · ' + embedName(l.embed_kind as any) : '',
+                                scheduleState(l) === 'none' ? '' : scheduleLabel(l),
+                                l.click_count + ' taps',
+                              ].filter(Boolean).join(' · ')
                             : emptyGroup(i)
                               ? 'Nothing under it yet — move it above some links'
                               : l.kind === 'heading' ? 'Heading' : 'A line across the page'}
@@ -892,6 +916,13 @@ export default function Dashboard() {
                           disabled={i === links.length - 1} onClick={() => move(i, 1)}>▼</button>
                       </div>
                       <button className="icon eyebtn" title={l.is_active ? 'Hide from your page' : 'Show on your page'} onClick={() => toggleActive(l.id)}>{l.is_active ? '◉' : '○'}</button>
+                      {l.kind === 'link' && detectEmbed(l.url) && (
+                        <button className={l.embed_kind ? 'icon on' : 'icon'}
+                          title={l.embed_kind ? 'Plays on your page — tap to make it a button again' : 'Play this on your page instead of sending people away'}
+                          aria-label={'Play ' + l.title + ' inline'}
+                          aria-pressed={!!l.embed_kind}
+                          onClick={() => toggleEmbed(l.id)}>▶</button>
+                      )}
                       {l.kind === 'link' && (
                         <button className={scheduleState(l) === 'none' ? 'icon' : 'icon on'}
                           title={isPro ? 'Give this link a start or an end' : 'Scheduling is a Pro feature'}

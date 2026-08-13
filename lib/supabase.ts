@@ -51,6 +51,8 @@ export type Link = {
   image_url: string | null
   // a Pro window; outside it the row is not on the page at all
   starts_at: string | null; ends_at: string | null
+  // set on a Pro link that plays inline rather than sending the visitor away
+  embed_kind: string | null
 }
 
 export type Social = {

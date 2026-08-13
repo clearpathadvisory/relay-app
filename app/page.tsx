@@ -140,6 +140,7 @@ export default function Home() {
                 <li>Your own colours, 4 slots</li>
                 <li>Background image</li>
                 <li>Your own image on every link</li>
+                <li>Links that appear and disappear on a schedule</li>
                 <li>Remove the Relay badge from your page</li>
                 <li>Try it all before you pay</li>
                 <li><strong>Save $18 against monthly</strong></li>
@@ -164,6 +165,7 @@ export default function Home() {
                 <li>Your own colours, 4 slots</li>
                 <li>Background image</li>
                 <li>Your own image on every link</li>
+                <li>Links that appear and disappear on a schedule</li>
                 <li>Remove the Relay badge from your page</li>
                 <li>Try it all before you pay</li>
                 <li>Cancel any month you like</li>

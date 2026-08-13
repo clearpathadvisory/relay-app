@@ -28,6 +28,7 @@ const ROWS: { label: string; relay: string; rt: Tone; other: string; ot: Tone; o
   { label: 'Headings and dividers', relay: 'Free plan', rt: 'yes', other: 'Paid tiers', ot: 'yes', ours: true },
   { label: 'Story-sized image of your page', relay: 'Free plan', rt: 'yes', other: 'Paid tiers', ot: 'yes', ours: true },
   { label: 'Your own image on every link', relay: 'Included in Pro', rt: 'yes', other: 'Yes', ot: 'yes' },
+  { label: 'Links on a schedule', relay: 'Included in Pro', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },
   { label: 'Email capture', relay: 'In build', rt: 'soon', other: 'Yes', ot: 'yes' },
   { label: 'Music and video embeds', relay: 'In build', rt: 'soon', other: 'Yes', ot: 'yes' },
   { label: 'Your own domain', relay: 'No', rt: 'no', other: 'Yes, on higher tiers', ot: 'yes' },

@@ -34,6 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .select('page_id')
       .eq('is_active', true)
       .eq('kind', 'link')
+      .or('ends_at.is.null,ends_at.gt.' + new Date().toISOString())
       .in('page_id', rows.map((p: any) => p.id))
 
     const hasLinks: any = {}

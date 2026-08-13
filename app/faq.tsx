@@ -7,7 +7,7 @@ export const FAQS = [
   },
   {
     q: 'What do I get for paying?',
-    a: 'All 40 themes including 4 doodle backgrounds, all 8 fonts, your own 4-colour palette, a background image, your own image on every link, and the option to take the Relay badge off your page. $30 a year, or $4 a month.',
+    a: 'All 40 themes including 4 doodle backgrounds, all 8 fonts, your own 4-colour palette, a background image, your own image on every link, links that appear and disappear on a schedule, and the option to take the Relay badge off your page. $30 a year, or $4 a month.',
   },
   {
     q: 'Can I try the paid features before I pay?',

@@ -6,6 +6,7 @@ const { isPrivateAddress } = await import('../.test/lib/net.js')
 const { jsonLdScript } = await import('../.test/lib/jsonld.js')
 const { socialHref, socialName } = await import('../.test/app/socialicons.js')
 const { resolveLook, fontStack } = await import('../.test/lib/supabase.js')
+const { scheduleState, scheduleLabel } = await import('../.test/lib/schedule.js')
 
 let passed = 0
 function it(name, fn) {
@@ -93,6 +94,33 @@ it('falls back to defaults with no theme at all', () => {
 })
 it('falls back to the first font for an unknown id', () => {
   assert.equal(fontStack('nope'), fontStack('manrope'))
+})
+
+console.log('\nscheduleState')
+const T = (iso) => new Date(iso)
+const now = T('2026-08-13T12:00:00Z')
+it('an unscheduled link is simply live', () => {
+  assert.equal(scheduleState({ starts_at: null, ends_at: null }, now), 'none')
+  assert.equal(scheduleLabel({ starts_at: null, ends_at: null }, now), '')
+})
+it('before its start it is waiting', () => {
+  assert.equal(scheduleState({ starts_at: '2026-08-14T12:00:00Z', ends_at: null }, now), 'waiting')
+})
+it('inside its window it is live', () => {
+  assert.equal(scheduleState({ starts_at: '2026-08-12T12:00:00Z', ends_at: '2026-08-14T12:00:00Z' }, now), 'live')
+})
+it('after its end it has ended', () => {
+  assert.equal(scheduleState({ starts_at: null, ends_at: '2026-08-12T12:00:00Z' }, now), 'ended')
+})
+it('the boundary counts as ended, matching the database filter', () => {
+  assert.equal(scheduleState({ starts_at: null, ends_at: '2026-08-13T12:00:00Z' }, now), 'ended')
+})
+it('a start exactly now counts as live, matching the database filter', () => {
+  assert.equal(scheduleState({ starts_at: '2026-08-13T12:00:00Z', ends_at: null }, now), 'live')
+})
+it('an ended label names the end and a waiting label names the start', () => {
+  assert.ok(scheduleLabel({ starts_at: null, ends_at: '2026-08-12T12:00:00Z' }, now).startsWith('Ended'))
+  assert.ok(scheduleLabel({ starts_at: '2026-08-14T12:00:00Z', ends_at: null }, now).startsWith('Live from'))
 })
 
 console.log('\n' + passed + ' assertions passed\n')

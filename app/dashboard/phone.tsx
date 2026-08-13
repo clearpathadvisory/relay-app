@@ -2,13 +2,15 @@
 
 import { useRef, useState, useEffect } from 'react'
 import { Theme, Link, Page, Social, resolveLook } from '../../lib/supabase'
+import { scheduleState } from '../../lib/schedule'
 import { SocialIcon, socialHref } from '../socialicons'
 
 export function Phone({ page, links, theme, showBrand, socials = [] }: { page: Page; links: Link[]; theme: Theme | undefined; showBrand: boolean; socials?: Social[] }) {
   const L = resolveLook(page, theme)
   const initials = (page.display_name || page.username).slice(0, 2).toUpperCase()
   const hasAvatar = !!(page.avatar_url && page.avatar_url.length > 4)
-  const shown = links.filter((l) => l.is_active)
+  // matches the public page: a link outside its window is not there at all
+  const shown = links.filter((l) => l.is_active && scheduleState(l) !== 'waiting' && scheduleState(l) !== 'ended')
   const many = shown.length > 5
   const tight = shown.length > 8
 

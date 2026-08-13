@@ -49,6 +49,8 @@ export type Link = {
   favicon_url: string | null; site_title: string | null
   // a Pro thumbnail, which wins over the fetched favicon when present
   image_url: string | null
+  // a Pro window; outside it the row is not on the page at all
+  starts_at: string | null; ends_at: string | null
 }
 
 export type Social = {

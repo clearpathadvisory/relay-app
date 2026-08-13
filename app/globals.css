@@ -1107,3 +1107,8 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 .thumbpanel p { margin: 0 0 12px; font-size: 14px; line-height: 1.55; color: var(--ink-70); }
 .thumbactions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .thumbactions label.btn { cursor: pointer; }
+
+/* ---------- scheduling ---------- */
+.schedgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.schedgrid .label { display: block; }
+.schedgrid .field { margin-top: 6px; }

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase, Theme, Link, Page, Social, FONTS } from '../../lib/supabase'
 import { SOCIALS, SocialIcon, socialHref, socialName } from '../socialicons'
+import { scheduleState, scheduleLabel } from '../../lib/schedule'
 import { Blob, Star, Robot, Bear, Rocket, Squiggle } from '../blob'
 import { Phone } from './phone'
 
@@ -55,6 +56,7 @@ export default function Dashboard() {
   const [headingText, setHeadingText] = useState('')
   const [thumbBusy, setThumbBusy] = useState<string | null>(null)
   const [thumbFor, setThumbFor] = useState<string | null>(null)
+  const [scheduleFor, setScheduleFor] = useState<string | null>(null)
   const firstRun = useRef(true)
   const bioRef = useRef<HTMLTextAreaElement | null>(null)
   const [pending, setPending] = useState<any>({})
@@ -397,6 +399,48 @@ export default function Dashboard() {
     await supabase.from('links').update({ image_url: null }).eq('id', linkId)
     if (page) await loadLinks(page.id)
     pushLive()
+  }
+
+  // datetime-local hands back wall-clock text with no zone. new Date() reads it
+  // in the browser's own zone, which is what the person means when they type it.
+  async function setWindow(linkId: string, field: 'starts_at' | 'ends_at', local: string) {
+    if (!isPro) { setErr('Scheduling a link is a Pro feature.'); return }
+    const value = local ? new Date(local).toISOString() : null
+
+    const row = links.filter((l) => l.id === linkId)[0]
+    if (row && value) {
+      const other = field === 'starts_at' ? row.ends_at : row.starts_at
+      if (other) {
+        const a = field === 'starts_at' ? new Date(value) : new Date(other)
+        const b = field === 'starts_at' ? new Date(other) : new Date(value)
+        if (b <= a) { setErr('The end has to come after the start.'); return }
+      }
+    }
+
+    setErr('')
+    const patchRow: any = {}
+    patchRow[field] = value
+    setLinks(links.map((l) => (l.id === linkId ? { ...l, ...patchRow } : l)))
+    const { error } = await supabase.from('links').update(patchRow).eq('id', linkId)
+    if (error) { setErr(error.message); return }
+    if (page) await loadLinks(page.id)
+    pushLive()
+  }
+
+  async function clearWindow(linkId: string) {
+    setErr('')
+    await supabase.from('links').update({ starts_at: null, ends_at: null }).eq('id', linkId)
+    if (page) await loadLinks(page.id)
+    pushLive()
+  }
+
+  // the value a datetime-local input wants: local wall clock, no zone, no seconds
+  function toLocalInput(iso: string | null) {
+    if (!iso) return ''
+    const d = new Date(iso)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+      'T' + pad(d.getHours()) + ':' + pad(d.getMinutes())
   }
 
   async function addLink() {
@@ -824,10 +868,10 @@ export default function Dashboard() {
                         <p className={l.kind === 'link' ? 'rowtitle' : 'rowtitle rowtitle-alt'}>
                           {l.kind === 'divider' ? 'Divider' : l.title}
                         </p>
-                        <p className={emptyGroup(i) ? 'rowmeta rowmeta-warn' : 'rowmeta'}>
+                        <p className={emptyGroup(i) || scheduleState(l) === 'ended' ? 'rowmeta rowmeta-warn' : 'rowmeta'}>
                           {l.is_active ? '' : 'Hidden · '}
                           {l.kind === 'link'
-                            ? l.click_count + ' taps'
+                            ? (scheduleState(l) === 'none' ? l.click_count + ' taps' : scheduleLabel(l) + ' · ' + l.click_count + ' taps')
                             : emptyGroup(i)
                               ? 'Nothing under it yet — move it above some links'
                               : l.kind === 'heading' ? 'Heading' : 'A line across the page'}
@@ -840,12 +884,54 @@ export default function Dashboard() {
                           disabled={i === links.length - 1} onClick={() => move(i, 1)}>▼</button>
                       </div>
                       <button className="icon eyebtn" title={l.is_active ? 'Hide from your page' : 'Show on your page'} onClick={() => toggleActive(l.id)}>{l.is_active ? '◉' : '○'}</button>
+                      {l.kind === 'link' && (
+                        <button className={scheduleState(l) === 'none' ? 'icon' : 'icon on'}
+                          title={isPro ? 'Give this link a start or an end' : 'Scheduling is a Pro feature'}
+                          aria-label={'Schedule ' + l.title}
+                          onClick={() => (isPro ? setScheduleFor(scheduleFor === l.id ? null : l.id) : setErr('Scheduling a link is a Pro feature.'))}>◷</button>
+                      )}
                       {l.kind === 'link'
                         ? <button className={l.is_primary ? 'icon on' : 'icon'} title="Make this the main link" onClick={() => makePrimary(l.id)}>★</button>
                         : <span className="icon icondim" aria-hidden="true" />}
                       <button className="icon" title="Delete" aria-label={'Delete ' + (l.title || 'divider')} onClick={() => setConfirmLink(l.id)}>✕</button>
                     </div>
                   ))}
+
+                  {scheduleFor && (() => {
+                    const row = links.filter((l) => l.id === scheduleFor)[0]
+                    if (!row) return null
+                    return (
+                      <div className="thumbpanel">
+                        <p>
+                          <strong>When should <em>{row.title}</em> be on your page?</strong> Leave
+                          either side empty for no limit. Outside its window the link is simply not
+                          there — no greyed-out button for a visitor to wonder about.
+                        </p>
+                        <div className="schedgrid">
+                          <label className="label">
+                            Starts
+                            <input className="field" type="datetime-local" value={toLocalInput(row.starts_at)}
+                              onChange={(e) => setWindow(row.id, 'starts_at', e.target.value)} />
+                          </label>
+                          <label className="label">
+                            Ends
+                            <input className="field" type="datetime-local" value={toLocalInput(row.ends_at)}
+                              onChange={(e) => setWindow(row.id, 'ends_at', e.target.value)} />
+                          </label>
+                        </div>
+                        <p className="bsub" style={{ margin: '10px 0 0', fontSize: 13 }}>
+                          Times are your own clock. Your page is cached for a minute, so a link
+                          arrives or leaves within about a minute of the time you set.
+                        </p>
+                        <div className="thumbactions" style={{ marginTop: 12 }}>
+                          {scheduleState(row) !== 'none' && (
+                            <button className="btn small ghost" onClick={() => clearWindow(row.id)}>Always on</button>
+                          )}
+                          <button className="btn small ghost" onClick={() => setScheduleFor(null)}>Done</button>
+                        </div>
+                      </div>
+                    )
+                  })()}
 
                   {thumbFor && (
                     <div className="thumbpanel">

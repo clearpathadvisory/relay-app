@@ -14,7 +14,19 @@ async function load(username: string) {
   const sb = serverClient()
   const { data: page } = await sb.from('pages').select('*').eq('username', username).eq('is_published', true).maybeSingle()
   if (!page) return null
-  const { data: links } = await sb.from('links').select('*').eq('page_id', page.id).eq('is_active', true).order('position')
+  // A scheduled link is filtered out here rather than rendered and hidden, so
+  // it never reaches the visitor's browser at all. The page is cached for a
+  // minute, so a window opens within about a minute of its time — which is what
+  // the editor tells the owner.
+  const nowIso = new Date().toISOString()
+  const { data: links } = await sb
+    .from('links')
+    .select('*')
+    .eq('page_id', page.id)
+    .eq('is_active', true)
+    .or('starts_at.is.null,starts_at.lte.' + nowIso)
+    .or('ends_at.is.null,ends_at.gt.' + nowIso)
+    .order('position')
   const { data: theme } = await sb.from('themes').select('*').eq('id', page.theme_id).maybeSingle()
   const { data: socials } = await sb.from('socials').select('*').eq('page_id', page.id).order('position')
   return { page: page as Page, links: (links || []) as Link[], theme: theme as Theme, socials: (socials || []) as Social[] }

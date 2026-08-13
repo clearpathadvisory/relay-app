@@ -11,7 +11,7 @@ import '@fontsource/space-mono/400.css'
 import '@fontsource/space-mono/700.css'
 
 import './globals.css'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 
 const DESC =
   'Build a link page people actually want to tap. Unlimited links on every plan, your own photo, social icons, tap statistics and forty themes. Free to start.'
@@ -44,7 +44,16 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
   category: 'technology',
+  manifest: '/manifest.webmanifest',
   verification: { google: 'kVsSAKVGkkj-5X00u9M-wpnO4ZaWoiWfmQCBe71NgKQ' },
+}
+
+// Colours the browser chrome on a phone and stops iOS auto-darkening the UI.
+export const viewport: Viewport = {
+  themeColor: '#FBFAF9',
+  colorScheme: 'light',
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

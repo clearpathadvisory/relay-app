@@ -3,6 +3,7 @@ import { SocialIcon, socialHref, socialName } from '../socialicons'
 import { Blob } from '../blob'
 import { LinkButton } from './linkbutton'
 import { ShareButton } from './sharebutton'
+import { jsonLdScript } from '../../lib/jsonld'
 import type { Metadata } from 'next'
 
 export const revalidate = 60
@@ -97,7 +98,7 @@ export default async function PublicPage({ params }: { params: { username: strin
 
   return (
     <main className="pubwrap" style={shell}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }} />
       <div className="pubcard" style={card}>
         <div className="pubinner">
           <ShareButton username={page.username} name={page.display_name || page.username} color={L.nameColor} />

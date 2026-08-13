@@ -1,6 +1,7 @@
 import { Blob, Star, Robot, Bear, Rocket, Squiggle } from './blob'
 import { SignupModal } from './signupmodal'
 import { ClosedNotice } from './closednotice'
+import { jsonLdScript } from '../lib/jsonld'
 
 export default function Home() {
   const jsonLd = {
@@ -45,7 +46,7 @@ export default function Home() {
 
   return (
     <main style={{ background: 'var(--base)', minHeight: '100vh' }}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }} />
       <div className="wrap" style={{ paddingTop: 24, paddingBottom: 70 }}>
         <ClosedNotice />
         <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 48 }}>

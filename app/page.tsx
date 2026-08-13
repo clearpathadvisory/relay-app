@@ -3,8 +3,49 @@ import { SignupModal } from './signupmodal'
 import { ClosedNotice } from './closednotice'
 
 export default function Home() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': 'https://relayme.bio/#website',
+        url: 'https://relayme.bio',
+        name: 'Relay',
+        description: 'One link for everything you make.',
+        publisher: { '@id': 'https://relayme.bio/#org' },
+      },
+      {
+        '@type': 'Organization',
+        '@id': 'https://relayme.bio/#org',
+        name: 'ClearPath Advisory',
+        url: 'https://relayme.bio',
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: 'ul. Micha\u0142a Kleofasa Ogi\u0144skiego 11 lok. 9',
+          postalCode: '03-318',
+          addressLocality: 'Warszawa',
+          addressCountry: 'PL',
+        },
+        email: 'hello@relayme.bio',
+      },
+      {
+        '@type': 'SoftwareApplication',
+        name: 'Relay',
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web',
+        url: 'https://relayme.bio',
+        offers: [
+          { '@type': 'Offer', price: '0', priceCurrency: 'USD', name: 'Free' },
+          { '@type': 'Offer', price: '30', priceCurrency: 'USD', name: 'Pro yearly' },
+          { '@type': 'Offer', price: '4', priceCurrency: 'USD', name: 'Pro monthly' },
+        ],
+      },
+    ],
+  }
+
   return (
     <main style={{ background: 'var(--base)', minHeight: '100vh' }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="wrap" style={{ paddingTop: 24, paddingBottom: 70 }}>
         <ClosedNotice />
         <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 48 }}>

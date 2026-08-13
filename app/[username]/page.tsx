@@ -2,6 +2,7 @@ import { serverClient, Theme, Link, Page, Social, resolveLook } from '../../lib/
 import { SocialIcon, socialHref, socialName } from '../socialicons'
 import { Blob } from '../blob'
 import { LinkButton } from './linkbutton'
+import { ShareButton } from './sharebutton'
 import type { Metadata } from 'next'
 
 export const revalidate = 60
@@ -18,12 +19,20 @@ async function load(username: string) {
 
 export async function generateMetadata({ params }: { params: { username: string } }): Promise<Metadata> {
   const data = await load(decodeURIComponent(params.username).toLowerCase())
-  if (!data) return { title: 'Not found — Relay' }
+  if (!data) return { title: 'Not found', robots: { index: false, follow: false } }
   const name = data.page.display_name || data.page.username
   return {
     title: name + ' — Relay',
     description: data.page.bio || ('Links from ' + name),
-    openGraph: { title: name, description: data.page.bio || '' },
+    openGraph: {
+      title: name,
+      description: data.page.bio || ('Links from ' + name),
+      url: 'https://relayme.bio/' + data.page.username,
+      siteName: 'Relay',
+      type: 'profile',
+    },
+    twitter: { card: 'summary_large_image', title: name, description: data.page.bio || ('Links from ' + name) },
+    alternates: { canonical: 'https://relayme.bio/' + data.page.username },
   }
 }
 
@@ -67,10 +76,31 @@ export default async function PublicPage({ params }: { params: { username: strin
   }
   if (!hasAvatar) { av.backgroundColor = L.accentBg; av.color = L.accentText }
 
+  const sameAs = socials
+    .map((sc) => socialHref(sc.platform, sc.url))
+    .filter((u) => u.indexOf('http') === 0)
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    dateModified: (page as any).updated_at || undefined,
+    mainEntity: {
+      '@type': 'Person',
+      name: page.display_name || page.username,
+      alternateName: page.username,
+      description: page.bio || undefined,
+      image: page.avatar_url || undefined,
+      url: 'https://relayme.bio/' + page.username,
+      sameAs: sameAs.length ? sameAs : undefined,
+    },
+  }
+
   return (
     <main className="pubwrap" style={shell}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="pubcard" style={card}>
         <div className="pubinner">
+          <ShareButton username={page.username} name={page.display_name || page.username} color={L.nameColor} />
         <div style={av}>
           {hasAvatar ? <img src={page.avatar_url as string} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}
         </div>

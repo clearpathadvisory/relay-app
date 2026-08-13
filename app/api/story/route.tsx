@@ -122,6 +122,6 @@ export async function GET(req: Request) {
         </div>
       </div>
     ),
-    { width: 1080, height: 1920, ...fontOption }
+    { width: 1080, height: 1920, ...fontOption, emoji: 'twemoji' }
   )
 }

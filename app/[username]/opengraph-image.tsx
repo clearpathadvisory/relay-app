@@ -15,6 +15,11 @@ export const contentType = 'image/png'
 // earlier. force-dynamic was the wrong tool here and returned a blank image.
 export const revalidate = 0
 
+// Satori's default font carries no emoji, so a bio of 🚀🚀🚀 drew literally
+// nothing — a 755-byte blank card rather than an error. twemoji fetches the
+// picture for each one at render time. That request is made by our server, not
+// by anyone's browser, so it costs a visitor nothing.
+
 // Rendered once per page and cached by Vercel, so a share on Instagram, X or
 // WhatsApp shows the person's actual page rather than a bare grey card.
 export default async function OgImage({ params }: { params: { username: string } }) {
@@ -35,7 +40,7 @@ export default async function OgImage({ params }: { params: { username: string }
           relayme.bio
         </div>
       ),
-      { ...size }
+      { ...size, emoji: 'twemoji' }
     )
   }
 
@@ -110,6 +115,6 @@ export default async function OgImage({ params }: { params: { username: string }
         </div>
       </div>
     ),
-    { ...size }
+    { ...size, emoji: 'twemoji' }
   )
 }

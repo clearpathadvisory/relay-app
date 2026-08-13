@@ -57,6 +57,7 @@ export default function Dashboard() {
   const [headingText, setHeadingText] = useState('')
   const [thumbBusy, setThumbBusy] = useState<string | null>(null)
   const [thumbFor, setThumbFor] = useState<string | null>(null)
+  const [socSuggest, setSocSuggest] = useState<string | null>(null)
   const [scheduleFor, setScheduleFor] = useState<string | null>(null)
   const firstRun = useRef(true)
   const bioRef = useRef<HTMLTextAreaElement | null>(null)
@@ -221,12 +222,19 @@ export default function Dashboard() {
     setSocials((data || []) as Social[])
   }
 
-  async function addSocial() {
+  // A social icon points at a profile. Someone pasting a video or a track into
+  // it almost always wants the thing itself on the page, not a small icon that
+  // sends people away — so say so before adding it, rather than after.
+  async function addSocial(force = false) {
     if (!page) return
     const v = socUrl.trim()
     if (!v) { setErr('Add a handle or a link first.'); return }
     if (socials.length >= 8) { setErr('8 icons is the most a row can hold.'); return }
-    setErr('')
+
+    const playable = detectEmbed(v)
+    if (playable && !force) { setErr(''); setSocSuggest(v); return }
+
+    setErr(''); setSocSuggest(null)
     const { error } = await supabase.from('socials').insert({ page_id: page.id, platform: socPlat, url: v, position: socials.length })
     if (error) { setErr(error.message); return }
     setSocUrl('')
@@ -425,6 +433,40 @@ export default function Dashboard() {
     const { error } = await supabase.from('links').update(patchRow).eq('id', linkId)
     if (error) { setErr(error.message); return }
     if (page) await loadLinks(page.id)
+    pushLive()
+  }
+
+  // Takes the url out of the icon field and puts it in the list as a link,
+  // playing inline where the plan allows it.
+  async function socialToLink() {
+    if (!page || !socSuggest) return
+    const u = socSuggest
+    const playable = detectEmbed(u)
+    setErr(''); setSocSuggest(null); setAdding(true)
+
+    let meta: any = {}
+    try {
+      const { data: sess } = await supabase.auth.getSession()
+      const r = await fetch('/api/linkmeta', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (sess.session ? sess.session.access_token : '') },
+        body: JSON.stringify({ url: u }),
+      })
+      meta = await r.json()
+    } catch (e) {}
+
+    let host = u
+    try { host = new URL(u).hostname.replace(/^www\./, '') } catch (e) {}
+
+    const { error } = await supabase.from('links').insert({
+      page_id: page.id, kind: 'link', title: meta.title || host, url: u,
+      position: links.length, favicon_url: meta.favicon || null, site_title: null,
+      embed_kind: isPro && playable ? playable.kind : null,
+    })
+    setAdding(false)
+    if (error) { setErr(error.message); return }
+    setSocUrl('')
+    await loadLinks(page.id)
     pushLive()
   }
 
@@ -1117,8 +1159,42 @@ export default function Dashboard() {
                     <input className="field" placeholder={(SOCIALS.filter((x) => x.id === socPlat)[0] || SOCIALS[0]).hint}
                       value={socUrl} onChange={(e) => setSocUrl(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') addSocial() }} />
-                    <button className="btn" onClick={addSocial}>Add</button>
+                    <button className="btn" onClick={() => addSocial()}>Add</button>
                   </div>
+
+                  {socSuggest && (
+                    <div className="rowpanel" style={{ borderRadius: 18, borderTop: '1px solid var(--line)', marginTop: 12 }}>
+                      <p>
+                        <strong>That points at a {detectEmbed(socSuggest) && detectEmbed(socSuggest)!.kind === 'youtube' ? 'video' : 'track'}, not a profile.</strong>{' '}
+                        An icon is a small button that sends people to another site. Added to your
+                        links instead, it {isPro ? 'plays right on your page' : 'becomes a proper button with its own title and image'}.
+                      </p>
+                      <div className="rowactions">
+                        <button className="btn small" onClick={socialToLink} disabled={adding}>
+                          {adding ? 'Reading the site…' : 'Add it to my links'}
+                        </button>
+                        <button className="btn small ghost" onClick={() => addSocial(true)}>Add the icon anyway</button>
+                        <button className="btn small ghost" onClick={() => setSocSuggest(null)}>Cancel</button>
+                      </div>
+                    </div>
+                  )}
+
+                  {socSuggest && (
+                    <div className="rowpanel" style={{ borderRadius: 18, borderTop: '1px solid var(--line)', marginTop: 12 }}>
+                      <p>
+                        <strong>That is a {detectEmbed(socSuggest) ? embedName(detectEmbed(socSuggest)!.kind) : ''} link to
+                        one thing, not to your profile.</strong> As an icon it will be a small circle that sends
+                        people away. As a link it can sit in your list{isPro ? ' and play on the page itself' : ''}.
+                      </p>
+                      <div className="rowactions">
+                        <button className="btn small" onClick={socialToLink} disabled={adding}>
+                          {adding ? 'Adding…' : 'Add it as a link instead'}
+                        </button>
+                        <button className="btn small ghost" onClick={() => addSocial(true)}>Add the icon anyway</button>
+                        <button className="btn small ghost" onClick={() => setSocSuggest(null)}>Cancel</button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

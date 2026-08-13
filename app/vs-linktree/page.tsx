@@ -11,23 +11,29 @@ export const metadata: Metadata = {
 
 // Rows are written to be defensible. Claiming a competitor lacks something it
 // has is the fastest way to lose the reader, and the honest gaps below do more
-// for trust than another tick would.
-const ROWS: { label: string; relay: string; other: string; ours: boolean }[] = [
-  { label: 'Links on the free plan', relay: 'Unlimited', other: 'Unlimited', ours: false },
-  { label: 'Themes on the free plan', relay: '5, including a dark one', other: 'A small fixed set', ours: true },
-  { label: 'Themes in total', relay: '40, 4 of them doodle backgrounds', other: 'Many, most behind a plan', ours: false },
-  { label: 'Try paid styling before paying', relay: 'Yes, the whole editor', other: 'No', ours: true },
-  { label: 'Remove the maker\u2019s badge', relay: 'Included in Pro', other: 'Higher tier', ours: true },
-  { label: 'Yearly price', relay: '$30', other: 'Higher on comparable tiers', ours: true },
-  { label: 'Advertising on your page', relay: 'None, ever', other: 'None on paid tiers', ours: true },
-  { label: 'Third-party fonts and trackers', relay: 'None \u2014 fonts self-hosted', other: 'Third-party requests present', ours: true },
-  { label: 'Where your data sits', relay: 'European Union', other: 'United States', ours: true },
-  { label: 'Take your page offline without deleting', relay: 'Yes', other: 'Yes', ours: false },
-  { label: 'Email capture', relay: 'Not yet \u2014 in build', other: 'Yes', ours: false },
-  { label: 'Music and video embeds', relay: 'Not yet \u2014 in build', other: 'Yes', ours: false },
-  { label: 'Your own domain', relay: 'No', other: 'Yes, on higher tiers', ours: false },
-  { label: 'Payments and tipping on your page', relay: 'No', other: 'Yes', ours: false },
+// for trust than another tick would. Tone drives the marker, not the wording:
+// "yes" is a tick, "no" a dash, "soon" a dot.
+type Tone = 'yes' | 'no' | 'soon'
+const ROWS: { label: string; relay: string; rt: Tone; other: string; ot: Tone; ours?: boolean }[] = [
+  { label: 'Links on the free plan', relay: 'Unlimited', rt: 'yes', other: 'Unlimited', ot: 'yes' },
+  { label: 'Themes on the free plan', relay: '5, including a dark one', rt: 'yes', other: 'A small fixed set', ot: 'yes', ours: true },
+  { label: 'Themes in total', relay: '40', rt: 'yes', other: 'Many, most behind a plan', ot: 'yes' },
+  { label: 'Try paid styling before paying', relay: 'The whole editor', rt: 'yes', other: 'No', ot: 'no', ours: true },
+  { label: 'Remove the maker\u2019s badge', relay: 'Included in Pro', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },
+  { label: 'Yearly price', relay: '$30', rt: 'yes', other: 'More on comparable tiers', ot: 'yes', ours: true },
+  { label: 'Advertising on your page', relay: 'None, ever', rt: 'yes', other: 'None on paid tiers', ot: 'yes', ours: true },
+  { label: 'Third-party fonts and trackers', relay: 'None \u2014 fonts self-hosted', rt: 'yes', other: 'Third-party requests present', ot: 'no', ours: true },
+  { label: 'Where your data sits', relay: 'European Union', rt: 'yes', other: 'United States', ot: 'yes', ours: true },
+  { label: 'Take your page offline without deleting', relay: 'Yes', rt: 'yes', other: 'Yes', ot: 'yes' },
+  { label: 'Email capture', relay: 'In build', rt: 'soon', other: 'Yes', ot: 'yes' },
+  { label: 'Music and video embeds', relay: 'In build', rt: 'soon', other: 'Yes', ot: 'yes' },
+  { label: 'Your own domain', relay: 'No', rt: 'no', other: 'Yes, on higher tiers', ot: 'yes' },
+  { label: 'Payments and tipping', relay: 'No', rt: 'no', other: 'Yes', ot: 'yes' },
 ]
+
+function Mark({ tone }: { tone: Tone }) {
+  return <span className={'mark mark-' + tone} aria-hidden="true">{tone === 'yes' ? '✓' : tone === 'soon' ? '•' : '–'}</span>
+}
 
 export default function VsLinktree() {
   const jsonLd = {
@@ -59,34 +65,39 @@ export default function VsLinktree() {
           </p>
         </div>
 
-        <div className="cmpcards">
-          <div className="block block-violet cmpcard">
-            <p className="cmpcardname">Relay</p>
-            <p className="cmpcardprice">$30<span>/year</span></p>
-            <p className="cmpcardsub">Or four a month. Free plan with no time limit.</p>
-            <ul className="cmplist">
-              {ROWS.map((r) => (
-                <li key={r.label} className={r.ours ? 'win' : undefined}>
-                  <span className="cmpkey">{r.label}</span>
-                  <span className="cmpval">{r.relay}</span>
-                </li>
-              ))}
-            </ul>
+        {/* One grid rather than two lists, so every row lines up across both
+            columns. The Relay column carries the colour, which is what makes it
+            read as the same kind of object as the pricing cards. */}
+        <div className="cmp">
+          <div className="cmpspacer" />
+          <div className="cmphead cmpmine">
+            <p className="cmpbrand">Relay</p>
+            <p className="cmpprice">$30<span>/year</span></p>
+            <p className="cmpnote">Or $4 a month. Free plan with no time limit.</p>
+          </div>
+          <div className="cmphead cmptheirs">
+            <p className="cmpbrand">Linktree</p>
+            <p className="cmpprice cmpprice-muted">More</p>
+            <p className="cmpnote">The original, and a good product.</p>
           </div>
 
-          <div className="block block-plain cmpcard">
-            <p className="cmpcardname">Linktree</p>
-            <p className="cmpcardprice cmpcardprice-muted">Higher<span> on comparable tiers</span></p>
-            <p className="cmpcardsub">The original, and a good product.</p>
-            <ul className="cmplist">
-              {ROWS.map((r) => (
-                <li key={r.label}>
-                  <span className="cmpkey">{r.label}</span>
-                  <span className="cmpval">{r.other}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {ROWS.map((r) => (
+            <div key={r.label} className="cmprow">
+              <div className="cmplabel">{r.label}</div>
+              <div className={r.ours ? 'cmpcell cmpmine win' : 'cmpcell cmpmine'} data-side="Relay">
+                <Mark tone={r.rt} />
+                <span>{r.relay}</span>
+              </div>
+              <div className="cmpcell cmptheirs" data-side="Linktree">
+                <Mark tone={r.ot} />
+                <span>{r.other}</span>
+              </div>
+            </div>
+          ))}
+
+          <div className="cmpspacer" />
+          <div className="cmpfoot cmpmine" />
+          <div className="cmpfoot cmptheirs" />
         </div>
 
         <div className="legal" style={{ maxWidth: 760, marginTop: 44 }}>
@@ -98,7 +109,7 @@ export default function VsLinktree() {
           </p>
           <p>
             <strong>Take Relay</strong> if you want a page that looks made rather than generated, if
-            you would rather try the paid styling before deciding, if thirty dollars a year suits you
+            you would rather try the paid styling before deciding, if $30 a year suits you
             better than the alternative, or if it matters to you that your visitors&rsquo; addresses
             are not handed to a font network and an analytics company on the way in.
           </p>

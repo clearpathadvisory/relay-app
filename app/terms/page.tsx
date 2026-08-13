@@ -84,11 +84,11 @@ export default function Terms() {
           <h2>6. Plans and payment</h2>
           <p>
             <strong>Free</strong> costs nothing and needs no card. It includes unlimited links, your own
-            photo and bio, a row of social icons, two themes, one font, automatic link titles and
+            photo and bio, a row of social icons, 5 themes, 1 font, automatic link titles and
             icons, tap statistics and a QR code.
           </p>
           <p>
-            <strong>Pro</strong> unlocks all thirty themes, all six fonts, your own colours and a
+            <strong>Pro</strong> unlocks all 40 themes, all 8 fonts, your own colours and a
             background image. It costs <strong>$30 a year</strong> or <strong>$4 a month</strong>.
           </p>
           <p>

@@ -896,41 +896,81 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 .faq p { margin: 10px 0 0 30px; font-size: 14.5px; line-height: 1.65; color: rgba(27,13,68,.72); }
 .faq summary:focus-visible { outline: 3px solid var(--violet); outline-offset: 4px; border-radius: 8px; }
 
-/* ---------- comparison, in the same cards as the pricing ---------- */
-/* Two boxes side by side, same shape and palette as Simple pricing, so the
-   page reads as one product rather than two designs. Both lists carry the same
-   rows in the same order, so the eye can track across without a table. */
-.cmpcards {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 18px; margin-top: 30px; align-items: start;
+/* ---------- comparison ---------- */
+/* One grid, three columns, with the Relay column carrying the colour. Rows use
+   display:contents so every cell sits in the same grid and the two sides line
+   up exactly — two separate cards drift as soon as one value wraps. */
+.cmp {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) minmax(150px, 1fr);
+  margin-top: 34px;
+  align-items: stretch;
 }
-.cmpcard { margin-bottom: 0; }
-.cmpcardname { margin: 0; font-size: 16px; font-weight: 700; }
-.cmpcardprice {
-  margin: 6px 0 4px; font-size: 34px; font-weight: 800; letter-spacing: -0.03em;
-}
-.cmpcardprice span { font-size: 14px; font-weight: 600; }
-.cmpcardprice-muted { color: var(--ink-70); font-size: 28px; }
-.cmpcardsub { margin: 0 0 6px; font-size: 14.5px; line-height: 1.6; color: var(--ink-70); }
+.cmprow { display: contents; }
 
-.cmplist { list-style: none; margin: 14px 0 0; padding: 0; }
-.cmplist li {
-  display: flex; flex-direction: column; gap: 2px;
-  min-height: 62px; padding: 11px 0;
-  border-top: 1px solid var(--ink-12);
-}
-.cmpkey {
-  font-size: 12px; font-weight: 700; letter-spacing: .04em;
-  text-transform: uppercase; color: var(--ink-60);
-}
-.cmpval { font-size: 15px; line-height: 1.45; }
-.cmplist li.win .cmpval { font-weight: 700; }
-.cmplist li.win .cmpval:after {
-  content: '✓'; margin-left: 8px; font-weight: 800; color: #3B6D11;
-}
+.cmpmine { background: #EDE7FF; }
+.cmptheirs { background: var(--surface); }
 
-@media (max-width: 620px) {
-  .cmplist li { min-height: 0; }
+.cmphead { padding: 24px 22px 20px; }
+.cmphead.cmpmine { border-radius: 26px 26px 0 0; }
+.cmphead.cmptheirs { border-radius: 26px 26px 0 0; border: 1px solid var(--line); border-bottom: none; }
+.cmpfoot { height: 26px; }
+.cmpfoot.cmpmine { border-radius: 0 0 26px 26px; }
+.cmpfoot.cmptheirs { border-radius: 0 0 26px 26px; border: 1px solid var(--line); border-top: none; }
+.cmpspacer { background: none; }
+
+.cmpbrand { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+.cmpprice {
+  margin: 8px 0 6px; font-size: 36px; font-weight: 800;
+  letter-spacing: -0.035em; line-height: 1;
+}
+.cmpprice span { font-size: 14px; font-weight: 600; letter-spacing: 0; }
+.cmpprice-muted { color: var(--muted); }
+.cmpnote { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-70); }
+
+.cmplabel {
+  display: flex; align-items: center;
+  padding: 15px 18px 15px 2px;
+  font-size: 14.5px; font-weight: 600; line-height: 1.4; color: var(--ink);
+  border-top: 1px solid var(--line);
+}
+.cmpcell {
+  display: flex; align-items: center; gap: 9px;
+  padding: 15px 22px; font-size: 14.5px; line-height: 1.4; color: var(--ink-70);
+}
+.cmpcell.cmpmine { border-top: 1px solid rgba(27,13,68,.10); }
+.cmpcell.cmptheirs { border-top: 1px solid var(--line); border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+.cmpcell.win { color: var(--ink); font-weight: 700; }
+
+.mark {
+  flex-shrink: 0; width: 19px; height: 19px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; line-height: 1;
+}
+.mark-yes { background: #DCEFC4; color: #34620D; }
+.mark-soon { background: #FBE3C6; color: #8A4E06; font-size: 15px; }
+.mark-no { background: var(--ink-06); color: var(--muted); }
+
+/* Stacked, with each value naming its own side, because a three-column table
+   at 360px is a sideways scroll nobody performs. */
+@media (max-width: 720px) {
+  .cmp { grid-template-columns: 1fr; margin-top: 26px; }
+  .cmpspacer { display: none; }
+  .cmphead.cmpmine { border-radius: 22px 22px 0 0; }
+  .cmphead.cmptheirs { border-radius: 22px; margin-top: 22px; border-bottom: 1px solid var(--line); }
+  .cmpfoot { display: none; }
+  .cmplabel {
+    padding: 18px 0 6px; border-top: none;
+    font-size: 12px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .cmpcell { border-radius: 14px; padding: 12px 14px; margin-bottom: 6px; border: none !important; }
+  .cmpcell.cmptheirs { border: 1px solid var(--line) !important; }
+  .cmpcell:before {
+    content: attr(data-side); flex-shrink: 0;
+    font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em;
+    color: var(--muted); min-width: 52px;
+  }
 }
 
 /* ---------- the rocket's run to Sign in ---------- */
@@ -939,8 +979,10 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
    arrives beneath the Sign in button before fading — a moving thing the eye
    follows, pointing at the one action on the page. */
 .flight {
-  position: absolute; left: 8px; bottom: -6px;
-  z-index: 3; pointer-events: none; line-height: 0;
+  /* Launches from below the call to action, not across it. The old start point
+     put the rocket on top of the button and its own shadow dulled the text. */
+  position: absolute; left: 2px; bottom: -74px;
+  z-index: 1; pointer-events: none; line-height: 0;
   animation: flightPath 11s cubic-bezier(.42,0,.35,1) infinite;
   will-change: transform, opacity;
 }
@@ -949,17 +991,20 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
   animation: rocketFlame .26s ease-in-out infinite alternate;
 }
 
+/* Out to the left first, then up the outside of the column and across the top,
+   so it never passes over the button or the body copy. */
 @keyframes flightPath {
-  0%   { transform: translate(0, 0) rotate(-4deg); opacity: 0; }
-  6%   { transform: translate(30px, -26px) rotate(6deg); opacity: 1; }
-  26%  { transform: translate(230px, -120px) rotate(24deg); opacity: 1; }
-  48%  { transform: translate(430px, -228px) rotate(34deg); opacity: 1; }
-  68%  { transform: translate(618px, -336px) rotate(30deg); opacity: 1; }
-  82%  { transform: translate(742px, -422px) rotate(16deg); opacity: 1; }
-  /* arrives under Sign in, hovers a beat, then goes */
-  88%  { transform: translate(770px, -452px) rotate(2deg); opacity: 1; }
-  94%  { transform: translate(776px, -470px) rotate(-2deg); opacity: .35; }
-  100% { transform: translate(780px, -486px) rotate(-6deg); opacity: 0; }
+  0%   { transform: translate(-6px, 22px) rotate(-14deg); opacity: 0; }
+  7%   { transform: translate(-26px, -18px) rotate(-8deg); opacity: 1; }
+  24%  { transform: translate(-40px, -168px) rotate(2deg); }
+  42%  { transform: translate(-16px, -330px) rotate(14deg); }
+  58%  { transform: translate(150px, -454px) rotate(46deg); }
+  72%  { transform: translate(400px, -516px) rotate(62deg); }
+  84%  { transform: translate(660px, -540px) rotate(56deg); }
+  /* arrives beneath Sign in, hovers a beat, then goes */
+  91%  { transform: translate(772px, -556px) rotate(20deg); opacity: 1; }
+  96%  { transform: translate(784px, -576px) rotate(4deg); opacity: .4; }
+  100% { transform: translate(790px, -598px) rotate(-4deg); opacity: 0; }
 }
 
 /* ---------- the robot, off its corner ---------- */
@@ -996,7 +1041,7 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flight { animation: none; opacity: 1; transform: translate(770px, -452px); }
+  .flight { animation: none; opacity: 1; transform: translate(772px, -556px); }
   .flight .rocket-flame { animation: none; }
   .wander { animation: none; }
   .wander .robot-bulb, .wander .robot-eyes { animation: none; }

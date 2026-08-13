@@ -1,18 +1,13 @@
 import { ImageResponse } from 'next/og'
-import { manropeFonts } from '../lib/ogfont'
 
-// node rather than edge so the committed Manrope files can be read from disk
-export const runtime = 'nodejs'
+// Edge, as it always was. It was moved to node so it could read the committed
+// Manrope files from disk, and it has returned 500 in production ever since —
+// so the share card, which is the point, was traded for a typeface, which is
+// not. The card renders in next/og's built-in font instead.
+export const runtime = 'edge'
 export const alt = 'Relay — one link for everything you make'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
-
-// satori throws on an empty fonts array, so the option is left out entirely
-// rather than passed empty — a missing font file must not cost us the card.
-async function fontOption() {
-  const fonts = await manropeFonts()
-  return fonts.length ? { fonts } : {}
-}
 
 // The card people see when relayme.bio itself is shared.
 export default async function OgImage() {
@@ -57,6 +52,6 @@ export default async function OgImage() {
         </div>
       </div>
     ),
-    { ...size, ...(await fontOption()) }
+    { ...size }
   )
 }

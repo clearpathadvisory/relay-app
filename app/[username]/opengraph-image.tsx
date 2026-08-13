@@ -1,19 +1,14 @@
 import { ImageResponse } from 'next/og'
 import { serverClient, resolveLook, Page, Theme } from '../../lib/supabase'
-import { manropeFonts } from '../../lib/ogfont'
 
-// node rather than edge so the committed Manrope files can be read from disk
-export const runtime = 'nodejs'
+// Edge, as it always was. It was moved to node so it could read the committed
+// Manrope files from disk, and it has returned 500 in production ever since —
+// so the share card, which is the point, was traded for a typeface, which is
+// not. The card renders in next/og's built-in font instead.
+export const runtime = 'edge'
 export const alt = 'A Relay page'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
-
-// satori throws on an empty fonts array, so the option is left out entirely
-// rather than passed empty — a missing font file must not cost us the card.
-async function fontOption() {
-  const fonts = await manropeFonts()
-  return fonts.length ? { fonts } : {}
-}
 
 // Rendered once per page and cached by Vercel, so a share on Instagram, X or
 // WhatsApp shows the person's actual page rather than a bare grey card.
@@ -35,7 +30,7 @@ export default async function OgImage({ params }: { params: { username: string }
           relayme.bio
         </div>
       ),
-      { ...size, ...(await fontOption()) }
+      { ...size }
     )
   }
 
@@ -110,6 +105,6 @@ export default async function OgImage({ params }: { params: { username: string }
         </div>
       </div>
     ),
-    { ...size, ...(await fontOption()) }
+    { ...size }
   )
 }

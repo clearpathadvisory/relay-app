@@ -63,6 +63,14 @@ export default function Dashboard() {
   const [delOpen, setDelOpen] = useState(false)
   const [delText, setDelText] = useState('')
   const [deleting, setDeleting] = useState(false)
+  const [confirmLink, setConfirmLink] = useState<string | null>(null)
+  const [editSocial, setEditSocial] = useState<string | null>(null)
+  const [editSocialUrl, setEditSocialUrl] = useState('')
+  const [totalViews, setTotalViews] = useState(0)
+  const [seoTitle, setSeoTitle] = useState('')
+  const [seoDesc, setSeoDesc] = useState('')
+  const [pubBusy, setPubBusy] = useState(false)
+  const liveTimer = useRef<any>(null)
 
   const isPro = plan === 'pro'
 
@@ -104,7 +112,7 @@ export default function Dashboard() {
           } else if (hasSaved) {
             setPending(saved)
           }
-          setPage(pg as Page); setName(pg.display_name || ''); setBio(pg.bio || ''); await loadLinks(pg.id); await loadSocials(pg.id); await loadSub(uid)
+          setPage(pg as Page); setName(pg.display_name || ''); setBio(pg.bio || ''); setSeoTitle(pg.seo_title || ''); setSeoDesc(pg.seo_desc || ''); await loadLinks(pg.id); await loadSocials(pg.id); await loadSub(uid)
         }
       }
       setReady(true)
@@ -131,9 +139,26 @@ export default function Dashboard() {
     const t = setTimeout(async () => {
       await supabase.from('pages').update({ display_name: name, bio }).eq('id', page.id)
       setSaved(true); setTimeout(() => setSaved(false), 1400)
+      pushLive()
     }, 600)
     return () => clearTimeout(t)
   }, [name, bio])
+
+  // The public page is cached for a minute, so without this an edit sits
+  // invisible while the editor says "Saved". Debounced, because a burst of
+  // small edits should cost one rebuild, not ten.
+  function pushLive() {
+    if (liveTimer.current) clearTimeout(liveTimer.current)
+    liveTimer.current = setTimeout(async () => {
+      try {
+        const { data } = await supabase.auth.getSession()
+        await fetch('/api/revalidate', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + (data.session ? data.session.access_token : '') },
+        })
+      } catch (e) {}
+    }, 1200)
+  }
 
   async function loadLinks(pageId: string) {
     const { data } = await supabase.from('links').select('*').eq('page_id', pageId).order('position')
@@ -188,12 +213,54 @@ export default function Dashboard() {
     if (error) { setErr(error.message); return }
     setSocUrl('')
     await loadSocials(page.id)
+    pushLive()
   }
 
   async function removeSocial(id: string) {
     setSocials(socials.filter((x) => x.id !== id))
     await supabase.from('socials').delete().eq('id', id)
     if (page) await loadSocials(page.id)
+    pushLive()
+  }
+
+  async function saveSocial(id: string) {
+    const v = editSocialUrl.trim()
+    if (!v) { setErr('A handle or link is needed.'); return }
+    setErr('')
+    setSocials(socials.map((x) => (x.id === id ? { ...x, url: v } : x)))
+    setEditSocial(null)
+    await supabase.from('socials').update({ url: v }).eq('id', id)
+    pushLive()
+  }
+
+  async function moveSocial(i: number, by: number) {
+    const to = i + by
+    if (to < 0 || to >= socials.length) return
+    const next = socials.slice()
+    const [row] = next.splice(i, 1)
+    next.splice(to, 0, row)
+    setSocials(next)
+    for (let k = 0; k < next.length; k++) {
+      await supabase.from('socials').update({ position: k }).eq('id', next[k].id)
+    }
+    pushLive()
+  }
+
+  // Publishing is a switch, not a deletion. Someone who wants their page down
+  // for a week should not have to close their account to get it.
+  async function setPublished(next: boolean) {
+    if (!page) return
+    setErr(''); setPubBusy(true)
+    setPage({ ...page, is_published: next })
+    await supabase.from('pages').update({ is_published: next }).eq('id', page.id)
+    setPubBusy(false)
+    setSaved(true); setTimeout(() => setSaved(false), 1400)
+    pushLive()
+  }
+
+  async function saveSeo() {
+    if (!page) return
+    await patch({ seo_title: seoTitle.trim() || null, seo_desc: seoDesc.trim() || null })
   }
 
   async function loadStats(pageId: string) {
@@ -204,8 +271,15 @@ export default function Dashboard() {
       .eq('page_id', pageId)
       .gte('created_at', since)
       .order('created_at', { ascending: false })
-      .limit(3000)
+      .limit(6000)
     setEvents(data || [])
+    // a page view is a row with no link on it
+    const { count } = await supabase
+      .from('click_events')
+      .select('id', { count: 'exact', head: true })
+      .eq('page_id', pageId)
+      .is('link_id', null)
+    setTotalViews(count || 0)
     setStatsLoaded(true)
   }
 
@@ -254,6 +328,7 @@ export default function Dashboard() {
     setPage({ ...page, ...fields })
     await supabase.from('pages').update(fields).eq('id', page.id)
     setSaved(true); setTimeout(() => setSaved(false), 1400)
+    pushLive()
   }
 
   async function claimName() {
@@ -276,7 +351,15 @@ export default function Dashboard() {
 
     let meta: any = {}
     try {
-      const r = await fetch('/api/linkmeta', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: u }) })
+      const { data: sess } = await supabase.auth.getSession()
+      const r = await fetch('/api/linkmeta', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + (sess.session ? sess.session.access_token : ''),
+        },
+        body: JSON.stringify({ url: u }),
+      })
       meta = await r.json()
     } catch (e) {}
 
@@ -295,9 +378,11 @@ export default function Dashboard() {
   }
 
   async function removeLink(id: string) {
+    setConfirmLink(null)
     setLinks(links.filter((l) => l.id !== id))
     await supabase.from('links').delete().eq('id', id)
     if (page) await loadLinks(page.id)
+    pushLive()
   }
 
   async function toggleActive(id: string) {
@@ -306,6 +391,15 @@ export default function Dashboard() {
     const next = !l.is_active
     setLinks(links.map((x) => (x.id === id ? { ...x, is_active: next } : x)))
     await supabase.from('links').update({ is_active: next }).eq('id', id)
+    pushLive()
+  }
+
+  async function saveOrder(next: Link[]) {
+    setLinks(next)
+    for (let i = 0; i < next.length; i++) {
+      await supabase.from('links').update({ position: i }).eq('id', next[i].id)
+    }
+    pushLive()
   }
 
   function onDrop(to: number) {
@@ -314,8 +408,19 @@ export default function Dashboard() {
     if (from === null || from === to) return
     const next = links.slice()
     next.splice(to, 0, next.splice(from, 1)[0])
-    setLinks(next)
-    ;(async () => { for (let i = 0; i < next.length; i++) await supabase.from('links').update({ position: i }).eq('id', next[i].id) })()
+    saveOrder(next)
+  }
+
+  // HTML5 drag events never fire on a touch screen, and the drag handle is
+  // hidden below 700px, so on a phone the order used to be whatever order the
+  // links were added in. These work everywhere and need no gesture.
+  function move(i: number, by: number) {
+    const to = i + by
+    if (to < 0 || to >= links.length) return
+    const next = links.slice()
+    const [row] = next.splice(i, 1)
+    next.splice(to, 0, row)
+    saveOrder(next)
   }
 
   async function makePrimary(id: string) {
@@ -325,6 +430,7 @@ export default function Dashboard() {
     setLinks(links.map((l) => ({ ...l, is_primary: !off && l.id === id })))
     await supabase.from('links').update({ is_primary: false }).eq('page_id', page.id)
     if (!off) await supabase.from('links').update({ is_primary: true }).eq('id', id)
+    pushLive()
   }
 
   async function pickTheme(t: Theme) {
@@ -334,14 +440,51 @@ export default function Dashboard() {
     patch({ theme_id: t.id, use_custom: false })
   }
 
+  // A phone photo is several thousand pixels wide and a couple of megabytes.
+  // It was being served untouched into a 96px circle on the page that matters
+  // most, which made it the largest thing on a visitor's first paint.
+  async function shrink(file: File, max: number, square: boolean): Promise<Blob> {
+    try {
+      const img = document.createElement('img')
+      const url = URL.createObjectURL(file)
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url })
+      const w = img.naturalWidth, h = img.naturalHeight
+      if (!w || !h || (w <= max && h <= max && file.size < 400000)) { URL.revokeObjectURL(url); return file }
+
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      if (!ctx) { URL.revokeObjectURL(url); return file }
+
+      if (square) {
+        // centre crop, because an avatar is displayed as a circle anyway
+        const side = Math.min(w, h)
+        canvas.width = Math.min(max, side); canvas.height = canvas.width
+        ctx.drawImage(img, (w - side) / 2, (h - side) / 2, side, side, 0, 0, canvas.width, canvas.height)
+      } else {
+        const scale = Math.min(1, max / Math.max(w, h))
+        canvas.width = Math.round(w * scale); canvas.height = Math.round(h * scale)
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      }
+      URL.revokeObjectURL(url)
+
+      const blob: Blob | null = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.86))
+      return blob && blob.size < file.size ? blob : file
+    } catch (e) {
+      return file
+    }
+  }
+
   async function upload(bucket: string, file: File, cap: number, field: string) {
     if (!page || !userId) return
     if (file.size > cap) { setErr('That image is too large. Keep it under ' + Math.round(cap / 1048576) + 'MB.'); return }
     setErr('')
     bucket === 'avatars' ? setUploading(true) : setBgUploading(true)
-    const ext = (file.name.split('.').pop() || 'png').toLowerCase()
+
+    const isAvatar = bucket === 'avatars'
+    const body = await shrink(file, isAvatar ? 512 : 1800, isAvatar)
+    const ext = body === file ? (file.name.split('.').pop() || 'png').toLowerCase() : 'jpg'
     const path = userId + '/' + field + '-' + Date.now() + '.' + ext
-    const { error: e } = await supabase.storage.from(bucket).upload(path, file, { upsert: true })
+    const { error: e } = await supabase.storage.from(bucket).upload(path, body, { upsert: true, contentType: body.type || undefined })
     if (e) { setErr(e.message) } else {
       const { data } = supabase.storage.from(bucket).getPublicUrl(path)
       const f: any = {}; f[field] = data.publicUrl
@@ -425,17 +568,28 @@ export default function Dashboard() {
   // --- everything the Stats tab shows, worked out from the raw events ---
   const totalTaps = links.reduce((n, l) => n + (l.click_count || 0), 0)
   const now = Date.now()
-  const within = (d: number) => events.filter((e) => now - new Date(e.created_at).getTime() < d * 86400000).length
-  const days: { label: string; n: number }[] = []
+  // a row with a link on it is a tap; a row without one is a page view
+  const tapEvents = events.filter((e) => !!e.link_id)
+  const viewEvents = events.filter((e) => !e.link_id)
+  const within = (list: any[], d: number) =>
+    list.filter((e) => now - new Date(e.created_at).getTime() < d * 86400000).length
+  const taps30 = within(tapEvents, 30)
+  const views30 = within(viewEvents, 30)
+  // click-through rate is the number that says whether a page is working
+  const ctr = views30 > 0 ? Math.round((taps30 / views30) * 100) : null
+  const days: { label: string; n: number; v: number }[] = []
   for (let i = 13; i >= 0; i--) {
     const start = new Date(now - i * 86400000); start.setHours(0, 0, 0, 0)
     const end = start.getTime() + 86400000
+    const inDay = (list: any[]) =>
+      list.filter((e) => { const t = new Date(e.created_at).getTime(); return t >= start.getTime() && t < end }).length
     days.push({
       label: start.toLocaleDateString(undefined, { day: 'numeric' }),
-      n: events.filter((e) => { const t = new Date(e.created_at).getTime(); return t >= start.getTime() && t < end }).length,
+      n: inDay(tapEvents),
+      v: inDay(viewEvents),
     })
   }
-  const peak = Math.max(1, ...days.map((d) => d.n))
+  const peak = Math.max(1, ...days.map((d) => Math.max(d.n, d.v)))
   const mobile = events.filter((e) => e.device === 'mobile').length
   const desktop = events.filter((e) => e.device === 'desktop').length
   const refCount: any = {}
@@ -483,28 +637,19 @@ export default function Dashboard() {
 
         <div className="work">
           <div className="deco" aria-hidden="true">
+            {/* Trimmed from twenty-one to ten. The same feeling, half the
+                animating DOM, and it only renders above 1320px anyway. */}
             <Bear size={54} style={{ top: 42, left: 58, transform: 'rotate(-9deg)' }} />
-            <Star color="#C6F15C" size={22} style={{ top: 132, left: 12, transform: 'rotate(14deg)' }} />
             <Squiggle color="#B0A0FF" size={58} style={{ top: 196, left: 74, transform: 'rotate(-6deg)' }} />
             <Rocket size={50} style={{ top: 292, left: 20, transform: 'rotate(18deg)' }} />
             <Star color="#F0A2FD" size={16} style={{ top: 402, left: 88, transform: 'rotate(-11deg)' }} />
             <Robot size={52} style={{ top: 470, left: 30, transform: 'rotate(-5deg)' }} />
-            <Squiggle color="#FEB591" size={50} style={{ top: 588, left: 84, transform: 'rotate(11deg)' }} />
-            <Star color="#B0A0FF" size={20} style={{ top: 664, left: 22, transform: 'rotate(22deg)' }} />
-            <Bear size={44} style={{ top: 748, left: 66, transform: 'rotate(8deg)' }} />
-            <Squiggle color="#C6F15C" size={46} style={{ top: 856, left: 16, transform: 'rotate(-14deg)' }} />
-            <Rocket size={42} style={{ top: 942, left: 78, transform: 'rotate(-20deg)' }} />
 
-            <Robot size={54} style={{ top: 66, right: 62, transform: 'rotate(7deg)' }} />
             <Squiggle color="#C6F15C" size={56} style={{ top: 158, right: 14, transform: 'rotate(-10deg)' }} />
             <Star color="#F0A2FD" size={20} style={{ top: 236, right: 86, transform: 'rotate(16deg)' }} />
             <Bear size={48} style={{ top: 318, right: 26, transform: 'rotate(-7deg)' }} />
             <Rocket size={46} style={{ top: 432, right: 76, transform: 'rotate(13deg)' }} />
             <Star color="#C6F15C" size={18} style={{ top: 534, right: 20, transform: 'rotate(-18deg)' }} />
-            <Squiggle color="#B0A0FF" size={48} style={{ top: 604, right: 64, transform: 'rotate(9deg)' }} />
-            <Robot size={44} style={{ top: 706, right: 18, transform: 'rotate(-12deg)' }} />
-            <Star color="#B0A0FF" size={22} style={{ top: 820, right: 82, transform: 'rotate(5deg)' }} />
-            <Squiggle color="#FEB591" size={44} style={{ top: 890, right: 28, transform: 'rotate(-16deg)' }} />
           </div>
 
           <section className="panel">
@@ -560,11 +705,27 @@ export default function Dashboard() {
                         <p className="rowtitle">{l.title}</p>
                         <p className="rowmeta">{l.is_active ? '' : 'Hidden · '}{l.click_count} taps</p>
                       </div>
+                      <div className="movecol">
+                        <button className="icon move" title="Move up" aria-label={'Move ' + l.title + ' up'}
+                          disabled={i === 0} onClick={() => move(i, -1)}>▲</button>
+                        <button className="icon move" title="Move down" aria-label={'Move ' + l.title + ' down'}
+                          disabled={i === links.length - 1} onClick={() => move(i, 1)}>▼</button>
+                      </div>
                       <button className="icon eyebtn" title={l.is_active ? 'Hide from your page' : 'Show on your page'} onClick={() => toggleActive(l.id)}>{l.is_active ? '◉' : '○'}</button>
                       <button className={l.is_primary ? 'icon on' : 'icon'} title="Make this the main link" onClick={() => makePrimary(l.id)}>★</button>
-                      <button className="icon" title="Delete" onClick={() => removeLink(l.id)}>✕</button>
+                      <button className="icon" title="Delete" aria-label={'Delete ' + l.title} onClick={() => setConfirmLink(l.id)}>✕</button>
                     </div>
                   ))}
+                  {confirmLink && (
+                    <div className="confirmrow">
+                      <p>
+                        Delete <strong>{(links.filter((l) => l.id === confirmLink)[0] || { title: 'this link' }).title}</strong>?
+                        Its {(links.filter((l) => l.id === confirmLink)[0] || { click_count: 0 }).click_count} taps go with it, and that cannot be undone.
+                      </p>
+                      <button className="btn small dangerbtn" onClick={() => removeLink(confirmLink)}>Delete it</button>
+                      <button className="btn small ghost" onClick={() => setConfirmLink(null)}>Keep it</button>
+                    </div>
+                  )}
                   {links.length === 0 && <p className="bsub">Nothing to relay yet. Add your first link below.</p>}
 
                   <div style={{ marginTop: 18, paddingTop: 18, borderTop: '1px solid rgba(27,13,68,.12)' }}>
@@ -585,11 +746,32 @@ export default function Dashboard() {
 
                   {socials.length > 0 && (
                     <div className="socrow">
-                      {socials.map((sc) => (
+                      {socials.map((sc, i) => (
                         <div key={sc.id} className="socpill">
                           <SocialIcon id={sc.platform} color="#1B0D44" size={18} />
-                          <span className="soctext">{sc.url}</span>
-                          <button className="icon" title="Remove" onClick={() => removeSocial(sc.id)}>✕</button>
+                          {editSocial === sc.id ? (
+                            <>
+                              <input className="field socedit" value={editSocialUrl} autoFocus
+                                onChange={(e) => setEditSocialUrl(e.target.value)}
+                                onKeyDown={(e) => { if (e.key === 'Enter') saveSocial(sc.id); if (e.key === 'Escape') setEditSocial(null) }} />
+                              <button className="btn small" onClick={() => saveSocial(sc.id)}>Save</button>
+                              <button className="icon" title="Cancel" onClick={() => setEditSocial(null)}>✕</button>
+                            </>
+                          ) : (
+                            <>
+                              <span className="soctext">{sc.url}</span>
+                              <div className="movecol">
+                                <button className="icon move" title="Move up" aria-label={'Move ' + socialName(sc.platform) + ' up'}
+                                  disabled={i === 0} onClick={() => moveSocial(i, -1)}>▲</button>
+                                <button className="icon move" title="Move down" aria-label={'Move ' + socialName(sc.platform) + ' down'}
+                                  disabled={i === socials.length - 1} onClick={() => moveSocial(i, 1)}>▼</button>
+                              </div>
+                              <button className="icon" title="Edit" aria-label={'Edit ' + socialName(sc.platform)}
+                                onClick={() => { setEditSocial(sc.id); setEditSocialUrl(sc.url) }}>✎</button>
+                              <button className="icon" title="Remove" aria-label={'Remove ' + socialName(sc.platform)}
+                                onClick={() => removeSocial(sc.id)}>✕</button>
+                            </>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -610,25 +792,47 @@ export default function Dashboard() {
 
             {tab === 'stats' && (
               <div>
+                <div className="block block-violet">
+                  <h2 className="bh">Views</h2>
+                  <p className="bsub">People who opened your page. One visitor counts once an hour.</p>
+                  <div className="statgrid">
+                    <div className="stat"><p className="statnum">{totalViews}</p><p className="statlab">all time</p></div>
+                    <div className="stat"><p className="statnum">{views30}</p><p className="statlab">last 30 days</p></div>
+                    <div className="stat"><p className="statnum">{within(viewEvents, 7)}</p><p className="statlab">last 7 days</p></div>
+                    <div className="stat"><p className="statnum">{within(viewEvents, 1)}</p><p className="statlab">today</p></div>
+                  </div>
+                </div>
+
                 <div className="block block-mint">
                   <h2 className="bh">Taps</h2>
                   <p className="bsub">Every tap on every link, counted since your page went up.</p>
                   <div className="statgrid">
                     <div className="stat"><p className="statnum">{totalTaps}</p><p className="statlab">all time</p></div>
-                    <div className="stat"><p className="statnum">{within(30)}</p><p className="statlab">last 30 days</p></div>
-                    <div className="stat"><p className="statnum">{within(7)}</p><p className="statlab">last 7 days</p></div>
-                    <div className="stat"><p className="statnum">{within(1)}</p><p className="statlab">today</p></div>
+                    <div className="stat"><p className="statnum">{taps30}</p><p className="statlab">last 30 days</p></div>
+                    <div className="stat"><p className="statnum">{within(tapEvents, 7)}</p><p className="statlab">last 7 days</p></div>
+                    <div className="stat"><p className="statnum">{within(tapEvents, 1)}</p><p className="statlab">today</p></div>
                   </div>
+                  {ctr !== null && (
+                    <p className="bsub" style={{ margin: '16px 0 0' }}>
+                      <strong>{ctr}% of visitors tapped something</strong> in the last thirty days.
+                      {ctr < 20 ? ' Fewer links, or a clearer main one, usually lifts that.' : ' That is a page doing its job.'}
+                    </p>
+                  )}
                 </div>
 
                 <div className="block block-plain">
                   <h2 className="bh">Last fourteen days</h2>
+                  <p className="bsub">
+                    <span className="key key-view" /> views
+                    <span className="key key-tap" style={{ marginLeft: 14 }} /> taps
+                  </p>
                   {!statsLoaded && <p className="bsub">Counting…</p>}
                   {statsLoaded && (
                     <div className="bars">
                       {days.map((d, i) => (
-                        <div key={i} className="barcol" title={d.n + ' taps'}>
+                        <div key={i} className="barcol" title={d.v + ' views, ' + d.n + ' taps'}>
                           <div className="bartrack">
+                            <div className="barview" style={{ height: Math.round((d.v / peak) * 100) + '%' }} />
                             <div className="bar" style={{ height: Math.round((d.n / peak) * 100) + '%' }} />
                           </div>
                           <span className="barlab">{d.label}</span>
@@ -859,6 +1063,22 @@ export default function Dashboard() {
                 </div>
 
                 <div className="block block-plain">
+                  <h2 className="bh">Your page</h2>
+                  <p className="bsub">
+                    {page.is_published
+                      ? 'Your page is live and can be found by anyone with the link, and by search engines.'
+                      : 'Your page is hidden. The address returns a not-found page, it is out of our sitemap, and your links and stats are kept exactly as they are.'}
+                  </p>
+                  <button className={page.is_published ? 'btn ghost' : 'btn'} disabled={pubBusy}
+                    onClick={() => setPublished(!page.is_published)}>
+                    {pubBusy ? 'One moment…' : page.is_published ? 'Take my page offline' : 'Put my page back online'}
+                  </button>
+                  <p className="bsub" style={{ margin: '12px 0 0', fontSize: 13.5 }}>
+                    Taking it offline is not the same as deleting it. Your username stays yours.
+                  </p>
+                </div>
+
+                <div className="block block-plain">
                   <h2 className="bh">Billing</h2>
                   {isPro ? (
                     <>
@@ -940,6 +1160,33 @@ export default function Dashboard() {
                   </div>
                 )}
                 <p className="bsub" style={{ marginTop: 18, marginBottom: 0 }}>Paste it in your Instagram, TikTok or X bio. It works anywhere a link does.</p>
+              </div>
+            )}
+
+            {tab === 'share' && (
+              <div className="block block-plain">
+                <h2 className="bh">How your page looks in search</h2>
+                <p className="bsub">
+                  Leave these empty and we use your name and bio. Fill them in when you want
+                  Google and the share card to say something different from the page itself.
+                </p>
+
+                <label className="label">Search title</label>
+                <input className="field" value={seoTitle} maxLength={70} placeholder={page.display_name || page.username}
+                  onChange={(e) => setSeoTitle(e.target.value.slice(0, 70))} onBlur={saveSeo} />
+                <p className="counter" style={{ margin: '6px 0 0' }}>{seoTitle.length}/70</p>
+
+                <label className="label" style={{ marginTop: 14 }}>Search description</label>
+                <textarea className="field" rows={2} value={seoDesc} maxLength={170}
+                  placeholder={page.bio || ('Links from ' + (page.display_name || page.username))}
+                  onChange={(e) => setSeoDesc(e.target.value.slice(0, 170))} onBlur={saveSeo} />
+                <p className="counter" style={{ margin: '6px 0 0' }}>{seoDesc.length}/170</p>
+
+                <div className="serp">
+                  <p className="serpurl">relayme.bio/{page.username}</p>
+                  <p className="serptitle">{(seoTitle || page.display_name || page.username) + ' — Relay'}</p>
+                  <p className="serpdesc">{seoDesc || page.bio || ('Links from ' + (page.display_name || page.username))}</p>
+                </div>
               </div>
             )}
 

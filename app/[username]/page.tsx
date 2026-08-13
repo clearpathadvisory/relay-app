@@ -3,6 +3,8 @@ import { SocialIcon, socialHref, socialName } from '../socialicons'
 import { Blob } from '../blob'
 import { LinkButton } from './linkbutton'
 import { ShareButton } from './sharebutton'
+import { PageView } from './pageview'
+import { redirect } from 'next/navigation'
 import { jsonLdScript } from '../../lib/jsonld'
 import type { Metadata } from 'next'
 
@@ -22,23 +24,33 @@ export async function generateMetadata({ params }: { params: { username: string 
   const data = await load(decodeURIComponent(params.username).toLowerCase())
   if (!data) return { title: 'Not found', robots: { index: false, follow: false } }
   const name = data.page.display_name || data.page.username
+  // The owner's own words win over the generated fallback, for the tab, the
+  // search result and the share card alike.
+  const title = (data.page as any).seo_title || name
+  const desc = (data.page as any).seo_desc || data.page.bio || ('Links from ' + name)
   return {
-    title: name + ' — Relay',
-    description: data.page.bio || ('Links from ' + name),
+    title: title + ' — Relay',
+    description: desc,
     openGraph: {
-      title: name,
-      description: data.page.bio || ('Links from ' + name),
+      title: title,
+      description: desc,
       url: 'https://relayme.bio/' + data.page.username,
       siteName: 'Relay',
       type: 'profile',
     },
-    twitter: { card: 'summary_large_image', title: name, description: data.page.bio || ('Links from ' + name) },
+    twitter: { card: 'summary_large_image', title: title, description: desc },
     alternates: { canonical: 'https://relayme.bio/' + data.page.username },
   }
 }
 
 export default async function PublicPage({ params }: { params: { username: string } }) {
-  const data = await load(decodeURIComponent(params.username).toLowerCase())
+  // Usernames are stored lowercase. Serving /Mira and /mira both at 200 splits
+  // the same page across two URLs; a permanent redirect keeps one of each.
+  const raw = decodeURIComponent(params.username)
+  const lower = raw.toLowerCase()
+  if (raw !== lower) redirect('/' + lower)
+
+  const data = await load(lower)
 
   if (!data) {
     return (
@@ -99,6 +111,7 @@ export default async function PublicPage({ params }: { params: { username: strin
   return (
     <main className="pubwrap" style={shell}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }} />
+      <PageView pageId={page.id} />
       <div className="pubcard" style={card}>
         <div className="pubinner">
           <ShareButton username={page.username} name={page.display_name || page.username} color={L.nameColor} />

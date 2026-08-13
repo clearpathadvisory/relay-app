@@ -1,7 +1,9 @@
 import type { MetadataRoute } from 'next'
 import { serverClient } from '../lib/supabase'
 
-// Rebuilt hourly. Every published page earns a place; drafts do not.
+// Rebuilt hourly. Every published page with something on it earns a place;
+// drafts and empty pages do not — a few thousand blank profiles is a quality
+// signal working against the whole domain.
 export const revalidate = 3600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -18,17 +20,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const sb = serverClient()
     const { data } = await sb
       .from('pages')
-      .select('username, updated_at')
+      .select('id, username, updated_at')
       .eq('is_published', true)
       .order('updated_at', { ascending: false })
       .limit(5000)
 
-    const pages: MetadataRoute.Sitemap = (data || []).map((p: any) => ({
-      url: base + '/' + p.username,
-      lastModified: p.updated_at ? new Date(p.updated_at) : now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    }))
+    const rows = data || []
+    if (!rows.length) return fixed
+
+    const { data: linked } = await sb
+      .from('links')
+      .select('page_id')
+      .eq('is_active', true)
+      .in('page_id', rows.map((p: any) => p.id))
+
+    const hasLinks: any = {}
+    ;(linked || []).forEach((l: any) => { hasLinks[l.page_id] = true })
+
+    const pages: MetadataRoute.Sitemap = rows
+      .filter((p: any) => hasLinks[p.id])
+      .map((p: any) => ({
+        url: base + '/' + p.username,
+        lastModified: p.updated_at ? new Date(p.updated_at) : now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      }))
 
     return fixed.concat(pages)
   } catch (e) {

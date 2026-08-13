@@ -127,6 +127,13 @@ export default function Privacy() {
             Contractual Clauses, and where applicable the EU–US Data Privacy Framework.
           </p>
           <p>
+            <strong>Counting a visit.</strong> When someone opens a Relay page or taps a link, we
+            record the event so the page&rsquo;s owner can see how it is doing. To avoid counting the
+            same person over and over, we take a one-way hash of their IP address, keep only the
+            hash, and delete it within a few hours. The address itself is never stored, and the hash
+            cannot be turned back into one.
+          </p>
+          <p>
             <strong>Fonts are served from our own servers,</strong> not from a font network, so
             loading a Relay page does not reveal your IP address to any third party for typography.
           </p>

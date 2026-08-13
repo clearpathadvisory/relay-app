@@ -47,7 +47,20 @@ export function Phone({ page, links, theme, showBrand, socials = [] }: { page: P
     <div className="phoneframe" style={shell}>
       <div className={'phonescroll' + (scrolling ? ' scrolling' : '')} onScroll={onScroll}
         style={{ background: L.bgImage ? 'rgba(0,0,0,.2)' : 'transparent' }}>
-        <div style={{ padding: many ? '26px 20px 46px' : '34px 22px 52px', minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: many ? '26px 20px 46px' : '34px 22px 52px', minHeight: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+          <span style={{
+            position: 'absolute', top: many ? 18 : 24, right: many ? 16 : 18,
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+            padding: '6px 11px 6px 9px', borderRadius: 999,
+            background: 'rgba(255,255,255,.16)', border: '1px solid ' + L.nameColor,
+            color: L.nameColor, fontSize: 10.5, fontWeight: 700, opacity: .82,
+          }}>
+            <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+              <path d="M12 15.5V3.5M12 3.5 7.6 8M12 3.5 16.4 8" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M4.5 14v4.6A1.9 1.9 0 0 0 6.4 20.5h11.2a1.9 1.9 0 0 0 1.9-1.9V14" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" />
+            </svg>
+            Share
+          </span>
           <div style={av}>
             {hasAvatar ? <img src={page.avatar_url as string} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}
           </div>
@@ -97,6 +110,17 @@ export function Phone({ page, links, theme, showBrand, socials = [] }: { page: P
               </span>
             </div>
           )}
+
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: 7, flexWrap: 'wrap', marginTop: showBrand ? 20 : 'auto',
+            paddingTop: showBrand ? 0 : 24,
+            fontSize: 9.5, opacity: .72, color: L.bioColor,
+          }}>
+            <span>Privacy</span><span aria-hidden="true">·</span>
+            <span>Terms</span><span aria-hidden="true">·</span>
+            <span>Made with Relay</span>
+          </div>
         </div>
       </div>
     </div>

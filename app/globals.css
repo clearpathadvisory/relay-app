@@ -727,3 +727,50 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
   .icon { width: 38px; height: 38px; }
   .navitem { min-height: 44px; }
 }
+
+/* ---------- reordering, confirmation and editing ---------- */
+/* Drag and drop never fires on a touch screen, so every reorder also has a
+   pair of buttons. They are small, always present, and need no gesture. */
+.movecol { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+.icon.move {
+  width: 26px; height: 20px; border-radius: 7px; font-size: 9px;
+  display: flex; align-items: center; justify-content: center;
+}
+.icon.move:disabled { opacity: .3; cursor: default; }
+@media (max-width: 700px) {
+  .icon.move { width: 30px; height: 22px; }
+}
+
+/* Deleting a link takes its tap history with it, so it asks first. */
+.confirmrow {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: #FDF4F4; border: 1px solid #E9C4C4; border-radius: 18px;
+  padding: 14px 16px; margin-bottom: 12px;
+}
+.confirmrow p { margin: 0; flex: 1; min-width: 200px; font-size: 14px; line-height: 1.5; }
+
+.socedit { flex: 1; min-width: 0; padding: 8px 11px; font-size: 14px; border-radius: 11px; }
+
+/* ---------- stats: views behind, taps in front ---------- */
+.bartrack { position: relative; }
+.barview {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: rgba(124,92,230,.28); border-radius: 8px; min-height: 3px;
+  transition: height .2s ease;
+}
+.bar { position: relative; z-index: 1; }
+.key { display: inline-block; width: 11px; height: 11px; border-radius: 4px; vertical-align: -1px; margin-right: 6px; }
+.key-view { background: rgba(124,92,230,.28); }
+.key-tap { background: var(--violet); }
+
+/* ---------- how the page looks in search ---------- */
+.serp {
+  margin-top: 18px; padding: 16px 18px; background: #fff;
+  border: 1px solid #ECE7F5; border-radius: 18px;
+}
+.serpurl { margin: 0; font-size: 12.5px; color: #3B6D11; overflow-wrap: anywhere; }
+.serptitle {
+  margin: 4px 0 3px; font-size: 17px; font-weight: 600; color: #1A0DAB;
+  line-height: 1.3; overflow-wrap: anywhere;
+}
+.serpdesc { margin: 0; font-size: 13.5px; line-height: 1.5; color: #4D5156; overflow-wrap: anywhere; }

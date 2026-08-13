@@ -224,21 +224,21 @@ textarea.field { resize: none; min-height: 104px; line-height: 1.5; }
   transform-box: fill-box;
   transform-origin: center;
 }
-.blob-float { animation: blobFloat 4.4s ease-in-out infinite; }
-.blob-shadow { transform-box: fill-box; transform-origin: center; animation: blobShadow 4.4s ease-in-out infinite; }
-.blob-eyes { animation: blobBlink 5.2s ease-in-out infinite; }
-.blob-wink { animation: blobWink 8.6s ease-in-out infinite; }
-.blob-smile { animation: blobSmile 6.4s ease-in-out infinite; }
-.blob-cheek { animation: blobCheek 3.8s ease-in-out infinite; }
-.blob-antenna { animation: blobAntenna 3.2s ease-in-out infinite; }
+.blob-float { animation: blobFloat 2.6s ease-in-out infinite; }
+.blob-shadow { transform-box: fill-box; transform-origin: center; animation: blobShadow 2.6s ease-in-out infinite; }
+.blob-eyes { animation: blobBlink 3.1s ease-in-out infinite; }
+.blob-wink { animation: blobWink 5.3s ease-in-out infinite; }
+.blob-smile { animation: blobSmile 3.7s ease-in-out infinite; }
+.blob-cheek { animation: blobCheek 2.3s ease-in-out infinite; }
+.blob-antenna { animation: blobAntenna 1.9s ease-in-out infinite; }
 
 @keyframes blobFloat {
   0%, 100% { transform: translateY(0) scale(1, 1); }
-  50%      { transform: translateY(-5px) scale(1.012, 0.988); }
+  50%      { transform: translateY(-9px) scale(1.02, 0.98); }
 }
 @keyframes blobShadow {
   0%, 100% { transform: scaleX(1); opacity: .95; }
-  50%      { transform: scaleX(.9); opacity: .65; }
+  50%      { transform: scaleX(.84); opacity: .55; }
 }
 @keyframes blobBlink {
   0%, 90%, 100% { transform: scaleY(1); }
@@ -551,4 +551,50 @@ a.topurl:hover .topurlgo { opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
   .jiggle { animation: none; }
+}
+
+/* --- a rocket that actually launches --- */
+.rocketfly { animation: rocketFly 7.5s cubic-bezier(.35,.05,.35,1) infinite; will-change: transform; }
+.rocketfly .rocket-flame { animation: rocketFlame .28s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: top center; }
+
+@keyframes rocketFly {
+  0%   { transform: translateY(52px) rotate(-9deg); opacity: 0; }
+  12%  { transform: translateY(14px) rotate(-3deg); opacity: 1; }
+  32%  { transform: translateY(-6px) rotate(3deg); }
+  50%  { transform: translateY(2px)  rotate(-2deg); }
+  70%  { transform: translateY(-9px) rotate(4deg); }
+  88%  { transform: translateY(-44px) rotate(-3deg); opacity: 1; }
+  100% { transform: translateY(-78px) rotate(-7deg); opacity: 0; }
+}
+@keyframes rocketFlame {
+  from { transform: scaleY(.7) scaleX(.9); opacity: .55; }
+  to   { transform: scaleY(1.25) scaleX(1.05); opacity: .95; }
+}
+
+/* --- a robot that hovers, blinks and pulses --- */
+.robotbob { animation: robotBob 3.4s ease-in-out infinite; will-change: transform; }
+.robotbob .robot-bulb { transform-box: fill-box; transform-origin: center; animation: bulbPulse 1.5s ease-in-out infinite; }
+.robotbob .robot-eyes { transform-box: fill-box; transform-origin: center; animation: robotBlink 4.2s ease-in-out infinite; }
+
+@keyframes robotBob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%      { transform: translateY(-7px) rotate(-4deg); }
+  50%      { transform: translateY(-2px) rotate(3deg); }
+  75%      { transform: translateY(-8px) rotate(1deg); }
+}
+@keyframes bulbPulse {
+  0%, 100% { transform: scale(1); opacity: .85; }
+  50%      { transform: scale(1.35); opacity: 1; }
+}
+@keyframes robotBlink {
+  0%, 91%, 100% { transform: scaleY(1); }
+  94%           { transform: scaleY(.12); }
+  97%           { transform: scaleY(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rocketfly, .robotbob,
+  .rocketfly .rocket-flame,
+  .robotbob .robot-bulb, .robotbob .robot-eyes { animation: none; }
+  .rocketfly { opacity: 1; }
 }

@@ -16,7 +16,7 @@ export default function Home() {
           <span className="heroart">
             <Star color="#C6F15C" size={26} style={{ position: 'absolute', top: -12, left: '46%' }} />
             <Star color="#F0A2FD" size={17} style={{ position: 'absolute', bottom: 6, left: -8 }} />
-            <Rocket size={40} style={{ position: 'absolute', top: 4, right: -6 }} />
+            <Rocket size={40} className="rocketfly" style={{ position: 'absolute', top: 4, right: -6 }} />
             <Squiggle color="#C6F15C" size={54} style={{ position: 'absolute', bottom: -14, left: '38%' }} />
           </span>
 
@@ -42,7 +42,7 @@ export default function Home() {
 
         <section style={{ marginTop: 80, position: 'relative' }}>
           <span className="heroart">
-            <Robot size={46} style={{ position: 'absolute', top: -34, right: 4 }} />
+            <Robot size={46} className="robotbob" style={{ position: 'absolute', top: -34, right: 4 }} />
             <Squiggle color="#F0A2FD" size={48} style={{ position: 'absolute', top: -6, left: 178 }} />
           </span>
           <h2 className="sech">Simple pricing</h2>
@@ -108,7 +108,7 @@ export default function Home() {
         </section>
 
         <section style={{ marginTop: 64, position: 'relative', background: '#F3F0FB', borderRadius: 26, padding: '30px 26px', display: 'flex', alignItems: 'center', gap: 22, flexWrap: 'wrap', overflow: 'hidden' }}>
-          <Rocket size={54} />
+          <Rocket size={54} className="rocketfly" />
           <div style={{ flex: 1, minWidth: 240 }}>
             <h2 style={{ fontSize: 24, margin: '0 0 6px', fontWeight: 800 }}>Try Pro without paying</h2>
             <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'rgba(27,13,68,.7)' }}>

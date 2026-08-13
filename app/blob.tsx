@@ -31,22 +31,24 @@ export function Blob({ size = 150, mood = 'happy', animated = true }: { size?: n
   )
 }
 
-export function Star({ color = '#C6F15C', size = 24, style = {} }: any) {
+export function Star({ color = '#C6F15C', size = 24, style = {}, className }: any) {
   return (
-    <svg viewBox="0 0 40 40" width={size} height={size} style={style} aria-hidden="true">
+    <svg viewBox="0 0 40 40" width={size} height={size} style={style} className={className} aria-hidden="true">
       <path d="M20 3 L23 16 L36 20 L23 24 L20 37 L17 24 L4 20 L17 16 Z" fill={color} />
     </svg>
   )
 }
 
-export function Robot({ size = 46, style = {} }: any) {
+export function Robot({ size = 46, style = {}, className }: any) {
   return (
-    <svg viewBox="0 0 44 52" width={size} height={(size * 52) / 44} style={style} aria-hidden="true">
+    <svg viewBox="0 0 44 52" width={size} height={(size * 52) / 44} style={style} className={className} aria-hidden="true">
       <path d="M22 12 L22 5" stroke="#1B0D44" strokeWidth="3" strokeLinecap="round" />
-      <circle cx="22" cy="3" r="3.4" fill="#C6F15C" />
+      <circle className="robot-bulb" cx="22" cy="3" r="3.4" fill="#C6F15C" />
       <rect x="6" y="12" width="32" height="24" rx="10" fill="#B0A0FF" />
-      <circle cx="15" cy="23" r="3.6" fill="#1B0D44" />
-      <circle cx="29" cy="23" r="3.6" fill="#1B0D44" />
+      <g className="robot-eyes">
+        <circle cx="15" cy="23" r="3.6" fill="#1B0D44" />
+        <circle cx="29" cy="23" r="3.6" fill="#1B0D44" />
+      </g>
       <circle cx="16.2" cy="21.8" r="1.2" fill="#fff" />
       <circle cx="30.2" cy="21.8" r="1.2" fill="#fff" />
       <path d="M17 30 Q22 34 27 30" stroke="#1B0D44" strokeWidth="2.4" fill="none" strokeLinecap="round" />
@@ -57,9 +59,9 @@ export function Robot({ size = 46, style = {} }: any) {
   )
 }
 
-export function Bear({ size = 44, style = {} }: any) {
+export function Bear({ size = 44, style = {}, className }: any) {
   return (
-    <svg viewBox="0 0 46 44" width={size} height={(size * 44) / 46} style={style} aria-hidden="true">
+    <svg viewBox="0 0 46 44" width={size} height={(size * 44) / 46} style={style} className={className} aria-hidden="true">
       <circle cx="11" cy="11" r="7.5" fill="#FEB591" />
       <circle cx="35" cy="11" r="7.5" fill="#FEB591" />
       <circle cx="11" cy="11" r="3.4" fill="#F0A2FD" />
@@ -74,9 +76,10 @@ export function Bear({ size = 44, style = {} }: any) {
   )
 }
 
-export function Rocket({ size = 40, style = {} }: any) {
+export function Rocket({ size = 40, style = {}, className }: any) {
   return (
-    <svg viewBox="0 0 34 52" width={size} height={(size * 52) / 34} style={style} aria-hidden="true">
+    <svg viewBox="0 0 34 52" width={size} height={(size * 52) / 34} style={style} className={className} aria-hidden="true">
+      <path className="rocket-flame" d="M17 40 Q13 47 17 54 Q21 47 17 40 Z" fill="#FEB591" opacity="0.85" />
       <path d="M17 2 C25 10 27 20 27 30 L7 30 C7 20 9 10 17 2 Z" fill="#B0A0FF" />
       <circle cx="17" cy="17" r="5.2" fill="#FBFAF9" />
       <circle cx="17" cy="17" r="2.6" fill="#7C5CE6" />
@@ -88,9 +91,9 @@ export function Rocket({ size = 40, style = {} }: any) {
   )
 }
 
-export function Squiggle({ color = '#B0A0FF', size = 54, style = {} }: any) {
+export function Squiggle({ color = '#B0A0FF', size = 54, style = {}, className }: any) {
   return (
-    <svg viewBox="0 0 60 20" width={size} height={(size * 20) / 60} style={style} aria-hidden="true">
+    <svg viewBox="0 0 60 20" width={size} height={(size * 20) / 60} style={style} className={className} aria-hidden="true">
       <path d="M2 12 Q10 2 18 12 T34 12 T50 12" stroke={color} strokeWidth="3.4" fill="none" strokeLinecap="round" />
     </svg>
   )

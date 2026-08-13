@@ -414,7 +414,10 @@ textarea.field { resize: none; min-height: 104px; line-height: 1.5; }
 
 /* the phone frame is 358px wide including its bezel */
 @media (max-width: 400px) {
-  .previewinner { transform: scale(.88); transform-origin: top center; }
+  /* A transform shrinks what you see and not the box it sits in, so scaling
+     the preview to 88% left about 90px of empty page underneath it. The
+     negative margin takes back exactly what the scale gave up. */
+  .previewinner { transform: scale(.88); transform-origin: top center; margin-bottom: -91px; }
   .modal { padding: 22px 18px 20px; border-radius: 24px; }
   .modalh { font-size: 23px; }
 }

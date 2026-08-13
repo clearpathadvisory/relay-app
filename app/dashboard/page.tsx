@@ -911,7 +911,7 @@ export default function Dashboard() {
           </a>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {saved && <span className="saved">Saved</span>}
-            <button className={tab === 'share' ? 'btn small' : 'btn small ghost'}
+            <button className="btn small"
               aria-current={tab === 'share' ? 'page' : undefined}
               onClick={() => setTab('share')}>Share</button>
           </div>

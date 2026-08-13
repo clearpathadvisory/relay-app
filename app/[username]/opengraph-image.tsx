@@ -10,17 +10,16 @@ export const alt = 'A Relay page'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-// Generated per request rather than cached. A share card is fetched a handful
-// of times in a page's life — once per crawler, once per chat — so rendering
-// it fresh costs almost nothing, and a card showing last week's bio to every
-// friend who receives the link costs a great deal more.
-export const dynamic = 'force-dynamic'
+// Not cached. revalidate = 0 also opts the read behind it out of the App
+// Router's fetch cache, which is what made the card show a bio edited hours
+// earlier. force-dynamic was the wrong tool here and returned a blank image.
+export const revalidate = 0
 
 // Rendered once per page and cached by Vercel, so a share on Instagram, X or
 // WhatsApp shows the person's actual page rather than a bare grey card.
 export default async function OgImage({ params }: { params: { username: string } }) {
   const username = decodeURIComponent(params.username).toLowerCase()
-  const sb = serverClient(true)
+  const sb = serverClient()
 
   const { data: page } = await sb
     .from('pages')

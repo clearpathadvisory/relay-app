@@ -896,11 +896,17 @@ export default function Dashboard() {
                         <p className={l.kind === 'link' ? 'rowtitle' : 'rowtitle rowtitle-alt'}>
                           {l.kind === 'divider' ? 'Divider' : l.title}
                         </p>
-                        <p className={emptyGroup(i) || scheduleState(l) === 'ended' ? 'rowmeta rowmeta-warn' : 'rowmeta'}>
+                        <p className={
+                          emptyGroup(i) || scheduleState(l) === 'ended'
+                            ? 'rowmeta rowmeta-warn'
+                            : (l.kind === 'link' && !l.embed_kind && isPro && detectEmbed(l.url) ? 'rowmeta rowmeta-hint' : 'rowmeta')
+                        }>
                           {l.is_active ? '' : 'Hidden · '}
                           {l.kind === 'link'
                             ? [
-                                l.embed_kind ? 'Plays here · ' + embedName(l.embed_kind as any) : '',
+                                l.embed_kind
+                                  ? 'Plays here · ' + embedName(l.embed_kind as any)
+                                  : (isPro && detectEmbed(l.url) ? 'Can play here — tap ▶' : ''),
                                 scheduleState(l) === 'none' ? '' : scheduleLabel(l),
                                 l.click_count + ' taps',
                               ].filter(Boolean).join(' · ')

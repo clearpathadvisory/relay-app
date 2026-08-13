@@ -1150,3 +1150,7 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 .embedtitle { font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
 .embedsource { font-size: 12px; opacity: .7; }
 .embedframe { overflow: hidden; }
+
+/* A link that could play inline but is still a plain button. The ▶ is already
+   on the row; this is what tells you it is worth pressing. */
+.rowmeta-hint { color: var(--violet); font-weight: 600; }

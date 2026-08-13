@@ -926,9 +926,14 @@ export default function Dashboard() {
                           aria-label={'Change the image for ' + l.title}
                           aria-expanded={thumbFor === l.id}
                           onClick={() => { setConfirmLink(null); setScheduleFor(null); isPro ? setThumbFor(thumbFor === l.id ? null : l.id) : setErr('Your own image on a link is a Pro feature.') }}>
-                          {(l.image_url || l.favicon_url)
-                            ? <img className="fav" src={(l.image_url || l.favicon_url) as string} alt="" />
-                            : <span className="fav favblank" />}
+                          {l.embed_kind && !l.image_url
+                            ? <span className="fav kindmark" style={{
+                                background: l.embed_kind === 'youtube' ? '#FF0000' : l.embed_kind === 'spotify' ? '#1DB954' : '#FF5500',
+                                color: '#fff', fontSize: 11,
+                              }} aria-hidden="true">▶</span>
+                            : (l.image_url || l.favicon_url)
+                              ? <img className="fav" src={(l.image_url || l.favicon_url) as string} alt="" />
+                              : <span className="fav favblank" />}
                           <span className="thumbpen" aria-hidden="true">✎</span>
                         </button>
                       )}

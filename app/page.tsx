@@ -125,7 +125,9 @@ export default function Home() {
         <footer style={{ marginTop: 60, fontSize: 14, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
           <Bear size={40} />
           <span>Relay is made by ClearPath Advisory.</span>
-          <Star color="#F0A2FD" size={15} style={{ marginLeft: 4 }} />
+          <a href="/privacy" style={{ fontWeight: 600, color: 'var(--ink)' }}>Privacy</a>
+          <a href="/terms" style={{ fontWeight: 600, color: 'var(--ink)' }}>Terms</a>
+          <Star color="#F0A2FD" size={15} />
           <Squiggle color="#FEB591" size={40} style={{ marginLeft: 'auto' }} />
         </footer>
       </div>

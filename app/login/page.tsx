@@ -46,7 +46,12 @@ export default function Login() {
             {state === 'error' && <p className="err">{msg}</p>}
           </>
         )}
-        <p style={{ marginTop: 26, fontSize: 14 }}>
+        <p style={{ marginTop: 22, fontSize: 12.5, lineHeight: 1.6, color: 'var(--muted)' }}>
+          By signing in you agree to our{' '}
+          <a href="/terms" style={{ color: 'var(--violet)', fontWeight: 600 }}>Terms</a> and{' '}
+          <a href="/privacy" style={{ color: 'var(--violet)', fontWeight: 600 }}>Privacy Policy</a>.
+        </p>
+        <p style={{ marginTop: 18, fontSize: 14 }}>
           <a href="/" style={{ color: 'var(--muted)' }}>← back home</a>
         </p>
       </div>

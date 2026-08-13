@@ -1,6 +1,7 @@
 'use client'
 
 import { Link } from '../../lib/supabase'
+import { BlobMark } from '../blobmark'
 
 export function LinkButton({ link, look }: { link: Link; look: any }) {
   const primary = link.is_primary
@@ -51,7 +52,7 @@ export function LinkButton({ link, look }: { link: Link; look: any }) {
           loading="lazy" decoding="async"
           style={{ width: 28, height: 28, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
       ) : (
-        <span style={{ width: 28, flexShrink: 0 }} />
+        <BlobMark size={28} radius={8} />
       )}
       <span className="linklabel" style={{ flex: 1, minWidth: 0, textAlign: 'center', lineHeight: 1.35, paddingRight: 40, overflowWrap: 'anywhere', wordBreak: 'break-word' }}>{link.title}</span>
     </a>

@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from 'react'
 import { Theme, Link, Page, Social, resolveLook } from '../../lib/supabase'
 import { scheduleState } from '../../lib/schedule'
 import { SocialIcon, socialHref } from '../socialicons'
+import { BlobMark } from '../blobmark'
 
 export function Phone({ page, links, theme, showBrand, socials = [] }: { page: Page; links: Link[]; theme: Theme | undefined; showBrand: boolean; socials?: Social[] }) {
   const L = resolveLook(page, theme)
@@ -102,7 +103,7 @@ export function Phone({ page, links, theme, showBrand, socials = [] }: { page: P
                 {(l.image_url || l.favicon_url) ? (
                   <img src={(l.image_url || l.favicon_url) as string} alt="" style={{ width: 24, height: 24, borderRadius: 7, objectFit: 'cover', flexShrink: 0 }} />
                 ) : (
-                  <span style={{ width: 24, flexShrink: 0 }} />
+                  <BlobMark size={24} radius={7} />
                 )}
                 <span className="linklabel" style={{ flex: 1, minWidth: 0, textAlign: 'center', lineHeight: 1.32, paddingRight: 34, ...wrap }}>{l.title}</span>
               </div>

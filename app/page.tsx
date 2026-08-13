@@ -135,7 +135,7 @@ export default function Home() {
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'rgba(27,13,68,.75)' }}>Everything, and the cheapest way to get it.</p>
               <ul className="feat on-dark">
                 <li>Everything in Free</li>
-                <li>All 40 themes, 4 of them doodles</li>
+                <li>All 47 themes, including seasonal</li>
                 <li>All 8 fonts</li>
                 <li>Your own colours, 4 slots</li>
                 <li>Background image</li>
@@ -162,7 +162,7 @@ export default function Home() {
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'rgba(27,13,68,.75)' }}>The same Pro, paid in small pieces.</p>
               <ul className="feat on-dark">
                 <li>Everything in Free</li>
-                <li>All 40 themes, 4 of them doodles</li>
+                <li>All 47 themes, including seasonal</li>
                 <li>All 8 fonts</li>
                 <li>Your own colours, 4 slots</li>
                 <li>Background image</li>

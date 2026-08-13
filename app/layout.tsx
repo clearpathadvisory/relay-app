@@ -14,7 +14,7 @@ import './globals.css'
 import type { Metadata, Viewport } from 'next'
 
 const DESC =
-  'Build a link page people actually want to tap. Unlimited links on every plan, your own photo, social icons, tap statistics and 40 themes. Free to start.'
+  'Build a link page people actually want to tap. Unlimited links on every plan, your own photo, social icons, tap statistics and 47 themes. Free to start.'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://relayme.bio'),

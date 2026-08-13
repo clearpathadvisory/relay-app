@@ -6,6 +6,7 @@ import { SOCIALS, SocialIcon, socialHref, socialName } from '../socialicons'
 import { scheduleState, scheduleLabel } from '../../lib/schedule'
 import { detectEmbed, embedName } from '../../lib/embed'
 import { Blob, Star, Robot, Bear, Rocket, Squiggle } from '../blob'
+import { BlobMark } from '../blobmark'
 import { Phone } from './phone'
 
 const FREE_FONT = 'manrope'
@@ -1412,7 +1413,7 @@ export default function Dashboard() {
                 {!isPro && (
                   <div className="block block-bloom">
                     <h2 className="bh">Unlock the rest</h2>
-                    <p className="bsub">40 themes, 8 fonts, your own colours, a background image, and no Relay badge. Try any of it now — you only pay to keep it.</p>
+                    <p className="bsub">47 themes, 8 fonts, your own colours, a background image, and no Relay badge. Try any of it now — you only pay to keep it.</p>
                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
                       <button className="btn" onClick={() => startCheckout('year')} disabled={busy}>{busy ? 'One moment…' : '$30 a year'}</button>
                       <button className="btn ghost" onClick={() => startCheckout('month')} disabled={busy}>$4 a month</button>

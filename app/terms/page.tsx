@@ -88,7 +88,7 @@ export default function Terms() {
             titles and icons, tap and view statistics, a QR code and a story-sized image of your page.
           </p>
           <p>
-            <strong>Pro</strong> unlocks all 40 themes, all 8 fonts, your own colours, a background
+            <strong>Pro</strong> unlocks all 47 themes, all 8 fonts, your own colours, a background
             image, your own image on every link, scheduled links, music and video that plays on your
             page, and collecting email addresses. It costs <strong>$30 a year</strong> or <strong>$4 a month</strong>.
           </p>

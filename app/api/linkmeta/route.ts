@@ -83,7 +83,6 @@ export async function POST(req: NextRequest) {
   if (!u) return NextResponse.json({ error: 'bad url' }, { status: 400 })
 
   const host = u.hostname
-  const fallbackIcon = 'https://www.google.com/s2/favicons?sz=128&domain=' + host
 
   // YouTube, Spotify and SoundCloud render their pages in the browser and hand
   // a bot the site's own name at best — which is why a track came back called
@@ -99,7 +98,7 @@ export async function POST(req: NextRequest) {
         const j: any = await r.json()
         const title = tidyTitle(decode(String(j.title || '')), host).slice(0, 58)
         const thumb = typeof j.thumbnail_url === 'string' && /^https:\/\//.test(j.thumbnail_url) ? j.thumbnail_url : ''
-        if (title) return NextResponse.json({ title, favicon: thumb || fallbackIcon })
+        if (title) return NextResponse.json({ title, favicon: thumb || null })
       }
     } catch (e) {
       // fall through to reading the page like any other site
@@ -123,17 +122,17 @@ export async function POST(req: NextRequest) {
       const next = res.headers.get('location')
       if (!next) break
       const checked = await safeUrl(new URL(next, current).toString())
-      if (!checked) { clearTimeout(timer); return NextResponse.json({ title: host, favicon: fallbackIcon }) }
+      if (!checked) { clearTimeout(timer); return NextResponse.json({ title: host, favicon: null }) }
       current = checked
       res = null
     }
     clearTimeout(timer)
 
-    if (!res) return NextResponse.json({ title: host, favicon: fallbackIcon })
+    if (!res) return NextResponse.json({ title: host, favicon: null })
 
     const type = res.headers.get('content-type') || ''
     if (!res.ok || type.indexOf('text/html') < 0) {
-      return NextResponse.json({ title: host, favicon: fallbackIcon })
+      return NextResponse.json({ title: host, favicon: null })
     }
 
     const buf = await res.arrayBuffer()
@@ -162,10 +161,10 @@ export async function POST(req: NextRequest) {
         icon = abs.protocol === 'https:' || abs.protocol === 'http:' ? abs.toString() : ''
       } catch (e) { icon = '' }
     }
-    if (!icon) icon = fallbackIcon
+    if (!icon) icon = ''
 
-    return NextResponse.json({ title, favicon: icon })
+    return NextResponse.json({ title, favicon: icon || null })
   } catch (e) {
-    return NextResponse.json({ title: host, favicon: fallbackIcon })
+    return NextResponse.json({ title: host, favicon: null })
   }
 }

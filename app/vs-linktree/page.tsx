@@ -5,7 +5,7 @@ import { jsonLdScript } from '../../lib/jsonld'
 export const metadata: Metadata = {
   title: 'Relay next to Linktree',
   description:
-    'An honest side-by-side: what Relay does, what it does not do yet, and who each one suits. Unlimited links on the free plan, 40 themes, no advertising.',
+    'An honest side-by-side: what Relay does, what it does not do yet, and who each one suits. Unlimited links on the free plan, 47 themes, no advertising.',
   alternates: { canonical: 'https://relayme.bio/vs-linktree' },
 }
 
@@ -17,7 +17,7 @@ type Tone = 'yes' | 'no' | 'soon'
 const ROWS: { label: string; relay: string; rt: Tone; other: string; ot: Tone; ours?: boolean }[] = [
   { label: 'Links on the free plan', relay: 'Unlimited', rt: 'yes', other: 'Unlimited', ot: 'yes' },
   { label: 'Themes on the free plan', relay: '5, including a dark one', rt: 'yes', other: 'A small fixed set', ot: 'yes', ours: true },
-  { label: 'Themes in total', relay: '40', rt: 'yes', other: 'Many, most behind a plan', ot: 'yes' },
+  { label: 'Themes in total', relay: '47, including seasonal', rt: 'yes', other: 'Many, most behind a plan', ot: 'yes' },
   { label: 'Try paid styling before paying', relay: 'The whole editor', rt: 'yes', other: 'No', ot: 'no', ours: true },
   { label: 'Remove the maker\u2019s badge', relay: 'Included in Pro', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },
   { label: 'Yearly price', relay: '$30', rt: 'yes', other: 'More on comparable tiers', ot: 'yes', ours: true },

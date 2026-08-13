@@ -47,7 +47,7 @@ export function Phone({ page, links, theme, showBrand, socials = [] }: { page: P
     <div className="phoneframe" style={shell}>
       <div className={'phonescroll' + (scrolling ? ' scrolling' : '')} onScroll={onScroll}
         style={{ background: L.bgImage ? 'rgba(0,0,0,.2)' : 'transparent' }}>
-        <div style={{ padding: many ? '26px 22px 24px' : '34px 24px 30px', minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: many ? '26px 20px 46px' : '34px 22px 52px', minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
           <div style={av}>
             {hasAvatar ? <img src={page.avatar_url as string} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}
           </div>

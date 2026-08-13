@@ -102,6 +102,8 @@ textarea.field { resize: none; min-height: 104px; line-height: 1.5; }
   height: 100%; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
   scrollbar-width: thin; scrollbar-color: transparent transparent;
   transition: scrollbar-color .35s ease;
+  /* a gutter on one side only shifts everything left; reserve both */
+  scrollbar-gutter: stable both-edges;
 }
 .phonescroll.scrolling { scrollbar-color: rgba(124,92,230,.55) transparent; }
 .phonescroll::-webkit-scrollbar { width: 3px; }
@@ -515,4 +517,22 @@ textarea.field { overflow: hidden; }
   .legaltable td { border: none; padding: 2px 0; }
   .legaltable td:first-child { font-weight: 700; color: var(--ink); }
   .legalfoot span { margin-left: 0; width: 100%; }
+}
+
+/* the live URL in the top bar opens the real page */
+a.topurl {
+  display: inline-flex; align-items: center; gap: 7px;
+  transition: background .14s ease, color .14s ease;
+}
+a.topurl:hover { background: rgba(124,92,230,.14); color: var(--violet); }
+.topurlgo { font-size: 12px; opacity: .55; }
+a.topurl:hover .topurlgo { opacity: 1; }
+
+/* six rail items now, so they need to be a touch tighter on a phone */
+@media (max-width: 700px) {
+  .navitem { min-width: 48px; }
+}
+@media (max-width: 380px) {
+  .navitem { min-width: 43px; font-size: 8.5px; }
+  .navicon { width: 24px; height: 24px; font-size: 11px; }
 }

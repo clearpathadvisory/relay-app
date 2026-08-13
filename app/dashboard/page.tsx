@@ -397,6 +397,7 @@ export default function Dashboard() {
     { id: 'brand', label: 'Brand', icon: '✎' },
     { id: 'stats', label: 'Stats', icon: '◴' },
     { id: 'share', label: 'Share', icon: '↗' },
+    { id: 'account', label: 'Account', icon: '⚙' },
   ]
 
   // --- everything the Stats tab shows, worked out from the raw events ---
@@ -431,7 +432,10 @@ export default function Dashboard() {
       <div className="shell">
         <header className="topbar">
           <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.03em' }}>Relay</span>
-          <p className="topurl">relayme.bio/{page.username}</p>
+          <a className="topurl" href={'/' + page.username} target="_blank" rel="noopener noreferrer"
+            title="Open your live page in a new tab">
+            relayme.bio/{page.username}<span className="topurlgo" aria-hidden="true">↗</span>
+          </a>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {saved && <span className="saved">Saved</span>}
             <button className="btn small" onClick={copyUrl}>{copied ? 'Copied' : 'Share'}</button>
@@ -448,11 +452,9 @@ export default function Dashboard() {
             ))}
           </nav>
           <div className="sidefoot">
-            <button className={(isPro ? 'chip chip-pro' : 'chip') + (tab === 'account' ? ' chipon' : '')}
-              onClick={() => setTab('account')} title="Account and billing"
-              style={{ border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+            <span className={isPro ? 'chip chip-pro' : 'chip'} title={isPro ? 'You are on Pro' : 'You are on the free plan'}>
               {isPro ? 'Pro' : 'Free'}
-            </button>
+            </span>
             <button className="btn small ghost" onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }}>Sign out</button>
           </div>
         </aside>

@@ -73,7 +73,6 @@ export default function Dashboard() {
   const [seoDesc, setSeoDesc] = useState('')
   const [pubBusy, setPubBusy] = useState(false)
   const liveTimer = useRef<any>(null)
-  const [dark, setDark] = useState(false)
 
   const isPro = plan === 'pro'
 
@@ -135,18 +134,6 @@ export default function Dashboard() {
     if (tab === 'stats' && page && !statsLoaded) loadStats(page.id)
   }, [tab, page, statsLoaded])
 
-  // The inline script in the layout has already applied the choice before
-  // paint; this only syncs the button to what it decided.
-  useEffect(() => {
-    setDark(document.documentElement.getAttribute('data-theme') === 'dark')
-  }, [])
-
-  function toggleTheme() {
-    const next = !dark
-    setDark(next)
-    document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light')
-    try { window.localStorage.setItem('relay.theme', next ? 'dark' : 'light') } catch (e) {}
-  }
 
   // a fixed-height textarea hides the end of a long bio, so grow it to fit
   useEffect(() => {
@@ -668,10 +655,6 @@ export default function Dashboard() {
             <span className={isPro ? 'chip chip-pro' : 'chip'} title={isPro ? 'You are on Pro' : 'You are on the free plan'}>
               {isPro ? 'Pro' : 'Free'}
             </span>
-            <button className="themetoggle" onClick={toggleTheme} title={dark ? 'Switch to light' : 'Switch to dark'}
-              aria-label={dark ? 'Switch to the light editor' : 'Switch to the dark editor'}>
-              {dark ? '☀' : '☾'}
-            </button>
             <button className="btn small ghost" onClick={async () => { await supabase.auth.signOut(); window.location.href = '/' }}>Sign out</button>
           </div>
         </aside>

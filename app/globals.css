@@ -8,8 +8,8 @@
   --lime: #C6F15C;
   --muted: #6B5FA8;
 
-  /* Surfaces and rules. Everything the editor draws reads from these, so a
-     dark palette is one override block rather than a rewrite. */
+  /* Surfaces and rules. Collected here so the editor draws from one place
+     rather than repeating the same six hex values forty times over. */
   --surface: #FFFFFF;
   --surface-2: #F3F0FB;
   --line: #ECE7F5;
@@ -28,45 +28,6 @@
   --on-ink: #FFFFFF;
 }
 
-/* Dark is opt-in through data-theme, which the inline script in the layout
-   sets before first paint so nothing flashes white. */
-[data-theme='dark'] {
-  --base: #100C1C;
-  --ink: #EDE9F8;
-  --muted: #A99FD0;
-  --violet: #A98BFF;
-  --surface: #191428;
-  --surface-2: #211B34;
-  --line: #2C2442;
-  --line-soft: #2C2442;
-  --ink-70: rgba(237,233,248,.72);
-  --ink-60: rgba(237,233,248,.58);
-  --ink-12: rgba(237,233,248,.14);
-  --ink-06: rgba(237,233,248,.07);
-  --shadow: rgba(0,0,0,.45);
-  /* the coloured blocks go deep rather than pastel, so text stays light */
-  --block-violet: #2A2050;
-  --block-mint: #14312A;
-  --block-sun: #3A2416;
-  --block-bloom: #351733;
-  --block-plain: #1E1830;
-  --on-block: #EDE9F8;
-  --on-ink: #140F24;
-}
-[data-theme='dark'] .block { color: var(--on-block); }
-[data-theme='dark'] .feat li:before { color: var(--peri); }
-[data-theme='dark'] .feat.on-dark li:before { color: var(--lime); }
-[data-theme='dark'] .serptitle { color: #8AB4F8; }
-[data-theme='dark'] .serpurl { color: #9FCF7A; }
-[data-theme='dark'] .serpdesc { color: #BDC1C6; }
-[data-theme='dark'] .danger { background: #2A1618; border-color: #55282B; }
-[data-theme='dark'] .danger .bh { color: #F0A0A0; }
-[data-theme='dark'] .dangerbox { background: #1D1226; }
-[data-theme='dark'] .confirmrow { background: #2A1618; border-color: #55282B; }
-[data-theme='dark'] .saved { background: #1F3312; color: #C6F15C; }
-[data-theme='dark'] .planbadge { background: var(--ink-12); color: var(--ink-70); border-color: var(--ink-12); }
-[data-theme='dark'] .heromockbadge, [data-theme='dark'] .modalcta { color: #1B0D44; }
-[data-theme='dark'] img.fav, [data-theme='dark'] .swatch { border: 1px solid var(--line); }
 
 * { box-sizing: border-box; }
 
@@ -847,36 +808,72 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 }
 
 /* ---------- the phone on the homepage ---------- */
-.heromock { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.heromockframe {
-  width: 236px; border-radius: 30px; border: 7px solid #16102E;
-  box-shadow: 0 22px 50px rgba(27,13,68,.26);
-  overflow: hidden;
+/* Built to read as a device rather than a rounded rectangle: a titanium-ish
+   rail, real side buttons, an island, and a status bar. */
+.heromock { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+.phone {
+  position: relative;
+  width: 252px; padding: 11px;
+  border-radius: 40px;
+  background: linear-gradient(150deg, #4A4560 0%, #26223A 38%, #3A3550 70%, #1E1A2E 100%);
+  box-shadow:
+    0 30px 60px rgba(27,13,68,.30),
+    0 2px 0 rgba(255,255,255,.22) inset,
+    0 -2px 0 rgba(0,0,0,.35) inset;
 }
-.heromockinner { padding: 26px 16px 18px; display: flex; flex-direction: column; align-items: center; }
+.phone-screen {
+  position: relative; overflow: hidden;
+  border-radius: 30px; min-height: 452px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.55);
+}
+.phone-island {
+  position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
+  width: 66px; height: 19px; border-radius: 999px; background: #0C0A14;
+}
+.phone-status {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px 0; font-size: 9.5px; font-weight: 700; opacity: .85;
+}
+.phone-status-icons { display: flex; align-items: center; gap: 3px; }
+.phone-status-icons i { display: block; background: currentColor; border-radius: 1px; }
+.phone-status-icons .bars { width: 11px; height: 8px; clip-path: polygon(0 70%,20% 70%,20% 100%,0 100%,25% 45%,45% 45%,45% 100%,25% 100%,50% 22%,70% 22%,70% 100%,50% 100%,75% 0,95% 0,95% 100%,75% 100%); }
+.phone-status-icons .wifi { width: 9px; height: 8px; border-radius: 50% 50% 0 0; }
+.phone-status-icons .batt { width: 14px; height: 7px; border-radius: 2px; }
+
+/* the side rails */
+.phone-btn { position: absolute; background: #2E2A42; border-radius: 2px; }
+.phone-btn-a { left: -2px; top: 92px; width: 3px; height: 20px; }
+.phone-btn-b { left: -2px; top: 122px; width: 3px; height: 32px; }
+.phone-btn-c { left: -2px; top: 162px; width: 3px; height: 32px; }
+.phone-btn-power { right: -2px; top: 132px; width: 3px; height: 50px; }
+
+.heromockinner { padding: 14px 16px 18px; display: flex; flex-direction: column; align-items: center; }
 .heromockav {
-  width: 60px; height: 60px; border-radius: 50%; background: #C6F15C;
+  width: 54px; height: 54px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center; overflow: hidden;
   margin-bottom: 10px;
 }
 .heromockname { margin: 0; font-size: 14px; font-weight: 700; }
 .heromockbio { margin: 5px 0 0; font-size: 10.5px; line-height: 1.5; text-align: center; }
-.heromocksoc { display: flex; gap: 10px; margin: 12px 0 4px; }
-.heromocksoc span { width: 13px; height: 13px; border-radius: 4px; opacity: .8; display: block; }
+.heromocksoc { display: flex; gap: 10px; margin: 12px 0 2px; }
+.heromocksoc span { width: 12px; height: 12px; border-radius: 4px; opacity: .85; display: block; }
 .heromocklinks { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 12px; }
 .heromocklink {
   display: flex; align-items: center; justify-content: center; text-align: center;
-  min-height: 38px; padding: 9px 10px; border-radius: 12px; font-size: 10.5px; line-height: 1.3;
+  min-height: 36px; padding: 9px 10px; border-radius: 12px; font-size: 10.5px; line-height: 1.3;
 }
 .heromockbadge {
-  margin-top: 16px; background: #fff; color: #1B0D44;
+  margin-top: 14px; background: #fff; color: #1B0D44;
   padding: 7px 13px; border-radius: 999px; font-size: 9px; font-weight: 700;
+  box-shadow: 0 1px 3px rgba(38,33,92,.12);
 }
 .heromockurl { margin: 0; font-size: 13px; font-weight: 700; color: var(--muted); }
 
 @media (max-width: 760px) {
   .heromock { margin: 6px auto 0; }
-  .heromockframe { width: 210px; }
+  .phone { width: 224px; }
+  .phone-screen { min-height: 420px; }
 }
 
 /* ---------- the questions on the homepage ---------- */
@@ -898,36 +895,39 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 .faq p { margin: 10px 0 0 30px; font-size: 14.5px; line-height: 1.65; color: rgba(27,13,68,.72); }
 .faq summary:focus-visible { outline: 3px solid var(--violet); outline-offset: 4px; border-radius: 8px; }
 
-/* ---------- comparison table ---------- */
-.cmpwrap { overflow-x: auto; margin-top: 30px; }
-.cmp { width: 100%; border-collapse: collapse; min-width: 560px; }
-.cmp th {
-  text-align: left; font-size: 12.5px; font-weight: 800; color: var(--muted);
-  text-transform: uppercase; letter-spacing: .06em; padding: 0 14px 10px;
-  border-bottom: 1px solid #ECE7F5;
+/* ---------- comparison, in the same cards as the pricing ---------- */
+/* Two boxes side by side, same shape and palette as Simple pricing, so the
+   page reads as one product rather than two designs. Both lists carry the same
+   rows in the same order, so the eye can track across without a table. */
+.cmpcards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px; margin-top: 30px; align-items: start;
 }
-.cmp td {
-  font-size: 14.5px; line-height: 1.5; color: #3A2B63;
-  padding: 13px 14px; border-bottom: 1px solid #F4F0FA; vertical-align: top;
+.cmpcard { margin-bottom: 0; }
+.cmpcardname { margin: 0; font-size: 16px; font-weight: 700; }
+.cmpcardprice {
+  margin: 6px 0 4px; font-size: 34px; font-weight: 800; letter-spacing: -0.03em;
 }
-.cmplabel { font-weight: 700; color: var(--ink); width: 34%; }
-.cmp .cmpus { background: #F5F2FF; }
-.cmp th.cmpus { color: var(--violet); border-radius: 12px 12px 0 0; }
-.cmp td.cmpwin { font-weight: 700; color: var(--ink); }
-@media (max-width: 620px) {
-  .cmp { min-width: 520px; }
-  .cmp td, .cmp th { padding: 11px 10px; font-size: 13.5px; }
+.cmpcardprice span { font-size: 14px; font-weight: 600; }
+.cmpcardprice-muted { color: var(--ink-70); font-size: 28px; }
+.cmpcardsub { margin: 0 0 6px; font-size: 14.5px; line-height: 1.6; color: var(--ink-70); }
+
+.cmplist { list-style: none; margin: 14px 0 0; padding: 0; }
+.cmplist li {
+  display: flex; flex-direction: column; gap: 2px;
+  min-height: 62px; padding: 11px 0;
+  border-top: 1px solid var(--ink-12);
+}
+.cmpkey {
+  font-size: 12px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--ink-60);
+}
+.cmpval { font-size: 15px; line-height: 1.45; }
+.cmplist li.win .cmpval { font-weight: 700; }
+.cmplist li.win .cmpval:after {
+  content: '✓'; margin-left: 8px; font-weight: 800; color: #3B6D11;
 }
 
-/* ---------- the dark switch itself ---------- */
-/* Twenty of the forty themes are dark, and the editor was permanently light.
-   The palette above is scoped to the dashboard: the marketing and legal pages
-   stay light, because that is a separate design job. */
-.themetoggle {
-  background: none; border: none; cursor: pointer; font-family: inherit;
-  width: 34px; height: 34px; border-radius: 12px; font-size: 14px;
-  color: var(--muted); background: var(--ink-06); flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
+@media (max-width: 620px) {
+  .cmplist li { min-height: 0; }
 }
-.themetoggle:hover { color: var(--ink); }
-@media (max-width: 700px) { .themetoggle { width: 30px; height: 30px; font-size: 12px; } }

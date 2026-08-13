@@ -59,25 +59,34 @@ export default function VsLinktree() {
           </p>
         </div>
 
-        <div className="cmpwrap">
-          <table className="cmp">
-            <thead>
-              <tr>
-                <th></th>
-                <th className="cmpus">Relay</th>
-                <th>Linktree</th>
-              </tr>
-            </thead>
-            <tbody>
+        <div className="cmpcards">
+          <div className="block block-violet cmpcard">
+            <p className="cmpcardname">Relay</p>
+            <p className="cmpcardprice">$30<span>/year</span></p>
+            <p className="cmpcardsub">Or four a month. Free plan with no time limit.</p>
+            <ul className="cmplist">
               {ROWS.map((r) => (
-                <tr key={r.label}>
-                  <td className="cmplabel">{r.label}</td>
-                  <td className={r.ours ? 'cmpus cmpwin' : 'cmpus'}>{r.relay}</td>
-                  <td>{r.other}</td>
-                </tr>
+                <li key={r.label} className={r.ours ? 'win' : undefined}>
+                  <span className="cmpkey">{r.label}</span>
+                  <span className="cmpval">{r.relay}</span>
+                </li>
               ))}
-            </tbody>
-          </table>
+            </ul>
+          </div>
+
+          <div className="block block-plain cmpcard">
+            <p className="cmpcardname">Linktree</p>
+            <p className="cmpcardprice cmpcardprice-muted">Higher<span> on comparable tiers</span></p>
+            <p className="cmpcardsub">The original, and a good product.</p>
+            <ul className="cmplist">
+              {ROWS.map((r) => (
+                <li key={r.label}>
+                  <span className="cmpkey">{r.label}</span>
+                  <span className="cmpval">{r.other}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         <div className="legal" style={{ maxWidth: 760, marginTop: 44 }}>

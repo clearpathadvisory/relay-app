@@ -59,20 +59,6 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        {/* Runs before first paint, so a dark editor never flashes white on
-            the way in. Scoped to the dashboard: the public pages are light by
-            design and carry their own themes. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "(function(){try{if(location.pathname.indexOf('/dashboard')!==0)return;" +
-              "var s=localStorage.getItem('relay.theme');" +
-              "var d=s?s==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;" +
-              "if(d)document.documentElement.setAttribute('data-theme','dark');}catch(e){}})()",
-          }}
-        />
-      </head>
       <body>{children}</body>
     </html>
   )

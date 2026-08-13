@@ -8,6 +8,13 @@ export const alt = 'A Relay page'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
+// satori throws on an empty fonts array, so the option is left out entirely
+// rather than passed empty — a missing font file must not cost us the card.
+async function fontOption() {
+  const fonts = await manropeFonts()
+  return fonts.length ? { fonts } : {}
+}
+
 // Rendered once per page and cached by Vercel, so a share on Instagram, X or
 // WhatsApp shows the person's actual page rather than a bare grey card.
 export default async function OgImage({ params }: { params: { username: string } }) {
@@ -28,7 +35,7 @@ export default async function OgImage({ params }: { params: { username: string }
           relayme.bio
         </div>
       ),
-      { ...size, fonts: await manropeFonts() }
+      { ...size, ...(await fontOption()) }
     )
   }
 
@@ -103,6 +110,6 @@ export default async function OgImage({ params }: { params: { username: string }
         </div>
       </div>
     ),
-    { ...size, fonts: await manropeFonts() }
+    { ...size, ...(await fontOption()) }
   )
 }

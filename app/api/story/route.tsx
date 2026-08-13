@@ -36,7 +36,8 @@ export async function GET(req: Request) {
 
   // Rendered white-on-white so it reads on any theme, and encoded inline
   // because satori will not fetch a relative image.
-  const fonts = await manropeFonts()
+  const loaded = await manropeFonts()
+  const fontOption = loaded.length ? { fonts: loaded } : {}
 
   let qrDataUrl = ''
   try {
@@ -121,6 +122,6 @@ export async function GET(req: Request) {
         </div>
       </div>
     ),
-    { width: 1080, height: 1920, fonts }
+    { width: 1080, height: 1920, ...fontOption }
   )
 }

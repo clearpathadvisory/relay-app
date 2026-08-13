@@ -7,6 +7,13 @@ export const alt = 'Relay — one link for everything you make'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
+// satori throws on an empty fonts array, so the option is left out entirely
+// rather than passed empty — a missing font file must not cost us the card.
+async function fontOption() {
+  const fonts = await manropeFonts()
+  return fonts.length ? { fonts } : {}
+}
+
 // The card people see when relayme.bio itself is shared.
 export default async function OgImage() {
   return new ImageResponse(
@@ -50,6 +57,6 @@ export default async function OgImage() {
         </div>
       </div>
     ),
-    { ...size, fonts: await manropeFonts() }
+    { ...size, ...(await fontOption()) }
   )
 }

@@ -4,6 +4,12 @@ import { join } from 'path'
 // Satori cannot read woff2, so the OG card and the story image were falling
 // back to a system font — a share card in a typeface the product never uses.
 // These are static cuts of the same Manrope, loaded once per process.
+//
+// Two things matter about how this is used. The path is built at runtime, so
+// Vercel's file tracing cannot see it — next.config.js has to be told to ship
+// the folder. And satori needs at least one font: handing it an empty array
+// throws, which turns a missing file into a 500 and a share card into nothing.
+// Callers must therefore omit the option entirely when this returns empty.
 let cached: any[] | null = null
 
 export async function manropeFonts() {

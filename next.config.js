@@ -22,6 +22,13 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
 
+  // The share card and the story image read the Manrope files from disk with a
+  // path built at runtime, which Vercel's tracing cannot follow — so without
+  // this the fonts are simply not in the deployed bundle.
+  outputFileTracingIncludes: {
+    '/**': ['./assets/fonts/**'],
+  },
+
   // The Sentry browser bundle carries its tracing engine whether or not it is
   // used. A public profile page is the one thing on this site that has to be
   // fast on a phone, so the flag below lets webpack drop that code from the

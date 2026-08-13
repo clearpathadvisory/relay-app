@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { supabase, Theme, Link, Page, Social, FONTS } from '../../lib/supabase'
 import { SOCIALS, SocialIcon, socialHref, socialName } from '../socialicons'
 import { scheduleState, scheduleLabel } from '../../lib/schedule'
@@ -843,19 +843,27 @@ export default function Dashboard() {
                   </div>
                   <p className="bsub">Drag the handle to reorder, or use the arrows on a phone. Star makes it the big button. The eye hides it without deleting.</p>
 
+                  {/* Every panel opens directly beneath the row it belongs to. They
+                      used to render after the whole list, so clicking the clock on the
+                      second of seven rows opened something far below the fold with no
+                      sign anything had happened. */}
                   {links.map((l, i) => (
-                    <div key={l.id} draggable
+                    <Fragment key={l.id}>
+                    <div draggable={scheduleFor !== l.id && thumbFor !== l.id}
                       onDragStart={() => { dragFrom.current = i }}
                       onDragOver={(e) => { e.preventDefault(); setDragOver(i) }}
                       onDragLeave={() => setDragOver(null)}
                       onDrop={() => onDrop(i)}
                       onDragEnd={() => { dragFrom.current = null; setDragOver(null) }}
-                      className={(dragOver === i ? 'row rowover' : 'row') + (l.is_active ? '' : ' hiddenrow')}>
+                      className={(dragOver === i ? 'row rowover' : 'row')
+                        + (l.is_active ? '' : ' hiddenrow')
+                        + ((scheduleFor === l.id || thumbFor === l.id || confirmLink === l.id) ? ' rowopen' : '')}>
                       <span className="grip">⠿</span>
                       {l.kind === 'link' && (
                         <button className="thumbbtn" title={isPro ? 'Change this image' : 'Your own image is a Pro feature'}
                           aria-label={'Change the image for ' + l.title}
-                          onClick={() => (isPro ? setThumbFor(thumbFor === l.id ? null : l.id) : setErr('Your own image on a link is a Pro feature.'))}>
+                          aria-expanded={thumbFor === l.id}
+                          onClick={() => { setConfirmLink(null); setScheduleFor(null); isPro ? setThumbFor(thumbFor === l.id ? null : l.id) : setErr('Your own image on a link is a Pro feature.') }}>
                           {(l.image_url || l.favicon_url)
                             ? <img className="fav" src={(l.image_url || l.favicon_url) as string} alt="" />
                             : <span className="fav favblank" />}
@@ -888,91 +896,93 @@ export default function Dashboard() {
                         <button className={scheduleState(l) === 'none' ? 'icon' : 'icon on'}
                           title={isPro ? 'Give this link a start or an end' : 'Scheduling is a Pro feature'}
                           aria-label={'Schedule ' + l.title}
-                          onClick={() => (isPro ? setScheduleFor(scheduleFor === l.id ? null : l.id) : setErr('Scheduling a link is a Pro feature.'))}>◷</button>
+                          aria-expanded={scheduleFor === l.id}
+                          onClick={() => { setConfirmLink(null); setThumbFor(null); isPro ? setScheduleFor(scheduleFor === l.id ? null : l.id) : setErr('Scheduling a link is a Pro feature.') }}>◷</button>
                       )}
                       {l.kind === 'link'
                         ? <button className={l.is_primary ? 'icon on' : 'icon'} title="Make this the main link" onClick={() => makePrimary(l.id)}>★</button>
                         : <span className="icon icondim" aria-hidden="true" />}
-                      <button className="icon" title="Delete" aria-label={'Delete ' + (l.title || 'divider')} onClick={() => setConfirmLink(l.id)}>✕</button>
+                      <button className="icon" title="Delete" aria-label={'Delete ' + (l.title || 'divider')}
+                        onClick={() => { setScheduleFor(null); setThumbFor(null); setConfirmLink(confirmLink === l.id ? null : l.id) }}>✕</button>
                     </div>
-                  ))}
 
-                  {scheduleFor && (() => {
-                    const row = links.filter((l) => l.id === scheduleFor)[0]
-                    if (!row) return null
-                    return (
-                      <div className="thumbpanel">
+                    {scheduleFor === l.id && (
+                      <div className="rowpanel">
                         <p>
-                          <strong>When should <em>{row.title}</em> be on your page?</strong> Leave
+                          <strong>When should <em>{l.title}</em> be on your page?</strong> Leave
                           either side empty for no limit. Outside its window the link is simply not
                           there — no greyed-out button for a visitor to wonder about.
                         </p>
                         <div className="schedgrid">
                           <label className="label">
                             Starts
-                            <input className="field" type="datetime-local" value={toLocalInput(row.starts_at)}
-                              onChange={(e) => setWindow(row.id, 'starts_at', e.target.value)} />
+                            <input className="field" type="datetime-local" autoFocus value={toLocalInput(l.starts_at)}
+                              onChange={(e) => setWindow(l.id, 'starts_at', e.target.value)} />
                           </label>
                           <label className="label">
                             Ends
-                            <input className="field" type="datetime-local" value={toLocalInput(row.ends_at)}
-                              onChange={(e) => setWindow(row.id, 'ends_at', e.target.value)} />
+                            <input className="field" type="datetime-local" value={toLocalInput(l.ends_at)}
+                              onChange={(e) => setWindow(l.id, 'ends_at', e.target.value)} />
                           </label>
                         </div>
                         <p className="bsub" style={{ margin: '10px 0 0', fontSize: 13 }}>
-                          Times are your own clock. Your page is cached for a minute, so a link
-                          arrives or leaves within about a minute of the time you set.
+                          Times are your own clock, and every change saves as you make it. Your page
+                          is cached for a minute, so a link arrives or leaves within about a minute
+                          of the time you set.
                         </p>
-                        <div className="thumbactions" style={{ marginTop: 12 }}>
-                          {scheduleState(row) !== 'none' && (
-                            <button className="btn small ghost" onClick={() => clearWindow(row.id)}>Always on</button>
+                        <div className="rowactions">
+                          {scheduleState(l) !== 'none' && (
+                            <button className="btn small ghost" onClick={() => clearWindow(l.id)}>Always on</button>
                           )}
-                          <button className="btn small ghost" onClick={() => setScheduleFor(null)}>Done</button>
+                          <button className="btn small" onClick={() => setScheduleFor(null)}>Done</button>
                         </div>
                       </div>
-                    )
-                  })()}
+                    )}
 
-                  {thumbFor && (
-                    <div className="thumbpanel">
-                      <p>
-                        <strong>Your own image for this link.</strong> Square works best — we crop
-                        to the middle and shrink it before it leaves your browser.
-                      </p>
-                      <div className="thumbactions">
-                        <label className="btn small">
-                          {thumbBusy === thumbFor ? 'Uploading…' : 'Choose an image'}
-                          <input type="file" accept="image/*" style={{ display: 'none' }}
-                            onChange={(e) => {
-                              const f = e.target.files && e.target.files[0]
-                              if (f) uploadThumb(thumbFor, f)
-                              e.target.value = ''
-                            }} />
-                        </label>
-                        {(links.filter((l) => l.id === thumbFor)[0] || {}).image_url && (
-                          <button className="btn small ghost" onClick={() => clearThumb(thumbFor)}>
-                            Back to the site&rsquo;s own icon
-                          </button>
-                        )}
-                        <button className="btn small ghost" onClick={() => setThumbFor(null)}>Done</button>
+                    {thumbFor === l.id && (
+                      <div className="rowpanel">
+                        <p>
+                          <strong>Your own image for this link.</strong> Square works best — we crop
+                          to the middle and shrink it before it leaves your browser.
+                        </p>
+                        <div className="rowactions">
+                          <label className="btn small">
+                            {thumbBusy === l.id ? 'Uploading…' : 'Choose an image'}
+                            <input type="file" accept="image/*" style={{ display: 'none' }}
+                              onChange={(e) => {
+                                const f = e.target.files && e.target.files[0]
+                                if (f) uploadThumb(l.id, f)
+                                e.target.value = ''
+                              }} />
+                          </label>
+                          {l.image_url && (
+                            <button className="btn small ghost" onClick={() => clearThumb(l.id)}>
+                              Back to the site&rsquo;s own icon
+                            </button>
+                          )}
+                          <button className="btn small" onClick={() => setThumbFor(null)}>Done</button>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {confirmLink && (
-                    <div className="confirmrow">
-                      <p>
-                        {(() => {
-                          const row = links.filter((l) => l.id === confirmLink)[0]
-                          if (!row) return 'Delete this row?'
-                          if (row.kind === 'divider') return 'Delete this divider?'
-                          if (row.kind === 'heading') return <>Delete the heading <strong>{row.title}</strong>?</>
-                          return <>Delete <strong>{row.title}</strong>? Its {row.click_count} taps go with it, and that cannot be undone.</>
-                        })()}
-                      </p>
-                      <button className="btn small dangerbtn" onClick={() => removeLink(confirmLink)}>Delete it</button>
-                      <button className="btn small ghost" onClick={() => setConfirmLink(null)}>Keep it</button>
-                    </div>
-                  )}
+                    )}
+
+                    {confirmLink === l.id && (
+                      <div className="rowpanel danger">
+                        <p>
+                          {l.kind === 'divider'
+                            ? 'Delete this divider?'
+                            : l.kind === 'heading'
+                              ? <>Delete the heading <strong>{l.title}</strong>?</>
+                              : <>Delete <strong>{l.title}</strong>? Its {l.click_count} taps go with it, and that cannot be undone.</>}
+                        </p>
+                        <div className="rowactions">
+                          <button className="btn small dangerbtn" onClick={() => removeLink(l.id)}>Delete it</button>
+                          <button className="btn small ghost" onClick={() => setConfirmLink(null)}>Keep it</button>
+                        </div>
+                      </div>
+                    )}
+                    </Fragment>
+                  ))}
+
                   {links.length === 0 && <p className="bsub">Nothing to relay yet. Add your first link below.</p>}
 
                   <div style={{ marginTop: 18, paddingTop: 18, borderTop: '1px solid var(--ink-12)' }}>

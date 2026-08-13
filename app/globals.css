@@ -1100,13 +1100,33 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 .thumbbtn:hover .thumbpen, .thumbbtn:focus-visible .thumbpen { opacity: 1; }
 @media (hover: none) { .thumbpen { opacity: .9; } }
 
-.thumbpanel {
-  background: var(--surface); border: 1px solid var(--line);
-  border-radius: 18px; padding: 15px 18px; margin-bottom: 12px;
+/* A panel belongs to its row, so it is drawn tucked under it: no gap above, a
+   notch of colour down the left, and the row itself squared off at the bottom
+   so the two read as one object. */
+.rowpanel {
+  background: var(--surface); border: 1px solid var(--line); border-top: none;
+  border-left: 3px solid var(--violet);
+  border-radius: 0 0 18px 18px;
+  padding: 15px 18px; margin: -10px 0 12px;
+  animation: rowpanelIn .16s ease-out;
 }
-.thumbpanel p { margin: 0 0 12px; font-size: 14px; line-height: 1.55; color: var(--ink-70); }
-.thumbactions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-.thumbactions label.btn { cursor: pointer; }
+.rowpanel.danger { background: #FDF4F4; border-color: #E9C4C4; border-left: 3px solid #C0472F; }
+.rowpanel p { margin: 0 0 12px; font-size: 14px; line-height: 1.55; color: var(--ink-70); }
+.rowpanel .label { display: block; }
+.rowactions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.rowactions label.btn { cursor: pointer; }
+
+.row.rowopen {
+  border-radius: 22px 22px 0 0;
+  border-left: 3px solid var(--violet);
+  margin-bottom: 10px;
+}
+
+@keyframes rowpanelIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .rowpanel { animation: none; } }
 
 /* ---------- scheduling ---------- */
 .schedgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }

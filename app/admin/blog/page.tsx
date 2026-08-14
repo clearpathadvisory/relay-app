@@ -58,6 +58,7 @@ function toLocalInput(iso: string | null) {
 export default function AdminBlog() {
   const [ready, setReady] = useState(false)
   const [allowed, setAllowed] = useState(false)
+  const [signedInAs, setSignedInAs] = useState<string | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
   const [topics, setTopics] = useState<Topic[]>([])
   const [editing, setEditing] = useState<Partial<Post> | null>(null)
@@ -67,11 +68,25 @@ export default function AdminBlog() {
   const [when, setWhen] = useState('')
 
   useEffect(() => {
+    // supabase-js restores the session from storage asynchronously, so a single
+    // read on a cold load can come back empty on a browser that is in fact
+    // signed in. The dashboard waits the same way.
+    async function waitForSession() {
+      const { data: first } = await supabase.auth.getSession()
+      if (first.session) return first.session
+      for (let i = 0; i < 10; i++) {
+        await new Promise((r) => setTimeout(r, 200))
+        const { data } = await supabase.auth.getSession()
+        if (data.session) return data.session
+      }
+      return null
+    }
     ;(async () => {
-      const { data: sess } = await supabase.auth.getSession()
-      const uid = sess.session ? sess.session.user.id : null
-      if (!uid) { setReady(true); return }
-      const { data: admin } = await supabase.from('blog_admins').select('user_id').eq('user_id', uid).maybeSingle()
+      const session = await waitForSession()
+      if (!session) { setReady(true); return }
+      setSignedInAs(session.user.email || '')
+      const { data: admin } = await supabase
+        .from('blog_admins').select('user_id').eq('user_id', session.user.id).maybeSingle()
       if (!admin) { setReady(true); return }
       setAllowed(true)
       await refresh()
@@ -150,13 +165,40 @@ export default function AdminBlog() {
 
   if (!ready) return <main className="wrap" style={{ paddingTop: 60 }}><p>Loading…</p></main>
 
+  // Two different problems used to look identical here, which cost an evening.
+  // Not signed in is a thing the visitor can fix; signed in as the wrong
+  // account is a thing they need told. Neither reveals that the page exists to
+  // anyone who was not already signed in to Relay.
   if (!allowed) {
     return (
       <main style={{ background: 'var(--base)', minHeight: '100vh' }}>
         <div className="wrap" style={{ paddingTop: 80 }}>
           <div className="legal">
-            <h1>Not found</h1>
-            <p>There is nothing at this address. <a href="/">Back to Relay</a>.</p>
+            {signedInAs ? (
+              <>
+                <h1>Not this account</h1>
+                <p>
+                  You are signed in as <strong>{signedInAs}</strong>, which does not have access
+                  to the blog. Sign out and sign back in with the account that does.
+                </p>
+                <p>
+                  <button
+                    className="btn"
+                    onClick={async () => { await supabase.auth.signOut(); window.location.href = '/login' }}
+                  >
+                    Sign out
+                  </button>
+                </p>
+              </>
+            ) : (
+              <>
+                <h1>Sign in first</h1>
+                <p>
+                  This page needs a signed-in account. <a href="/login">Sign in</a>, then come
+                  back to /admin/blog.
+                </p>
+              </>
+            )}
           </div>
         </div>
       </main>

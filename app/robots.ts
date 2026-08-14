@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         // Private surfaces and machinery — nothing here belongs in an index,
         // and crawling them wastes budget that should go on real pages.
-        disallow: ['/dashboard', '/login', '/auth/', '/api/', '/monitoring'],
+        disallow: ['/dashboard', '/admin', '/login', '/auth/', '/api/', '/monitoring'],
       },
     ],
     sitemap: 'https://relayme.bio/sitemap.xml',

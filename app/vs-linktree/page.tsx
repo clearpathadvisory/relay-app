@@ -137,6 +137,7 @@ export default function VsLinktree() {
 
         <footer className="legalfoot">
           <a href="/">Home</a>
+          <a href="/blog">Blog</a>
           <a href="/privacy">Privacy</a>
           <a href="/terms">Terms</a>
           <span>Relay is made by ClearPath Advisory.</span>

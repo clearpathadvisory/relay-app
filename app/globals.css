@@ -1353,3 +1353,72 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
   .bgrid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
   .bhero { border-radius: 18px; }
 }
+
+/* ---------------------------------------------------------------------------
+   /admin/blog. Only ever drawn for an account listed in blog_admins, and no
+   part of it appears on anyone else's dashboard.
+   --------------------------------------------------------------------------- */
+.acard {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 24px;
+  padding: 24px; margin-bottom: 34px;
+}
+.arow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.alab {
+  display: block; font-size: 12.5px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--muted); margin: 18px 0 6px;
+}
+.acount { text-transform: none; letter-spacing: 0; color: var(--violet); }
+.ainp {
+  width: 100%; padding: 11px 13px; border: 1px solid var(--line); border-radius: 12px;
+  font: inherit; font-size: 15px; color: var(--ink); background: #fff;
+}
+.ainp:focus { outline: 2px solid var(--violet); outline-offset: 1px; border-color: transparent; }
+.atext { font-family: 'Space Mono', ui-monospace, monospace; font-size: 13.5px; line-height: 1.65; resize: vertical; }
+.agrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.ahint { font-size: 13px; color: var(--muted); margin: 6px 0 0; line-height: 1.55; }
+
+.aswatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.aswatch {
+  width: 62px; height: 40px; border-radius: 12px; border: 2px solid var(--line);
+  display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer;
+}
+.aswatch.on { border-color: var(--ink); }
+.aswatch span { width: 12px; height: 12px; border-radius: 4px; display: block; }
+.apreview { width: 100%; max-width: 420px; height: auto; border-radius: 14px; margin-top: 12px; display: block; }
+
+.afaq { display: grid; gap: 8px; margin-bottom: 14px; padding: 14px; background: var(--base); border-radius: 14px; }
+.afaq .btn { justify-self: start; }
+
+.aactions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 26px; }
+.asched { display: flex; align-items: center; gap: 8px; }
+.asched .ainp { width: auto; }
+.adanger { margin-left: auto; color: #B4453B; }
+
+.ahead { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; margin: 34px 0 12px; }
+.arowcard {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%; text-align: left;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+  padding: 14px 16px; margin-bottom: 8px; cursor: pointer; font: inherit;
+}
+.arowcard:hover { border-color: var(--violet); }
+.atitle { font-weight: 700; color: var(--ink); font-size: 15.5px; }
+.ameta { font-size: 13px; color: var(--muted); margin-left: auto; }
+.astat {
+  font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em;
+  padding: 4px 9px; border-radius: 999px; background: #EDE7FF; color: var(--ink);
+}
+.astat.on { background: #C6F15C; }
+
+.atopic { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #ECE7F5; }
+.anum { width: 72px; }
+.atopictitle { font-size: 14.5px; color: var(--ink); font-weight: 600; }
+.atopictitle em { display: block; font-style: normal; font-weight: 400; font-size: 13px; color: var(--muted); }
+
+.asave { color: #2C7A4B; font-weight: 700; font-size: 14px; margin: 0 0 14px; }
+.aerr { color: #B4453B; font-weight: 700; font-size: 14px; margin: 0 0 14px; }
+
+@media (max-width: 720px) {
+  .agrid { grid-template-columns: minmax(0, 1fr); }
+  .adanger { margin-left: 0; }
+  .ameta { margin-left: 0; width: 100%; }
+}

@@ -218,6 +218,7 @@ export default function Home() {
         <footer style={{ marginTop: 60, fontSize: 14, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
           <Bear size={40} />
           <span>Relay is made by ClearPath Advisory.</span>
+          <a href="/blog" style={{ fontWeight: 600, color: 'var(--ink)' }}>Blog</a>
           <a href="/privacy" style={{ fontWeight: 600, color: 'var(--ink)' }}>Privacy</a>
           <a href="/terms" style={{ fontWeight: 600, color: 'var(--ink)' }}>Terms</a>
           <Star color="#F0A2FD" size={15} />

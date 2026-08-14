@@ -102,7 +102,10 @@ export default async function BlogPost({ params }: { params: { slug: string } })
       <div className="wrap" style={{ paddingTop: 24, paddingBottom: 70 }}>
         <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 34 }}>
           <a href="/" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>Relay</a>
-          <a href="/login" className="btn small">Sign in</a>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <a href="/blog" style={{ fontWeight: 600, fontSize: 15 }}>Blog</a>
+            <a href="/login" className="btn small">Sign in</a>
+          </span>
         </nav>
 
         <div className="legal bpost" style={{ maxWidth: 720 }}>

@@ -9,6 +9,7 @@ const { resolveLook, fontStack } = await import('../.test/lib/supabase.js')
 const { scheduleState, scheduleLabel } = await import('../.test/lib/schedule.js')
 const { detectEmbed, oembedUrl, tidyTitle } = await import('../.test/lib/embed.js')
 const { cardText } = await import('../.test/lib/cardtext.js')
+const { renderMarkdown, readingMinutes, firstParagraph } = await import('../.test/lib/markdown.js')
 
 let passed = 0
 function it(name, fn) {
@@ -224,6 +225,50 @@ it('leaves ordinary text and punctuation alone', () => {
 it('does not strip accents or non-latin script', () => {
   assert.equal(cardText('Zażółć gęślą jaźń'), 'Zażółć gęślą jaźń')
   assert.equal(cardText('日本語のテキスト'), '日本語のテキスト')
+})
+
+console.log('\nrenderMarkdown')
+it('escapes anything that looks like a tag', () => {
+  const { html } = renderMarkdown('A <script>alert(1)</script> line')
+  assert.equal(html.indexOf('<script') < 0, true)
+  assert.equal(html.indexOf('&lt;script&gt;') >= 0, true)
+})
+it('refuses a javascript: link and keeps the words', () => {
+  const { html } = renderMarkdown('Read [this](javascript:alert(1)) now')
+  assert.equal(html.indexOf('javascript:') < 0, true)
+  assert.equal(html.indexOf('this') >= 0, true)
+})
+it('allows https, relative and mailto', () => {
+  assert.equal(renderMarkdown('[a](https://relayme.bio)').html.indexOf('href="https://relayme.bio"') >= 0, true)
+  assert.equal(renderMarkdown('[a](/login)').html.indexOf('href="/login"') >= 0, true)
+  assert.equal(renderMarkdown('[a](mailto:hello@relayme.bio)').html.indexOf('mailto:') >= 0, true)
+})
+it('marks an outbound link nofollow but not our own', () => {
+  assert.equal(renderMarkdown('[a](https://example.com)').html.indexOf('nofollow') >= 0, true)
+  assert.equal(renderMarkdown('[a](https://relayme.bio/login)').html.indexOf('nofollow') < 0, true)
+})
+it('gives every h2 an id the table of contents can reach', () => {
+  const { html, headings } = renderMarkdown('## The things that work\n\ntext')
+  assert.equal(headings[0].id, 'the-things-that-work')
+  assert.equal(html.indexOf('id="the-things-that-work"') >= 0, true)
+})
+it('builds lists, bold and blockquotes', () => {
+  assert.equal(renderMarkdown('- one\n- two').html, '<ul><li>one</li><li>two</li></ul>')
+  assert.equal(renderMarkdown('a **b** c').html, '<p>a <strong>b</strong> c</p>')
+  assert.equal(renderMarkdown('> quoted').html.indexOf('<blockquote>') >= 0, true)
+})
+it('joins wrapped lines into one paragraph', () => {
+  assert.equal(renderMarkdown('one\ntwo\n\nthree').html, '<p>one two</p>\n<p>three</p>')
+})
+
+console.log('\nreadingMinutes and firstParagraph')
+it('never reports zero minutes', () => {
+  assert.equal(readingMinutes(''), 1)
+  assert.equal(readingMinutes(new Array(441).join('word ')), 2)
+})
+it('skips headings and strips link syntax for the excerpt', () => {
+  const s = '## Heading\n\nA line with [a link](https://relayme.bio) in it.'
+  assert.equal(firstParagraph(s), 'A line with a link in it.')
 })
 
 console.log('\n' + passed + ' assertions passed\n')

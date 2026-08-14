@@ -1282,3 +1282,74 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
     border-left: 1px solid var(--line);
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Blog. Reuses .legal for body copy so an article and a policy page share one
+   set of typographic rules; everything below is the furniture around it.
+   --------------------------------------------------------------------------- */
+.bfilters { display: flex; flex-wrap: wrap; gap: 8px; margin: 30px 0 26px; }
+.bfilter {
+  display: inline-block; padding: 8px 15px; border-radius: 999px; font-size: 14px;
+  font-weight: 600; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+}
+.bfilter:hover { border-color: var(--violet); }
+.bfilter.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+
+.bgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; margin-top: 26px; }
+.bcard {
+  display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 22px; overflow: hidden; color: var(--ink); transition: border-color .15s ease, transform .15s ease;
+}
+.bcard:hover { border-color: var(--violet); transform: translateY(-2px); }
+.bcard-wide { grid-column: 1 / -1; }
+.bcover { width: 100%; height: auto; display: block; aspect-ratio: 1200 / 630; object-fit: cover; background: #F3F0FB; }
+.bcardbody { padding: 18px 20px 22px; }
+.bcard h2 { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.28; margin: 0; }
+.bcard-wide h2 { font-size: clamp(21px, 3.4vw, 26px); }
+.bdek { font-size: 14.5px; line-height: 1.6; color: var(--ink-70); margin: 8px 0 0; }
+.bmeta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 10px; font-size: 13px; color: var(--muted); }
+.bchip {
+  display: inline-block; padding: 4px 11px; border-radius: 999px; background: #EDE7FF;
+  color: var(--ink); font-weight: 700; font-size: 12.5px;
+}
+
+.bhero {
+  display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover;
+  border-radius: 24px; margin: 26px 0 8px; background: #F3F0FB;
+}
+.bkicklink { color: var(--violet); font-weight: 700; }
+.bdot { margin: 0 8px; color: var(--line); }
+.bbyline { font-size: 14px; color: var(--muted); margin: 10px 0 0; font-weight: 600; }
+
+/* An article is read, not scanned like a contract, so it gets more air than a
+   policy page and loses the rule above every heading. */
+.bpost p { font-size: 17px; line-height: 1.75; }
+.bpost li { font-size: 17px; line-height: 1.75; }
+.bpost h2 { border-top: none; padding-top: 8px; margin: 40px 0 12px; font-size: clamp(21px, 4.2vw, 25px); }
+.bpost h3 { font-size: 18.5px; font-weight: 800; letter-spacing: -0.015em; margin: 28px 0 8px; }
+.bpost blockquote {
+  margin: 20px 0; padding: 2px 0 2px 20px; border-left: 3px solid var(--violet);
+}
+.bpost blockquote p { color: var(--ink); font-style: italic; margin: 0; }
+.bpost hr { border: none; border-top: 1px solid #ECE7F5; margin: 32px 0; }
+.bpost code { background: #F3F0FB; border-radius: 5px; padding: 1px 5px; font-size: 0.92em; }
+.bpost article > p:first-child { margin-top: 18px; }
+
+.btoc {
+  max-width: 720px; margin: 30px 0 6px; padding: 18px 22px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 20px;
+}
+.btoc p { margin: 0 0 10px; font-size: 12.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.btoc ul { margin: 0; padding-left: 18px; }
+.btoc li { font-size: 14.5px; line-height: 1.6; margin-bottom: 5px; }
+.btoc a { color: var(--ink); font-weight: 600; }
+.btoc a:hover { color: var(--violet); }
+
+.bfaq { margin-bottom: 18px; }
+.bfaqq { font-weight: 800; color: var(--ink); margin-bottom: 4px !important; }
+.brelhead { font-size: 12.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin: 0; }
+
+@media (max-width: 720px) {
+  .bgrid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .bhero { border-radius: 18px; }
+}

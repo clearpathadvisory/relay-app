@@ -304,6 +304,7 @@ export default function Dashboard() {
     setPubBusy(false)
     setSaved(true); setTimeout(() => setSaved(false), 1400)
     pushLive()
+    if (!next) notify('offline')
   }
 
   async function saveSeo() {
@@ -421,6 +422,22 @@ export default function Dashboard() {
     pushLive()
   }
 
+  // Fire-and-forget: an email that fails must never cost someone the action
+  // they actually asked for.
+  async function notify(kind: string) {
+    try {
+      const { data } = await supabase.auth.getSession()
+      await fetch('/api/notify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + (data.session ? data.session.access_token : ''),
+        },
+        body: JSON.stringify({ kind }),
+      })
+    } catch (e) {}
+  }
+
   async function claimName() {
     setErr('')
     const n = claim.trim().toLowerCase()
@@ -430,6 +447,7 @@ export default function Dashboard() {
     const { data, error } = await supabase.from('pages').insert({ owner_id: userId, username: n, display_name: n }).select().single()
     if (error) { setErr(error.message.indexOf('duplicate') >= 0 ? 'That name is taken. Try another.' : error.message); return }
     setPage(data as Page); setName(n)
+    notify('welcome')
   }
 
   // Reuses the shrink and upload path the avatar already uses. 256 square is

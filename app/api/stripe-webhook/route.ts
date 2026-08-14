@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { STRIPE_API_VERSION } from '../../../lib/stripe'
-import { sendMail, subscriptionCancelledEmail, subscriptionEndedEmail, paymentFailedEmail } from '../../../lib/email'
+import { sendMail, subscriptionCancelledEmail, subscriptionEndedEmail, paymentFailedEmail, upgradedEmail } from '../../../lib/email'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -92,7 +92,15 @@ export async function POST(req: NextRequest) {
       const { data: who } = await sb.auth.admin.getUserById(uid)
       const addr = who && who.user ? who.user.email || '' : ''
       if (addr) {
-        if (isPro && sub.cancel_at_period_end && !cancelWasFlagged) {
+        // Somebody has just paid and nothing told them it worked. The order
+        // matters: a cancellation flagged on the same event must win, or a
+        // person cancelling in their first hour gets congratulated for it.
+        if (isPro && !wasPro && !sub.cancel_at_period_end) {
+          const renews = periodEnd
+            ? new Date(periodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+            : null
+          await sendMail(addr, 'You are on Relay Pro', upgradedEmail(interval === 'month' ? 'month' : 'year', renews))
+        } else if (isPro && sub.cancel_at_period_end && !cancelWasFlagged) {
           const ends = periodEnd
             ? new Date(periodEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
             : null

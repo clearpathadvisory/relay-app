@@ -112,15 +112,6 @@ export function confirmSubscriptionEmail(pageName: string, pageUrl: string, conf
   )
 }
 
-export function newSubscriberEmail(pageName: string, total: number) {
-  return shell(
-    'Someone joined your list',
-    `<p style="margin:0 0 14px;">A new confirmed subscriber on <strong>${pageName}</strong>. That is ${total} in total.</p>
-     <p style="margin:0;">You can see and download the list from the Audience tab in your dashboard.</p>`,
-    'You are the controller of that list. Relay stores it for you and never contacts anyone on it.'
-  )
-}
-
 export function paymentFailedEmail(willRetry: boolean) {
   return shell(
     'Your payment did not go through',
@@ -132,5 +123,73 @@ export function paymentFailedEmail(willRetry: boolean) {
      }</p>
      <p style="margin:0 0 8px;"><a href="https://relayme.bio/dashboard" style="display:inline-block;background:#1B0D44;color:#ffffff;text-decoration:none;padding:13px 22px;border-radius:12px;font-weight:600;">Update my card</a></p>`,
     'Your links, photo, bio and statistics are kept whatever happens to the subscription.'
+  )
+}
+
+// --- the four moments that had no message ---
+
+export function welcomeEmail(username: string) {
+  const url = 'https://relayme.bio/' + username
+  return shell(
+    'relayme.bio/' + username + ' is yours',
+    `<p style="margin:0 0 14px;">That name is claimed and your page is live. Anyone with the address can
+      open it right now, so it is worth putting something on it before you hand it out.</p>
+     <p style="margin:0 0 6px;"><strong>Three things worth doing first</strong></p>
+     <ol style="margin:0 0 14px;padding-left:20px;">
+       <li style="margin-bottom:6px;">Add a photo and a line about yourself. The line matters more than
+         you think — it is what shows up when somebody sends your link to a friend.</li>
+       <li style="margin-bottom:6px;">Add your links. Paste the address and we read the title from the
+         site, so you rarely have to type one.</li>
+       <li>Star the one that matters most. It becomes the big button.</li>
+     </ol>
+     ${button(url, 'See my page')}
+     <p style="margin:16px 0 0;">There is no trial running and no card on file. The free plan stays free.</p>`,
+    'You are getting this because you claimed a name on Relay. Reply to this message if anything is unclear — a person reads it.'
+  )
+}
+
+export function upgradedEmail(interval: 'month' | 'year', renewsOn: string | null) {
+  return shell(
+    'You are on Relay Pro',
+    `<p style="margin:0 0 14px;">Payment received, and everything is unlocked: all 47 themes, all 8 fonts,
+      your own colours and background, images on individual links, scheduled links, players that work on
+      the page, email capture, and the Relay badge gone if you want it gone.</p>
+     <p style="margin:0 0 14px;">You are paying <strong>${interval === 'month' ? '$4 a month' : '$30 a year'}</strong>
+      plus VAT${renewsOn ? ', and it renews on <strong>' + renewsOn + '</strong>' : ''}. Cancel whenever you
+      like from Account — your page stays online either way, it just goes back to the free look.</p>
+     ${button('https://relayme.bio/dashboard', 'Go and use it')}
+     <p style="margin:16px 0 0;">Your invoice is in the billing portal, linked from the Account tab.</p>`,
+    'Relay is made by ClearPath Advisory, NIP 9512604332, Warsaw, Poland.'
+  )
+}
+
+export function pageOfflineEmail(username: string) {
+  return shell(
+    'Your page is offline',
+    `<p style="margin:0 0 14px;"><strong>relayme.bio/${username}</strong> now returns a not-found page to
+      anyone who visits, and it has dropped out of our sitemap so search engines will stop showing it.</p>
+     <p style="margin:0 0 14px;">Nothing has been deleted. Your links, photo, bio, icons, statistics and
+      the name itself are all exactly where you left them, and the username stays yours while the account
+      exists.</p>
+     <p style="margin:0 0 14px;">Put it back whenever you want — one switch in Account.</p>
+     ${button('https://relayme.bio/dashboard', 'Put it back online')}
+     <p style="margin:16px 0 0;">If you meant to close the account rather than hide the page, that is a
+      different button, and it does delete everything.</p>`,
+    'We are sending this so nobody discovers by accident that their page has been down for a fortnight.'
+  )
+}
+
+export function firstSubscriberEmail(pageName: string) {
+  return shell(
+    'Somebody joined your list',
+    `<p style="margin:0 0 14px;">The first confirmed subscriber on <strong>${pageName}</strong>. They
+      entered their address on your page and then clicked the link we emailed them, so they meant it.</p>
+     <p style="margin:0 0 14px;">The list is yours. Download it as a CSV whenever you like and take it
+      wherever you go — we do not hold it hostage and we never email anyone on it ourselves.</p>
+     ${button('https://relayme.bio/dashboard', 'See the list')}
+     <p style="margin:16px 0 0;">One thing worth remembering: those are other people&rsquo;s addresses, so
+      the law treats you as responsible for them. Send only what they signed up for, put a way out in
+      every message, and delete anyone who asks.</p>`,
+    'We send this once, for the first one. After that the count lives in your dashboard.'
   )
 }

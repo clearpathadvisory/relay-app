@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import { Blob } from '../blob'
+import { sendMail, firstSubscriberEmail } from '../../lib/email'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
@@ -45,6 +46,28 @@ export default async function Subscribed({
       } else {
         if (!row.confirmed_at) {
           await admin.from('subscribers').update({ confirmed_at: new Date().toISOString() }).eq('id', row.id)
+
+          // Tell the owner, but only about the first one — after that the count
+          // lives in the dashboard and an email per sign-up becomes noise.
+          try {
+            const { count } = await admin
+              .from('subscribers')
+              .select('id', { count: 'exact', head: true })
+              .eq('page_id', row.page_id)
+              .not('confirmed_at', 'is', null)
+
+            if (count === 1) {
+              const { data: owner } = await admin
+                .from('pages').select('owner_id').eq('id', row.page_id).maybeSingle()
+              if (owner && owner.owner_id) {
+                const { data: who } = await admin.auth.admin.getUserById(owner.owner_id)
+                const addr = who && who.user ? who.user.email || '' : ''
+                if (addr) {
+                  await sendMail(addr, 'Somebody joined your list', firstSubscriberEmail(pageName || 'your page'))
+                }
+              }
+            }
+          } catch (e) {}
         }
         state = 'ok'
       }

@@ -146,6 +146,23 @@ export default function Dashboard() {
     return () => { cancelled = true }
   }, [])
 
+  // Supabase keeps one session per browser, so signing in as somebody else in
+  // another tab silently replaces this one. The editor carries on showing the
+  // first account's page while every write now goes with the second account's
+  // token — row-level security rejects those, so nothing is corrupted, but the
+  // person is left clicking Save on a page that will not save and no reason
+  // why. Reload instead: whoever is signed in now is who the editor belongs to.
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      const nowId = session && session.user ? session.user.id : null
+      if (!userId) return
+      if (event === 'SIGNED_OUT' || (nowId && nowId !== userId)) {
+        window.location.reload()
+      }
+    })
+    return () => { if (sub && sub.subscription) sub.subscription.unsubscribe() }
+  }, [userId])
+
   useEffect(() => {
     if (tab === 'stats' && page && !statsLoaded) loadStats(page.id)
     if (tab === 'audience' && page && !subsLoaded) loadSubs(page.id)
@@ -445,7 +462,19 @@ export default function Dashboard() {
       setErr('Letters, numbers, dots, dashes. Start and end with a letter or number.'); return
     }
     const { data, error } = await supabase.from('pages').insert({ owner_id: userId, username: n, display_name: n }).select().single()
-    if (error) { setErr(error.message.indexOf('duplicate') >= 0 ? 'That name is taken. Try another.' : error.message); return }
+    if (error) {
+      const dup = error.message.indexOf('duplicate') >= 0
+      // two different unique constraints, two different things to say
+      const ownerClash = dup && error.message.indexOf('owner') >= 0
+      setErr(
+        ownerClash
+          ? 'This account already has a page. Reload and it will open.'
+          : dup
+            ? 'That name is taken. Try another.'
+            : error.message
+      )
+      return
+    }
     setPage(data as Page); setName(n)
     notify('welcome')
   }

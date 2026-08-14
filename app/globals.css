@@ -1413,6 +1413,7 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 .anum { width: 72px; }
 .atopictitle { font-size: 14.5px; color: var(--ink); font-weight: 600; }
 .atopictitle em { display: block; font-style: normal; font-weight: 400; font-size: 13px; color: var(--muted); }
+.adue { margin-left: auto; font-size: 13px; color: var(--muted); white-space: nowrap; }
 
 .asave { color: #2C7A4B; font-weight: 700; font-size: 14px; margin: 0 0 14px; }
 .aerr { color: #B4453B; font-weight: 700; font-size: 14px; margin: 0 0 14px; }

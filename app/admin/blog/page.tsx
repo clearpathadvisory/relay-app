@@ -40,6 +40,23 @@ const EMPTY: Partial<Post> = {
   cover_variant: 0, related_slugs: [], faq: [], status: 'draft', published_at: null,
 }
 
+// The Action runs Mondays and Fridays, so the queue's order is also a
+// calendar. Working that out in your head every time was the alternative.
+function draftDates(count: number): Date[] {
+  const out: Date[] = []
+  const d = new Date()
+  d.setHours(7, 0, 0, 0)
+  // A run due later today still counts; one that has already gone does not.
+  if (d.getTime() < Date.now()) d.setDate(d.getDate() + 1)
+  let guard = 0
+  while (out.length < count && guard++ < 400) {
+    const day = d.getDay()
+    if (day === 1 || day === 5) out.push(new Date(d.getTime()))
+    d.setDate(d.getDate() + 1)
+  }
+  return out
+}
+
 function slugify(s: string) {
   return s.toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '').slice(0, 80)
@@ -405,9 +422,15 @@ export default function AdminBlog() {
 
         <h2 className="ahead">The queue</h2>
         <p className="ahint" style={{ marginTop: -6 }}>
-          What gets written next, in order. Lower numbers come first.
+          A draft is written every Monday and Friday morning and lands above, in Drafts,
+          for you to read. Lower numbers go first, so changing a number changes the date.
         </p>
-        {topics.map((t) => (
+        {(() => {
+          const waiting = topics.filter((t) => t.status === 'queued')
+          const dates = draftDates(waiting.length)
+          const due: any = {}
+          waiting.forEach((t, i) => { due[t.id] = dates[i] })
+          return topics.map((t) => (
           <div key={t.id} className="atopic">
             <input
               className="ainp anum" type="number" defaultValue={t.position}
@@ -422,9 +445,15 @@ export default function AdminBlog() {
               {t.title}
               {t.angle ? <em>{t.angle}</em> : null}
             </span>
+            <span className="adue">
+              {t.status === 'queued' && due[t.id]
+                ? due[t.id].toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
+                : ''}
+            </span>
             <span className={t.status === 'queued' ? 'astat' : 'astat on'}>{t.status}</span>
           </div>
-        ))}
+          ))
+        })()}
       </div>
     </main>
   )

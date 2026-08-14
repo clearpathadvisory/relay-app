@@ -1,0 +1,31 @@
+name: Draft a blog post
+
+# Mondays and Fridays. GitHub runs cron in UTC only, so 05:00 here is 07:00 in
+# Warsaw through the summer and 06:00 once the clocks go back. A scheduled run
+# on a busy morning can start a few minutes late; nothing here cares.
+on:
+  schedule:
+    - cron: '0 5 * * 1'
+    - cron: '0 5 * * 5'
+  workflow_dispatch:
+
+# Two runs writing at once would claim the same topic. One at a time, and a
+# late run is skipped rather than queued behind the current one.
+concurrency:
+  group: blog-draft
+  cancel-in-progress: false
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Write the next post
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/draft-post.mjs

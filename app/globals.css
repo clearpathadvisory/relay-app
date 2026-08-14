@@ -1423,3 +1423,28 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
   .adanger { margin-left: 0; }
   .ameta { margin-left: 0; width: 100%; }
 }
+
+/* ---------------------------------------------------------------------------
+   /admin/stats
+   --------------------------------------------------------------------------- */
+.sgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 8px; }
+.scard { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px; }
+.slab { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.sval { margin: 6px 0 0; font-size: 30px; font-weight: 800; letter-spacing: -0.03em; color: var(--ink); }
+.snote { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); }
+
+/* One bar per day. A sparkline would be prettier and harder to read. */
+.sbars { display: flex; align-items: flex-end; gap: 4px; height: 130px; padding: 14px 16px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 18px; }
+.sbarwrap { flex: 1; height: 100%; display: flex; align-items: flex-end; }
+.sbar { width: 100%; background: var(--violet); border-radius: 4px 4px 2px 2px; min-height: 2px; }
+
+.stablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
+.stable { width: 100%; border-collapse: collapse; font-size: 14px; }
+.stable th { text-align: left; padding: 12px 14px; font-size: 11.5px; font-weight: 700;
+  letter-spacing: .05em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); white-space: nowrap; }
+.stable td { padding: 12px 14px; border-bottom: 1px solid #F4F1FA; color: var(--ink); white-space: nowrap; }
+.stable tr:last-child td { border-bottom: none; }
+
+@media (max-width: 900px) { .sgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .sgrid { grid-template-columns: minmax(0, 1fr); } }

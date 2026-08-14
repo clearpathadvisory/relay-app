@@ -231,6 +231,7 @@ export default function AdminBlog() {
         <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 30 }}>
           <a href="/dashboard" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>Relay</a>
           <div style={{ display: 'flex', gap: 10 }}>
+            <a href="/admin/stats" className="btn small ghost">Stats</a>
             <a href="/blog" className="btn small ghost">View blog</a>
             <button className="btn small" onClick={() => { setEditing(Object.assign({}, EMPTY)); setErr(''); setWhen('') }}>New post</button>
           </div>

@@ -50,6 +50,8 @@ const BANNED = [
   'seamless', 'unlock', 'empower', 'game-changer', 'game changer', 'landscape',
   'delve', 'tapestry', 'testament to', 'navigate the', 'at the end of the day',
   'when it comes to', 'the truth is', 'here\u2019s the thing', "here's the thing",
+  // Words that insist on their own sincerity, which reads as the opposite.
+  'genuinely', 'honestly speaking', 'straightforward', 'to be fair,',
 ]
 
 // Claims of a life the author does not have. The byline is a name on a blog,
@@ -73,6 +75,14 @@ function check(post) {
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(post.slug || '')) fails.push('slug must be lowercase words joined by hyphens')
   if (!post.dek) fails.push('dek missing')
   if (!post.meta_title || post.meta_title.length > 62) fails.push('meta_title missing or over 62 characters')
+  // The site is sentence case throughout. Title Case in a search result is the
+  // one place the blog would look like it came from somewhere else.
+  if (post.meta_title && (post.meta_title.match(/\s[A-Z][a-z]/g) || []).length >= 3) {
+    fails.push('meta_title is in Title Case; write it in sentence case like the rest of the site')
+  }
+  if (post.title && (post.title.match(/\s[A-Z][a-z]/g) || []).length >= 3) {
+    fails.push('title is in Title Case; write it in sentence case')
+  }
   if (!post.meta_description || post.meta_description.length > 158) fails.push('meta_description missing or over 158 characters')
 
   if (words < 1100) fails.push('body is ' + words + ' words, needs at least 1100')
@@ -131,7 +141,8 @@ THE AUTHOR HAS NO BIOGRAPHY. Never claim years of experience, a former career, c
 HARD RULES
 - No em dashes anywhere. Full stops and commas.
 - No bulleted list where each item starts with bold text. No paragraph starting with a bold label. Write prose.
-- Never these phrases: ${BANNED.slice(0, 14).join(', ')}.
+- Never these phrases: ${BANNED.join(', ')}.
+- Titles and meta titles in sentence case, not Title Case.
 - No income promises, no "make $X in Y days", no urgency, no hype.
 - Do not accuse or patronise the reader.
 - 1300 to 1900 words. At least three "## " headings. Vary the shape of sections; do not make every section the same length or end every one on a neat summary line.

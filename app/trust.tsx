@@ -5,9 +5,14 @@ import { TESTIMONIALS, Testimonial } from './testimonials'
 /**
  * What people say.
  *
- * Real quotes, from people who used the product, published with permission and
- * unedited. `connection` stays available as an optional field for any quote
- * where the relationship is worth stating, and renders only when it is set.
+ * Five testers used Relay before launch and wrote in with what they thought.
+ * Their words, unedited, published with permission. Renders nothing while the
+ * array is empty, which is the correct amount of social proof to show when you
+ * have none.
+ *
+ * Deliberately absent: a star rating, an average, and a count of creators.
+ * Three named people saying something specific outperforms a wall of stars with
+ * this audience, who are sold to constantly and can tell.
  */
 export function Testimonials({ items }: { items?: Testimonial[] }) {
   const list = items || TESTIMONIALS

@@ -1466,7 +1466,9 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 .trustv { margin: 8px 0 0; font-size: 14.5px; line-height: 1.6; color: var(--ink-70); }
 
 
-.trustquote { margin: 0; font-size: 16px; line-height: 1.6; color: var(--ink); }
+.trustquote { margin: 0; font-size: 16px; line-height: 1.62; color: var(--ink); }
+.trustquote::before { content: '\201C'; }
+.trustquote::after { content: '\201D'; }
 .trustwho { margin-top: 12px; font-size: 13.5px; font-weight: 700; color: var(--ink); }
 .trustwho span { font-weight: 500; color: var(--muted); }
 

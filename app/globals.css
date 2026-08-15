@@ -1163,6 +1163,10 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
   animation: rowpanelIn .16s ease-out;
 }
 .rowpanel.danger { background: #FDF4F4; border-color: #E9C4C4; border-left: 3px solid #C0472F; }
+/* A locked Pro control is not an error, so this does not borrow the red
+   danger treatment — it uses the brand violet, the same colour Pro is
+   marked with everywhere else in the dashboard. */
+.rowpanel.rowpro { background: #F4F1FF; border-color: #DCD3FF; border-left: 3px solid var(--violet); }
 .rowpanel p { margin: 0 0 12px; font-size: 14px; line-height: 1.55; color: var(--ink-70); }
 .rowpanel .label { display: block; }
 .rowactions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }

@@ -67,6 +67,12 @@ export default function Dashboard() {
   const [capButton, setCapButton] = useState('')
   const [capNote, setCapNote] = useState('')
   const [scheduleFor, setScheduleFor] = useState<string | null>(null)
+  // Which row is showing a "this needs Pro" notice. The page-level `err` banner
+  // sits at the top of the card, which on a page with several links can be
+  // hundreds of pixels above the button that triggered it — so clicking a
+  // locked control looked like nothing happening at all. This puts the reason
+  // in the row the person actually clicked.
+  const [proNote, setProNote] = useState<{ id: string; text: string } | null>(null)
   const firstRun = useRef(true)
   const bioRef = useRef<HTMLTextAreaElement | null>(null)
   const [pending, setPending] = useState<any>({})
@@ -1002,13 +1008,13 @@ export default function Dashboard() {
                       onDragEnd={() => { dragFrom.current = null; setDragOver(null) }}
                       className={(dragOver === i ? 'row rowover' : 'row')
                         + (l.is_active ? '' : ' hiddenrow')
-                        + ((scheduleFor === l.id || thumbFor === l.id || confirmLink === l.id) ? ' rowopen' : '')}>
+                        + ((scheduleFor === l.id || thumbFor === l.id || confirmLink === l.id || (proNote && proNote.id === l.id)) ? ' rowopen' : '')}>
                       <span className="grip">⠿</span>
                       {l.kind === 'link' && (
                         <button className="thumbbtn" title={isPro ? 'Change this image' : 'Your own image is a Pro feature'}
                           aria-label={'Change the image for ' + l.title}
                           aria-expanded={thumbFor === l.id}
-                          onClick={() => { setConfirmLink(null); setScheduleFor(null); isPro ? setThumbFor(thumbFor === l.id ? null : l.id) : setErr('Your own image on a link is a Pro feature.') }}>
+                          onClick={() => { setConfirmLink(null); setScheduleFor(null); setProNote(null); isPro ? setThumbFor(thumbFor === l.id ? null : l.id) : setProNote({ id: l.id, text: 'Your own image on a link is part of Pro.' }) }}>
                           {l.embed_kind && !l.image_url
                             ? <span className="fav kindmark" style={{
                                 background: l.embed_kind === 'youtube' ? '#FF0000' : l.embed_kind === 'spotify' ? '#1DB954' : '#FF5500',
@@ -1065,7 +1071,7 @@ export default function Dashboard() {
                           title={isPro ? 'Give this link a start or an end' : 'Scheduling is a Pro feature'}
                           aria-label={'Schedule ' + l.title}
                           aria-expanded={scheduleFor === l.id}
-                          onClick={() => { setConfirmLink(null); setThumbFor(null); isPro ? setScheduleFor(scheduleFor === l.id ? null : l.id) : setErr('Scheduling a link is a Pro feature.') }}>◷</button>
+                          onClick={() => { setConfirmLink(null); setThumbFor(null); setProNote(null); isPro ? setScheduleFor(scheduleFor === l.id ? null : l.id) : setProNote({ id: l.id, text: 'Scheduling a link is part of Pro.' }) }}>◷</button>
                       )}
                       {l.kind === 'link'
                         ? <button className={l.is_primary ? 'icon on' : 'icon'} title="Make this the main link" onClick={() => makePrimary(l.id)}>★</button>
@@ -1077,9 +1083,24 @@ export default function Dashboard() {
                           onClick={() => refetchTitle(l.id)}>{titleBusy === l.id ? '…' : '⟳'}</button>
                       )}
                       <button className="icon" title="Delete" aria-label={'Delete ' + (l.title || 'divider')}
-                        onClick={() => { setScheduleFor(null); setThumbFor(null); setConfirmLink(confirmLink === l.id ? null : l.id) }}>✕</button>
+                        onClick={() => { setScheduleFor(null); setThumbFor(null); setProNote(null); setConfirmLink(confirmLink === l.id ? null : l.id) }}>✕</button>
                       </div>
                     </div>
+
+                    {proNote && proNote.id === l.id && (
+                      <div className="rowpanel rowpro">
+                        <p style={{ margin: 0 }}>
+                          <strong>{proNote.text}</strong> You can try it, and everything else in Pro,
+                          without paying — nothing saves until you subscribe.
+                        </p>
+                        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
+                          <button className="btn small" onClick={() => { setProNote(null); setTab('design') }}>
+                            See what Pro adds
+                          </button>
+                          <button className="btn small ghost" onClick={() => setProNote(null)}>Not now</button>
+                        </div>
+                      </div>
+                    )}
 
                     {scheduleFor === l.id && (
                       <div className="rowpanel">

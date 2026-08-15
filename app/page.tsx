@@ -4,7 +4,7 @@ import { ClosedNotice } from './closednotice'
 import { jsonLdScript } from '../lib/jsonld'
 import { HeroMock } from './heromock'
 import { FAQS } from './faq'
-import { Trust, Testimonials } from './trust'
+import { Testimonials } from './trust'
 
 export default function Home() {
   const jsonLd = {
@@ -197,8 +197,6 @@ export default function Home() {
         </section>
 
         <Testimonials />
-
-        <Trust />
 
         <section style={{ marginTop: 72, position: 'relative' }}>
           <span className="heroart">

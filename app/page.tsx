@@ -5,6 +5,7 @@ import { jsonLdScript } from '../lib/jsonld'
 import { HeroMock } from './heromock'
 import { FAQS } from './faq'
 import { Testimonials } from './trust'
+import { SocialIcon } from './socialicons'
 
 export default function Home() {
   const jsonLd = {
@@ -31,6 +32,13 @@ export default function Home() {
           addressCountry: 'PL',
         },
         email: 'hello@relayme.bio',
+        // sameAs is how a search engine confirms these accounts are officially
+        // ours rather than fan or impostor pages. Keep this list matching the
+        // links in the footer.
+        sameAs: [
+          'https://www.instagram.com/relayme.bio/',
+          'https://www.youtube.com/channel/UCeoO3M3YyC9fnG-P5_egtXw',
+        ],
       },
       {
         '@type': 'FAQPage',
@@ -258,14 +266,30 @@ export default function Home() {
           <a href="/login" className="btn">Grab your name →</a>
         </section>
 
-        <footer style={{ marginTop: 60, fontSize: 14, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
-          <Bear size={40} />
-          <span>Relay is made by ClearPath Advisory.</span>
-          <a href="/blog" style={{ fontWeight: 600, color: 'var(--ink)' }}>Blog</a>
-          <a href="/privacy" style={{ fontWeight: 600, color: 'var(--ink)' }}>Privacy</a>
-          <a href="/terms" style={{ fontWeight: 600, color: 'var(--ink)' }}>Terms</a>
-          <Star color="#F0A2FD" size={15} />
-          <Squiggle color="#FEB591" size={40} style={{ marginLeft: 'auto' }} />
+        {/* Footer. Two rows on a phone, one on a laptop: the credit and page
+            links sit left, the social marks right. The socials are our own
+            accounts, so they open in a new tab and carry rel="me" — which is
+            the standard way of saying "this profile belongs to this site". */}
+        <footer className="homefoot">
+          <div className="homefootl">
+            <Bear size={40} />
+            <span>Relay is made by ClearPath Advisory.</span>
+            <a href="/blog">Blog</a>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <Star color="#F0A2FD" size={15} />
+          </div>
+          <div className="homefootr">
+            <a href="https://www.instagram.com/relayme.bio/" target="_blank" rel="me noopener noreferrer"
+              aria-label="Relay on Instagram" title="Relay on Instagram" className="footsoc">
+              <SocialIcon id="instagram" color="currentColor" size={22} />
+            </a>
+            <a href="https://www.youtube.com/channel/UCeoO3M3YyC9fnG-P5_egtXw" target="_blank" rel="me noopener noreferrer"
+              aria-label="Relay on YouTube" title="Relay on YouTube" className="footsoc">
+              <SocialIcon id="youtube" color="currentColor" size={22} />
+            </a>
+            <Squiggle color="#FEB591" size={40} />
+          </div>
         </footer>
       </div>
       <SignupModal />

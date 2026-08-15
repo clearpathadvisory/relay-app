@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Blob } from '../blob'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — Relay',
+  title: 'Privacy Policy', // layout template appends ' — Relay'
   description: 'What Relay does with personal data, and what you can ask us to do about it.',
 }
 

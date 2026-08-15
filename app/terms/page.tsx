@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Blob } from '../blob'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service — Relay',
+  title: 'Terms of Service', // layout template appends ' — Relay'
   description: 'The terms that govern your use of Relay.',
 }
 

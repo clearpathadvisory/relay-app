@@ -1,7 +1,12 @@
 :root {
   --base: #FBFAF9;
   --ink: #1B0D44;
-  --violet: #7C5CE6;
+  /* Darkened from #7C5CE6. The old value measured 4.45:1 against the page
+     background — 0.05 under the 4.5:1 AA minimum — and it is used as small
+     text (Pro dot, feature ticks, legal links, row hints). This value reads
+     as the same colour but measures 4.78:1 on base and 4.98:1 on white, so
+     it passes both as text and as a button fill behind white text. */
+  --violet: #7756E2;
   --peri: #B0A0FF;
   --pink: #F0A2FD;
   --peach: #FEB591;
@@ -540,7 +545,10 @@ textarea.field { overflow: hidden; }
   margin-top: 40px; padding-top: 22px; border-top: 1px solid #ECE7F5;
   font-size: 14px; color: var(--muted);
 }
-.legalfoot a { font-weight: 600; color: var(--ink); }
+/* Footer links sat at 19px tall. inline-block plus vertical padding takes
+   them past the 44px touch minimum; the negative margin keeps the footer
+   row the same height it was. */
+.legalfoot a { font-weight: 600; color: var(--ink); display: inline-block; padding: 13px 0; margin: -13px 0; }
 .legalfoot a:hover { color: var(--violet); }
 .legalfoot span { margin-left: auto; }
 
@@ -895,6 +903,11 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 .faq summary {
   cursor: pointer; font-weight: 700; font-size: 15.5px; line-height: 1.45;
   list-style: none; display: flex; align-items: flex-start; gap: 10px;
+  /* The visible text is about 22px tall, which is half the 44px minimum
+     touch target. The padding grows the tappable area and the equal
+     negative margin pulls the card back to its original size, so this
+     changes what a finger can hit without changing what the eye sees. */
+  padding: 11px 0; margin: -11px 0;
 }
 .faq summary::-webkit-details-marker { display: none; }
 .faq summary::before {

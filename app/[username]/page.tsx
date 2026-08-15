@@ -42,7 +42,11 @@ export async function generateMetadata({ params }: { params: { username: string 
   const title = (data.page as any).seo_title || name
   const desc = (data.page as any).seo_desc || data.page.bio || ('Links from ' + name)
   return {
-    title: title + ' — Relay',
+    // No ' — Relay' suffix here. The root layout sets a title template of
+    // '%s — Relay', which Next applies to every page title automatically.
+    // Appending it here too produced 'name — Relay — Relay' in the tab, in
+    // search results, and in the text of any shared link.
+    title: title,
     description: desc,
     openGraph: {
       title: title,

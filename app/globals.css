@@ -1476,3 +1476,59 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 @media (max-width: 560px) { .trustgrid { grid-template-columns: minmax(0, 1fr); } }
 .trustconn { display: block; margin-top: 3px; font-style: normal; font-weight: 500;
   font-size: 12.5px; color: var(--muted); }
+
+/* ---------------------------------------------------------------------------
+   Reviews. Five cards, three across, and the trailing two centred rather than
+   left with a hole beside them. Grid cannot centre a short final row, so this
+   is flex with a one-third basis; the wrap does the same job and the last row
+   sits in the middle on its own.
+   --------------------------------------------------------------------------- */
+.revband {
+  margin-top: 76px; padding: 46px 34px 42px; border-radius: 32px;
+  background:
+    radial-gradient(120% 90% at 6% 0%, #EDE7FF 0%, rgba(237,231,255,0) 58%),
+    radial-gradient(110% 90% at 96% 4%, #FDE9FE 0%, rgba(253,233,254,0) 55%),
+    radial-gradient(120% 110% at 50% 108%, #F0FADB 0%, rgba(240,250,219,0) 60%),
+    var(--surface);
+  border: 1px solid var(--line);
+}
+.revgrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 28px; }
+.revcard {
+  flex: 0 1 calc(33.333% - 11px); min-width: 260px; margin: 0; position: relative;
+  padding: 26px 24px 22px; border-radius: 24px; border: 1.5px solid transparent;
+  transition: transform .15s ease;
+}
+.revcard:hover { transform: translateY(-3px); }
+
+/* One tint per card so a row never repeats itself, all drawn from the theme
+   palette rather than invented for this section. */
+.rev0 { background: #EDE7FF; border-color: #DCD2FB; }
+.rev1 { background: #FDE9FE; border-color: #F6D6F8; }
+.rev2 { background: #F0FADB; border-color: #DDF0B8; }
+.rev3 { background: #FFEFE3; border-color: #FADCC7; }
+.rev4 { background: #DFF5EC; border-color: #C4E9DC; }
+
+.revmark {
+  position: absolute; top: 10px; right: 20px; font-size: 74px; line-height: 1;
+  font-weight: 800; color: var(--ink); opacity: .10; pointer-events: none;
+}
+.revquote { margin: 0; font-size: 16.5px; line-height: 1.62; color: var(--ink); font-weight: 500; }
+.revwho { display: flex; align-items: center; gap: 12px; margin-top: 18px; }
+.revdot {
+  width: 40px; height: 40px; flex: 0 0 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 800; color: #fff; background: var(--ink);
+}
+.rev0 .revdot { background: var(--violet); }
+.rev1 .revdot { background: #D96BE0; }
+.rev2 .revdot { background: #6FA524; }
+.rev3 .revdot { background: #E58448; }
+.rev4 .revdot { background: #2F9A7C; }
+.revwho strong { display: block; font-size: 15px; font-weight: 800; color: var(--ink); }
+.revwho em { display: block; font-style: normal; font-size: 13.5px; color: var(--muted); margin-top: 1px; }
+
+@media (max-width: 900px) { .revcard { flex: 0 1 calc(50% - 8px); } }
+@media (max-width: 560px) {
+  .revband { padding: 32px 20px 30px; border-radius: 26px; }
+  .revcard { flex: 0 1 100%; }
+}

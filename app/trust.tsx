@@ -19,21 +19,24 @@ export function Testimonials({ items }: { items?: Testimonial[] }) {
   if (!list.length) return null
 
   return (
-    <section className="trust" id="said">
+    <section className="trust revband" id="said">
       <p className="trustkicker">Reviews</p>
       <h2 className="trusth2">What people say.</h2>
       <p className="trustlede">
         From people who have used it. Unedited, and published with their permission.
       </p>
 
-      <div className="trustgrid" style={{ marginTop: 26 }}>
+      <div className="revgrid">
         {list.map((t, i) => (
-          <figure key={i} className="trustcard">
-            <blockquote className="trustquote">{t.quote}</blockquote>
-            <figcaption className="trustwho">
-              {t.name}
-              {t.role ? <span> · {t.role}</span> : null}
-              {t.connection ? <em className="trustconn">{t.connection}</em> : null}
+          <figure key={i} className={'revcard rev' + (i % 5)}>
+            <span className="revmark" aria-hidden="true">&ldquo;</span>
+            <blockquote className="revquote">{t.quote}</blockquote>
+            <figcaption className="revwho">
+              <span className="revdot" aria-hidden="true">{t.name.charAt(0)}</span>
+              <span>
+                <strong>{t.name}</strong>
+                {t.role ? <em>{t.role}</em> : null}
+              </span>
             </figcaption>
           </figure>
         ))}

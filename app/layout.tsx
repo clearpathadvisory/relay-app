@@ -1,6 +1,7 @@
 // Fonts are served from our own domain. Loading them from Google would hand
 // every visitor's IP address to a third party before any consent exists.
 import '@fontsource-variable/manrope'
+import { MarketingAnalytics } from './analytics'
 import '@fontsource-variable/fraunces'
 import '@fontsource-variable/space-grotesk'
 import '@fontsource-variable/dm-sans'
@@ -59,7 +60,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <MarketingAnalytics />
+      </body>
     </html>
   )
 }

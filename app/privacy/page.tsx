@@ -68,12 +68,19 @@ export default function Privacy() {
             <li>the time of the tap</li>
             <li>whether the browser looks like a phone or a computer</li>
             <li>the referring website address, where the browser supplies one</li>
+            <li>
+              the country the request came from, as a two-letter code such as <strong>PL</strong> or{' '}
+              <strong>US</strong>, supplied by our host. We store the code and nothing narrower — no
+              city, no region, and no address. Page owners on a paid plan see a count of visits per
+              country for their own page.
+            </li>
           </ul>
           <p>
             We do <strong>not</strong> record IP addresses, device identifiers, names, or anything that
             identifies a visitor personally. We do not set cookies on visitors, and we do not build
-            profiles, follow people between pages, or share this data with advertisers. Tap counts are
-            shown only to the owner of the page in question.
+            profiles, follow people between pages, or share this data with advertisers. Tap counts and
+            country counts are shown only to the owner of the page in question, as totals — never as a
+            list of individual visits.
           </p>
 
           <h2>5. Storage in your browser</h2>

@@ -8,6 +8,7 @@ import { detectEmbed, embedName } from '../../lib/embed'
 import { Blob, Star, Robot, Bear, Rocket, Squiggle } from '../blob'
 import { BlobMark } from '../blobmark'
 import { Phone } from './phone'
+import { Countries } from '../countries'
 
 const FREE_FONT = 'manrope'
 const PKEY = 'relay.pending'
@@ -1323,6 +1324,8 @@ export default function Dashboard() {
                     </p>
                   )}
                 </div>
+
+                <Countries pageId={page.id} isPro={isPro} />
 
                 <div className="block block-plain">
                   <h2 className="bh">Last fourteen days</h2>

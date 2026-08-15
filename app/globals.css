@@ -181,6 +181,11 @@ textarea.field { resize: none; min-height: 104px; line-height: 1.5; }
 .plancta .btn { display: block; width: 100%; text-align: center; }
 .plannote { margin: 9px 0 0; font-size: 13px; text-align: center; color: var(--ink-60); }
 
+/* Flag glyph in the country rows. Sized a touch above the row text so the
+   regional-indicator pair reads clearly, and given a fixed inline-block width
+   so the country names line up in a column regardless of glyph width. */
+.cflag { display: inline-block; width: 26px; font-size: 17px; line-height: 1; }
+
 /* Closing CTA. Uses the same mint block and radius as the rest of the page
    so it reads as part of the family rather than a bolted-on banner. */
 .endcta {

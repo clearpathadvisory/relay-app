@@ -169,6 +169,33 @@ textarea.field { resize: none; min-height: 104px; line-height: 1.5; }
 .feat.on-dark li:before { color: var(--ink); }
 
 .block { border-radius: 26px; padding: 26px; margin-bottom: 18px; }
+
+/* Pricing columns hold different numbers of features (8 / 14 / 12), so the
+   grid stretches the shorter ones and leaves dead space at the bottom of
+   Free. Making each card a flex column and pushing the CTA down with
+   margin:auto turns that gap into deliberate space above a button, and
+   lines all three buttons up on the same baseline. */
+.block.plan { display: flex; flex-direction: column; }
+.block.plan .feat { margin-bottom: 0; }
+.plancta { margin-top: auto; padding-top: 20px; }
+.plancta .btn { display: block; width: 100%; text-align: center; }
+.plannote { margin: 9px 0 0; font-size: 13px; text-align: center; color: var(--ink-60); }
+
+/* Closing CTA. Uses the same mint block and radius as the rest of the page
+   so it reads as part of the family rather than a bolted-on banner. */
+.endcta {
+  margin-top: 72px; background: var(--block-mint); border-radius: 26px;
+  padding: 40px 26px; text-align: center;
+}
+.endctah { margin: 0 0 8px; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
+.endctap {
+  margin: 0 auto 22px; font-size: 15.5px; line-height: 1.6;
+  color: var(--ink-70); max-width: 430px;
+}
+@media (max-width: 700px) {
+  .endcta { padding: 32px 20px; margin-top: 56px; }
+  .endctah { font-size: 25px; }
+}
 .block-violet { background: var(--block-violet); }
 .block-mint { background: var(--block-mint); }
 .block-sun { background: var(--block-sun); }
@@ -1476,7 +1503,10 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 .trust { margin-top: 76px; }
 .trustkicker { margin: 0; font-size: 12.5px; font-weight: 700; letter-spacing: .06em;
   text-transform: uppercase; color: var(--violet); }
-.trusth2 { margin: 10px 0 0; font-size: clamp(26px, 5vw, 38px); font-weight: 800; letter-spacing: -0.03em; }
+/* Was clamp(26px, 5vw, 38px), which made this the largest heading on the
+   page — louder than "Simple pricing". Matched to .sech so the offer stays
+   the typographic lead and the page has one section-heading size. */
+.trusth2 { margin: 10px 0 0; font-size: clamp(26px, 6vw, 34px); font-weight: 800; letter-spacing: -0.03em; }
 .trustlede { margin: 12px 0 0; max-width: 640px; font-size: 16.5px; line-height: 1.65; color: var(--ink-70); }
 
 .trustgrouplab { margin: 0 0 12px; font-size: 12px; font-weight: 700; letter-spacing: .05em;

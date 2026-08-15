@@ -107,7 +107,7 @@ export default function Home() {
           </span>
           <h2 className="sech">Simple pricing</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16 }}>
-            <div className="block block-plain">
+            <div className="block block-plain plan">
               <p style={{ margin: 0, fontWeight: 700, fontSize: 16 }}>Free</p>
               <p style={{ margin: '6px 0 12px', fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em' }}>$0</p>
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'rgba(27,13,68,.7)' }}>Enough to publish a real page.</p>
@@ -121,9 +121,13 @@ export default function Home() {
                 <li>Automatic titles and icons</li>
                 <li>Tap stats and a QR code</li>
               </ul>
+              <div className="plancta">
+                <a href="/login" className="btn ghost">Start free →</a>
+                <p className="plannote">No card needed.</p>
+              </div>
             </div>
 
-            <div className="block block-violet">
+            <div className="block block-violet plan">
               <p style={{ margin: 0, fontWeight: 700, fontSize: 16 }}>
                 Pro yearly <span style={{ background: 'var(--lime)', color: 'var(--ink)', fontSize: 12, padding: '3px 9px', borderRadius: 8, marginLeft: 6, fontWeight: 700 }}>best value</span>
               </p>
@@ -151,9 +155,13 @@ export default function Home() {
                 <li><strong>1 payment, then nothing to think about for 12 months</strong></li>
                 <li><strong>Your price is locked for the full 12 months</strong></li>
               </ul>
+              <div className="plancta">
+                <a href="/login" className="btn">Get Pro yearly →</a>
+                <p className="plannote">Build it free first, pay when you like it.</p>
+              </div>
             </div>
 
-            <div className="block block-sun">
+            <div className="block block-sun plan">
               <p style={{ margin: 0, fontWeight: 700, fontSize: 16 }}>Pro monthly</p>
               <p style={{ margin: '6px 0 4px', fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em' }}>
                 $8<span style={{ fontSize: 15, fontWeight: 600 }}>/month</span>
@@ -177,6 +185,10 @@ export default function Home() {
                 <li>Try it all before you pay</li>
                 <li>Cancel any month you like</li>
               </ul>
+              <div className="plancta">
+                <a href="/login" className="btn">Get Pro monthly →</a>
+                <p className="plannote">Cancel any month, no email required.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -216,6 +228,19 @@ export default function Home() {
           <p style={{ marginTop: 20, fontSize: 15, color: 'rgba(27,13,68,.7)' }}>
             Coming from somewhere else? <a href="/vs-linktree" style={{ color: 'var(--violet)', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: 2 }}>Relay next to Linktree</a>.
           </p>
+        </section>
+
+        {/* Closing CTA. Before this, the last button on the page sat at
+            y=1747 of 3381 — the testimonials, the whole FAQ and the footer
+            had nothing to click. A reader who works through twelve answers
+            is the warmest visitor on the page and was being handed a
+            footer. */}
+        <section className="endcta">
+          <h2 className="endctah">Ready when you are</h2>
+          <p className="endctap">
+            Claim your name, add your links, and see the page before you decide anything. Free, and about 40 seconds.
+          </p>
+          <a href="/login" className="btn">Grab your name →</a>
         </section>
 
         <footer style={{ marginTop: 60, fontSize: 14, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>

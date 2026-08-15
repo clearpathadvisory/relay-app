@@ -149,17 +149,26 @@ export default async function PublicPage({ params }: { params: { username: strin
         )}
 
         {socials.length > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '14px 20px', flexWrap: 'wrap', marginTop: 18 }}>
+          // maxWidth caps the row at five icons regardless of screen. Without
+          // it the 520px card fits all eight on one line on a laptop while a
+          // phone wraps them 5 + 3, so the desktop preview and the real thing
+          // disagreed. 5 x 52 + 4 x 20 = 340, which is also what fits inside a
+          // phone's card, so both now wrap identically.
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '14px 20px', flexWrap: 'wrap', marginTop: 18, maxWidth: 340, marginLeft: 'auto', marginRight: 'auto' }}>
             {socials.map((sc) => (
               <a key={sc.id} href={socialHref(sc.platform, sc.url)} target="_blank" rel="noopener noreferrer"
                 aria-label={socialName(sc.platform)} title={socialName(sc.platform)}
-                style={{ display: 'inline-flex', padding: 4 }}>
-                {/* 36px glyph in 4px of padding is a 44px tap target exactly.
-                    The gap is written as "row column": 20px between icons so a
-                    long row of eight reads as separate marks rather than one
-                    block, and 14px between rows when they wrap, which flexbox
-                    would otherwise set to the same 20 and space out too far. */}
-                <SocialIcon id={sc.platform} color={L.iconColor} size={36} />
+                // Each icon sits in its own chip, using the same background and
+                // border as the link cards below, so a row of eight reads as
+                // eight separate marks instead of one band. 52px is also
+                // comfortably above the 44px touch minimum.
+                style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  width: 52, height: 52, borderRadius: '50%',
+                  background: L.buttonBg, border: L.buttonBorder,
+                  boxSizing: 'border-box',
+                }}>
+                <SocialIcon id={sc.platform} color={L.iconColor} size={28} />
               </a>
             ))}
           </div>

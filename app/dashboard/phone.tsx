@@ -76,12 +76,20 @@ export function Phone({ page, links, theme, showBrand, socials = [] }: { page: P
           </p>
 
           {socials.length > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '11px 16px', flexWrap: 'wrap', marginBottom: 18 }}>
+            // Chips and cap scaled to the preview: 5 x 42 + 4 x 14 = 266,
+            // which fits this 322px-wide frame while six would not. So the
+            // preview wraps 5 + 3 exactly like a real phone does, instead of
+            // fitting everything on one line and misleading the owner.
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '11px 14px', flexWrap: 'wrap', marginBottom: 18, maxWidth: 266, marginLeft: 'auto', marginRight: 'auto' }}>
               {socials.map((sc) => (
-                // The preview is a scaled-down phone, so this tracks the public
-                // page's 36px rather than matching it: 30 here reads the same
-                // size relative to the card as 36 does at full width.
-                <SocialIcon key={sc.id} id={sc.platform} color={L.iconColor} size={30} />
+                <span key={sc.id} style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  width: 42, height: 42, borderRadius: '50%',
+                  background: L.buttonBg, border: L.buttonBorder,
+                  boxSizing: 'border-box',
+                }}>
+                  <SocialIcon id={sc.platform} color={L.iconColor} size={23} />
+                </span>
               ))}
             </div>
           )}

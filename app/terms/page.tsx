@@ -90,7 +90,7 @@ export default function Terms() {
           <p>
             <strong>Pro</strong> unlocks all 47 themes, all 8 fonts, your own colours, a background
             image, your own image on every link, scheduled links, music and video that plays on your
-            page, and collecting email addresses. It costs <strong>$30 a year</strong> or <strong>$4 a month</strong>, in each case <strong>excluding VAT</strong>. VAT is calculated at checkout from the country you give us and added to that figure.
+            page, and collecting email addresses. It costs <strong>$49.99 a year</strong> or <strong>$8 a month</strong>, in each case <strong>excluding VAT</strong>. VAT is calculated at checkout from the country you give us and added to that figure.
           </p>
           <p>
             <strong>Trying Pro before you buy.</strong> Free accounts can switch on any Pro feature and

@@ -20,7 +20,7 @@ const ROWS: { label: string; relay: string; rt: Tone; other: string; ot: Tone; o
   { label: 'Themes in total', relay: '47, including seasonal', rt: 'yes', other: 'Many, most behind a plan', ot: 'yes' },
   { label: 'Try paid styling before paying', relay: 'The whole editor', rt: 'yes', other: 'No', ot: 'no', ours: true },
   { label: 'Remove the maker\u2019s badge', relay: 'Included in Pro', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },
-  { label: 'Yearly price', relay: '$30 plus VAT', rt: 'yes', other: 'More on comparable tiers', ot: 'yes', ours: true },
+  { label: 'Yearly price', relay: '$49.99 plus VAT', rt: 'yes', other: 'More on comparable tiers', ot: 'yes', ours: true },
   { label: 'Advertising on your page', relay: 'None, ever', rt: 'yes', other: 'None on paid tiers', ot: 'yes', ours: true },
   { label: 'Third-party fonts and trackers', relay: 'None \u2014 fonts self-hosted', rt: 'yes', other: 'Third-party requests present', ot: 'no', ours: true },
   { label: 'Where your data sits', relay: 'European Union', rt: 'yes', other: 'United States', ot: 'yes', ours: true },
@@ -76,8 +76,8 @@ export default function VsLinktree() {
           <div className="cmpspacer" />
           <div className="cmphead cmpmine">
             <p className="cmpbrand">Relay</p>
-            <p className="cmpprice">$30<span>/year</span></p>
-            <p className="cmpnote">Or $4 a month, plus VAT. Free plan with no time limit.</p>
+            <p className="cmpprice">$49.99<span>/year</span></p>
+            <p className="cmpnote">Or $8 a month, plus VAT. Free plan with no time limit.</p>
           </div>
           <div className="cmphead cmptheirs">
             <p className="cmpbrand">Linktree</p>
@@ -113,7 +113,7 @@ export default function VsLinktree() {
           </p>
           <p>
             <strong>Take Relay</strong> if you want a page that looks made rather than generated, if
-            you would rather try the paid styling before deciding, if $30 a year suits you
+            you would rather try the paid styling before deciding, if $49.99 a year suits you
             better than the alternative, or if it matters to you that your visitors&rsquo; addresses
             are not handed to a font network and an analytics company on the way in.
           </p>

@@ -146,23 +146,6 @@ export default function Dashboard() {
     return () => { cancelled = true }
   }, [])
 
-  // Supabase keeps one session per browser, so signing in as somebody else in
-  // another tab silently replaces this one. The editor carries on showing the
-  // first account's page while every write now goes with the second account's
-  // token — row-level security rejects those, so nothing is corrupted, but the
-  // person is left clicking Save on a page that will not save and no reason
-  // why. Reload instead: whoever is signed in now is who the editor belongs to.
-  useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      const nowId = session && session.user ? session.user.id : null
-      if (!userId) return
-      if (event === 'SIGNED_OUT' || (nowId && nowId !== userId)) {
-        window.location.reload()
-      }
-    })
-    return () => { if (sub && sub.subscription) sub.subscription.unsubscribe() }
-  }, [userId])
-
   useEffect(() => {
     if (tab === 'stats' && page && !statsLoaded) loadStats(page.id)
     if (tab === 'audience' && page && !subsLoaded) loadSubs(page.id)
@@ -321,7 +304,6 @@ export default function Dashboard() {
     setPubBusy(false)
     setSaved(true); setTimeout(() => setSaved(false), 1400)
     pushLive()
-    if (!next) notify('offline')
   }
 
   async function saveSeo() {
@@ -439,22 +421,6 @@ export default function Dashboard() {
     pushLive()
   }
 
-  // Fire-and-forget: an email that fails must never cost someone the action
-  // they actually asked for.
-  async function notify(kind: string) {
-    try {
-      const { data } = await supabase.auth.getSession()
-      await fetch('/api/notify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + (data.session ? data.session.access_token : ''),
-        },
-        body: JSON.stringify({ kind }),
-      })
-    } catch (e) {}
-  }
-
   async function claimName() {
     setErr('')
     const n = claim.trim().toLowerCase()
@@ -462,21 +428,8 @@ export default function Dashboard() {
       setErr('Letters, numbers, dots, dashes. Start and end with a letter or number.'); return
     }
     const { data, error } = await supabase.from('pages').insert({ owner_id: userId, username: n, display_name: n }).select().single()
-    if (error) {
-      const dup = error.message.indexOf('duplicate') >= 0
-      // two different unique constraints, two different things to say
-      const ownerClash = dup && error.message.indexOf('owner') >= 0
-      setErr(
-        ownerClash
-          ? 'This account already has a page. Reload and it will open.'
-          : dup
-            ? 'That name is taken. Try another.'
-            : error.message
-      )
-      return
-    }
+    if (error) { setErr(error.message.indexOf('duplicate') >= 0 ? 'That name is taken. Try another.' : error.message); return }
     setPage(data as Page); setName(n)
-    notify('welcome')
   }
 
   // Reuses the shrink and upload path the avatar already uses. 256 square is
@@ -1001,7 +954,7 @@ export default function Dashboard() {
             {dirty && (
               <div className="trybar">
                 <p><strong>You are trying out Pro.</strong> Nothing here is saved. Subscribe and these exact settings are applied to your page the moment you come back.</p>
-                <button className="btn" onClick={() => startCheckout('year')} disabled={busy}>Keep these — $30/yr</button>
+                <button className="btn" onClick={() => startCheckout('year')} disabled={busy}>Keep these — $49.99/yr</button>
                 <button className="btn ghost" onClick={discardPreview}>Discard</button>
               </div>
             )}
@@ -1460,8 +1413,8 @@ export default function Dashboard() {
                     <h2 className="bh">Unlock the rest</h2>
                     <p className="bsub">47 themes, 8 fonts, your own colours, a background image, and no Relay badge. Try any of it now — you only pay to keep it.</p>
                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
-                      <button className="btn" onClick={() => startCheckout('year')} disabled={busy}>{busy ? 'One moment…' : '$30 a year'}</button>
-                      <button className="btn ghost" onClick={() => startCheckout('month')} disabled={busy}>$4 a month</button>
+                      <button className="btn" onClick={() => startCheckout('year')} disabled={busy}>{busy ? 'One moment…' : '$49.99 a year'}</button>
+                      <button className="btn ghost" onClick={() => startCheckout('month')} disabled={busy}>$8 a month</button>
                     </div>
                   </div>
                 )}
@@ -1574,8 +1527,8 @@ export default function Dashboard() {
                     <h2 className="bh">Make it yours</h2>
                     <p className="bsub">Fonts, colours, backgrounds and removing the Relay badge are part of Pro.</p>
                     <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
-                      <button className="btn" onClick={() => startCheckout('year')} disabled={busy}>$30 a year</button>
-                      <button className="btn ghost" onClick={() => startCheckout('month')} disabled={busy}>$4 a month</button>
+                      <button className="btn" onClick={() => startCheckout('year')} disabled={busy}>$49.99 a year</button>
+                      <button className="btn ghost" onClick={() => startCheckout('month')} disabled={busy}>$8 a month</button>
                     </div>
                   </div>
                 )}
@@ -1594,7 +1547,7 @@ export default function Dashboard() {
                     <li><span>Signed in as</span><span style={{ overflowWrap: 'anywhere' }}>{userEmail || '—'}</span></li>
                     <li><span>Your page</span><span style={{ overflowWrap: 'anywhere' }}>relayme.bio/{page.username}</span></li>
                     <li><span>Page status</span><span>{page.is_published ? 'Live' : 'Not published'}</span></li>
-                    <li><span>Plan</span><span>{isPro ? (sub && sub.price_interval === 'month' ? 'Pro, $4 a month + VAT' : 'Pro, $30 a year + VAT') : 'Free'}</span></li>
+                    <li><span>Plan</span><span>{isPro ? (sub && sub.price_interval === 'month' ? 'Pro, $8 a month + VAT' : 'Pro, $49.99 a year + VAT') : 'Free'}</span></li>
                     {isPro && sub && sub.current_period_end && (
                       <li>
                         <span>{sub.cancel_at_period_end ? 'Pro ends' : 'Renews'}</span>
@@ -1645,8 +1598,8 @@ export default function Dashboard() {
                     <>
                       <p className="bsub">You are on the free plan, so there is nothing to bill.</p>
                       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                        <button className="btn" onClick={() => startCheckout('year')} disabled={busy}>Go Pro — $30 a year</button>
-                        <button className="btn ghost" onClick={() => startCheckout('month')} disabled={busy}>$4 a month</button>
+                        <button className="btn" onClick={() => startCheckout('year')} disabled={busy}>Go Pro — $49.99 a year</button>
+                        <button className="btn ghost" onClick={() => startCheckout('month')} disabled={busy}>$8 a month</button>
                       </div>
                     </>
                   )}

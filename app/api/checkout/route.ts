@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: customerId,
-      line_items: [{ price: interval === 'month' ? PRICE_MONTHLY : PRICE_ANNUAL, quantity: 1 }],
+      line_items: [{ price: interval === 'month' ? PRICE_MONTHLY() : PRICE_ANNUAL(), quantity: 1 }],
       client_reference_id: user.id,
       subscription_data: { metadata: { supabase_uid: user.id } },
 

@@ -4,6 +4,7 @@ import { ClosedNotice } from './closednotice'
 import { jsonLdScript } from '../lib/jsonld'
 import { HeroMock } from './heromock'
 import { FAQS } from './faq'
+import { Trust } from './trust'
 
 export default function Home() {
   const jsonLd = {
@@ -127,11 +128,11 @@ export default function Home() {
                 Pro yearly <span style={{ background: 'var(--lime)', color: 'var(--ink)', fontSize: 12, padding: '3px 9px', borderRadius: 8, marginLeft: 6, fontWeight: 700 }}>best value</span>
               </p>
               <p style={{ margin: '6px 0 4px', fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em' }}>
-                $30<span style={{ fontSize: 15, fontWeight: 600 }}>/year</span>
+                $49.99<span style={{ fontSize: 15, fontWeight: 600 }}>/year</span>
                 <span style={{ fontSize: 14, fontWeight: 600 }}> + VAT</span>
               </p>
               <p style={{ margin: '0 0 12px', fontSize: 13.5, fontWeight: 600, color: 'rgba(27,13,68,.6)' }}>
-                $2.50 a month, billed once. VAT added at checkout.
+                $4.17 a month, billed once. VAT added at checkout.
               </p>
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'rgba(27,13,68,.75)' }}>Everything, and the cheapest way to get it.</p>
               <ul className="feat on-dark">
@@ -146,7 +147,7 @@ export default function Home() {
                 <li>Collect email addresses, and take the list with you</li>
                 <li>Remove the Relay badge from your page</li>
                 <li>Try it all before you pay</li>
-                <li><strong>Save $18 against monthly</strong></li>
+                <li><strong>Save $46 against monthly</strong></li>
                 <li><strong>1 payment, then nothing to think about for 12 months</strong></li>
                 <li><strong>Your price is locked for the full 12 months</strong></li>
               </ul>
@@ -155,11 +156,11 @@ export default function Home() {
             <div className="block block-sun">
               <p style={{ margin: 0, fontWeight: 700, fontSize: 16 }}>Pro monthly</p>
               <p style={{ margin: '6px 0 4px', fontSize: 40, fontWeight: 800, letterSpacing: '-0.03em' }}>
-                $4<span style={{ fontSize: 15, fontWeight: 600 }}>/month</span>
+                $8<span style={{ fontSize: 15, fontWeight: 600 }}>/month</span>
                 <span style={{ fontSize: 14, fontWeight: 600 }}> + VAT</span>
               </p>
               <p style={{ margin: '0 0 12px', fontSize: 13.5, fontWeight: 600, color: 'rgba(27,13,68,.6)' }}>
-                $48 across a year. VAT added at checkout.
+                $96 across a year. VAT added at checkout.
               </p>
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'rgba(27,13,68,.75)' }}>The same Pro, paid in small pieces.</p>
               <ul className="feat on-dark">
@@ -194,6 +195,8 @@ export default function Home() {
             <Squiggle color="#B0A0FF" size={44} style={{ position: 'absolute', bottom: 8, left: 92 }} />
           </span>
         </section>
+
+        <Trust />
 
         <section style={{ marginTop: 72, position: 'relative' }}>
           <span className="heroart">

@@ -1,8 +1,17 @@
-// Price IDs come from the environment, so going live — or changing a price
-// later — is a Vercel setting rather than a code change and a deploy. The
-// sandbox IDs remain as the fallback, which is what runs in development.
-export const PRICE_ANNUAL = process.env.STRIPE_PRICE_ANNUAL || 'price_1U3h8nQ5Swx4A6oNowdDuRgI'
-export const PRICE_MONTHLY = process.env.STRIPE_PRICE_MONTHLY || 'price_1U3h9wQ5Swx4A6oNUu96eP47'
+// Price IDs come from the environment, so changing a price is a Vercel setting
+// rather than a code change and a deploy.
+//
+// There is deliberately no fallback. An earlier version fell back to the old
+// sandbox IDs, which meant a missing or misspelled variable would quietly
+// charge the previous price instead of failing. A checkout that throws is
+// recoverable; one that silently takes the wrong amount is not.
+function priceId(name: string): string {
+  const v = process.env[name]
+  if (!v) throw new Error('Missing ' + name + '. Set it in Vercel before checkout can run.')
+  return v
+}
+export const PRICE_ANNUAL = () => priceId('STRIPE_PRICE_ANNUAL')
+export const PRICE_MONTHLY = () => priceId('STRIPE_PRICE_MONTHLY')
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://relayme.bio'
 export const STRIPE_API_VERSION = '2026-07-29.dahlia'

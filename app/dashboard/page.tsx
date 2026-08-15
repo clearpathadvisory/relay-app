@@ -1219,7 +1219,7 @@ export default function Dashboard() {
                           onDrop={() => onSocialDrop(i)}
                           onDragEnd={() => { socFrom.current = null; setSocOver(null) }}>
                           <span className="grip">⠿</span>
-                          <SocialIcon id={sc.platform} color="currentColor" size={22} />
+                          <SocialIcon id={sc.platform} color="currentColor" size={26} />
                           {editSocial === sc.id ? (
                             <>
                               <input className="field socedit" value={editSocialUrl} autoFocus

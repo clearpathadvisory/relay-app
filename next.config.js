@@ -1,22 +1,67 @@
 /** @type {import('next').NextConfig} */
 const { withSentryConfig } = require('@sentry/nextjs')
 
+// Content-Security-Policy. This is the browser-side counterpart to the
+// server-side checks: even if markup injection ever slipped past escaping,
+// the browser refuses to run foreign scripts, send data to foreign hosts,
+// or frame anything outside the three embed providers.
+//
+// The audit that produced this walked every external reference in the app:
+//  - scripts: none external. Next.js needs its own inline bootstrap scripts,
+//    hence 'unsafe-inline'. A nonce scheme would break the statically cached
+//    public pages, so this is the deliberate trade at this stage.
+//  - styles: bundled CSS plus React style attributes → 'unsafe-inline'.
+//  - images: link thumbnails hotlink favicons/og:images from the linked
+//    sites, so img-src must allow any https origin. Images cannot execute.
+//    blob: is the local preview before an avatar/thumb upload finishes.
+//  - connect: the Supabase project (auth, database, storage uploads).
+//    Sentry is tunnelled through /monitoring, which is 'self'.
+//  - frames: the click-to-load embeds, nothing else.
+//  - fonts are self-hosted (fontsource), so font-src stays 'self'.
+// Dev only: Next's dev tooling evaluates code at runtime, so 'unsafe-eval'
+// is appended when not in production. It is never sent from Vercel.
+const isDev = process.env.NODE_ENV !== 'production'
+const SUPABASE_ORIGIN = 'https://fhwxxobzeqiypgeazdub.supabase.co'
+const csp = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self'",
+  `connect-src 'self' ${SUPABASE_ORIGIN}`,
+  "media-src 'self' blob:",
+  'frame-src https://www.youtube-nocookie.com https://open.spotify.com https://w.soundcloud.com',
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  'upgrade-insecure-requests',
+].join('; ')
+
 // Sent on every response. None of these change how the site behaves; they
 // close off the cheap attacks that need no bug on our side to work.
+// Note: no frame-ancestors here — public profile pages stay embeddable
+// on purpose, people put them in their own sites.
 const baseHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()' },
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+  { key: 'Content-Security-Policy', value: csp },
 ]
 
 // The signed-in surfaces must never be framed: an invisible iframe over a
 // decoy page is how clickjacking gets someone to delete their own account.
-// Public profile pages stay embeddable on purpose — people put them in sites.
-const privateHeaders = baseHeaders.concat([
+// They also get Cross-Origin-Opener-Policy so a tab they open (or that
+// opened them) cannot keep a scripting handle on the signed-in window.
+const privateHeaders = [
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()' },
+  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
   { key: 'X-Frame-Options', value: 'DENY' },
-  { key: 'Content-Security-Policy', value: "frame-ancestors 'none'" },
-])
+  { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+  { key: 'Content-Security-Policy', value: csp + "; frame-ancestors 'none'" },
+]
 
 const nextConfig = {
   reactStrictMode: true,
@@ -42,12 +87,16 @@ const nextConfig = {
     return config
   },
   async headers() {
+    // Order matters: when two rules match the same path and set the same
+    // header key, Next keeps the LAST one. The catch-all therefore goes
+    // first, and the private routes after it, so their stricter
+    // Content-Security-Policy (with frame-ancestors 'none') wins.
     return [
+      { source: '/:path*', headers: baseHeaders },
       { source: '/dashboard/:path*', headers: privateHeaders },
       { source: '/dashboard', headers: privateHeaders },
       { source: '/login', headers: privateHeaders },
       { source: '/auth/:path*', headers: privateHeaders },
-      { source: '/:path*', headers: baseHeaders },
     ]
   },
 }

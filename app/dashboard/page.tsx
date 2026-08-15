@@ -442,7 +442,7 @@ export default function Dashboard() {
   // Reuses the shrink and upload path the avatar already uses. 256 square is
   // ample for a 28px circle on a phone and keeps the page light.
   async function uploadThumb(linkId: string, file: File) {
-    if (!isPro) { setErr('Your own image on a link is a Pro feature.'); return }
+    if (!isPro) { setProNote({ id: linkId, text: 'Your own image on a link is part of Pro.' }); return }
     if (!file.type.startsWith('image/')) { setErr('That needs to be an image.'); return }
     if (file.size > 4 * 1024 * 1024) { setErr('Under 4MB, please.'); return }
     setErr(''); setThumbBusy(linkId)
@@ -471,7 +471,7 @@ export default function Dashboard() {
   // datetime-local hands back wall-clock text with no zone. new Date() reads it
   // in the browser's own zone, which is what the person means when they type it.
   async function setWindow(linkId: string, field: 'starts_at' | 'ends_at', local: string) {
-    if (!isPro) { setErr('Scheduling a link is a Pro feature.'); return }
+    if (!isPro) { setProNote({ id: linkId, text: 'Scheduling a link is part of Pro.' }); return }
     const value = local ? new Date(local).toISOString() : null
 
     const row = links.filter((l) => l.id === linkId)[0]
@@ -559,7 +559,7 @@ export default function Dashboard() {
   }
 
   async function toggleEmbed(linkId: string) {
-    if (!isPro) { setErr('Playing a link inline is a Pro feature.'); return }
+    if (!isPro) { setProNote({ id: linkId, text: 'Playing a link on your page is part of Pro.' }); return }
     const row = links.filter((l) => l.id === linkId)[0]
     if (!row) return
     const playable = detectEmbed(row.url)
@@ -1061,10 +1061,10 @@ export default function Dashboard() {
                       <button className="icon eyebtn" title={l.is_active ? 'Hide from your page' : 'Show on your page'} onClick={() => toggleActive(l.id)}>{l.is_active ? '◉' : '○'}</button>
                       {l.kind === 'link' && detectEmbed(l.url) && (
                         <button className={l.embed_kind ? 'icon on' : 'icon'}
-                          title={l.embed_kind ? 'Plays on your page — tap to make it a button again' : 'Play this on your page instead of sending people away'}
+                          title={!isPro ? 'Playing a link on your page is a Pro feature' : (l.embed_kind ? 'Plays on your page — tap to make it a button again' : 'Play this on your page instead of sending people away')}
                           aria-label={'Play ' + l.title + ' inline'}
                           aria-pressed={!!l.embed_kind}
-                          onClick={() => toggleEmbed(l.id)}>▶</button>
+                          onClick={() => { setConfirmLink(null); setScheduleFor(null); setThumbFor(null); setProNote(null); toggleEmbed(l.id) }}>▶</button>
                       )}
                       {l.kind === 'link' && (
                         <button className={scheduleState(l) === 'none' ? 'icon' : 'icon on'}

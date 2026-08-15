@@ -1466,12 +1466,6 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 .trustk { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); line-height: 1.35; }
 .trustv { margin: 8px 0 0; font-size: 14.5px; line-height: 1.6; color: var(--ink-70); }
 
-/* Saying what the product cannot do, on the homepage, in the same weight as
-   what it can. This is the part competitors leave out. */
-.trustcannot { margin-top: 30px; background: #F3F0FB; border-radius: 22px; padding: 22px 24px; }
-.trustcannot ul { margin: 0; padding-left: 20px; }
-.trustcannot li { font-size: 15.5px; line-height: 1.75; color: var(--ink); }
-
 .trustcount { margin: 24px 0 0; font-size: 14.5px; line-height: 1.6; color: var(--muted); }
 .trustcount strong { color: var(--ink); }
 
@@ -1481,3 +1475,5 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 
 @media (max-width: 860px) { .trustgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .trustgrid { grid-template-columns: minmax(0, 1fr); } }
+.trustconn { display: block; margin-top: 3px; font-style: normal; font-weight: 500;
+  font-size: 12.5px; color: var(--muted); }

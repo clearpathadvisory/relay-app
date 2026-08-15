@@ -4,7 +4,7 @@ import { ClosedNotice } from './closednotice'
 import { jsonLdScript } from '../lib/jsonld'
 import { HeroMock } from './heromock'
 import { FAQS } from './faq'
-import { Trust } from './trust'
+import { Trust, Testimonials } from './trust'
 
 export default function Home() {
   const jsonLd = {
@@ -195,6 +195,8 @@ export default function Home() {
             <Squiggle color="#B0A0FF" size={44} style={{ position: 'absolute', bottom: 8, left: 92 }} />
           </span>
         </section>
+
+        <Testimonials />
 
         <Trust />
 

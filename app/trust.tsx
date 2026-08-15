@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { TESTIMONIALS, Testimonial } from './testimonials'
 
 /**
  * The trust section.
@@ -69,13 +70,6 @@ const PROOF = [
   },
 ]
 
-const CANNOT = [
-  'Take payments or tips on the page',
-  'Put the page on your own domain',
-  'Share an account with a team',
-  'Connect to an app store of integrations',
-]
-
 export function Trust({ counts }: { counts?: Counts }) {
   const [c, setC] = useState<Counts>(counts || null)
 
@@ -114,17 +108,6 @@ export function Trust({ counts }: { counts?: Counts }) {
         </div>
       ))}
 
-      <div className="trustcannot">
-        <p className="trustgrouplab">What Relay cannot do</p>
-        <ul>
-          {CANNOT.map((x) => <li key={x}>{x}</li>)}
-        </ul>
-        <p className="trustv" style={{ marginTop: 10 }}>
-          If you need any of those, another tool is the right answer and we say so on{' '}
-          <a href="/vs-linktree">the comparison page</a>.
-        </p>
-      </div>
-
       {c && c.pages > 0 ? (
         <p className="trustcount">
           <strong>{c.pages.toLocaleString('en-GB')}</strong> {c.pages === 1 ? 'page' : 'pages'} published,
@@ -139,29 +122,36 @@ export function Trust({ counts }: { counts?: Counts }) {
 }
 
 /**
- * Real quotes, from real customers, or nothing at all. The table is empty until
- * somebody actually says something, and an empty table renders no markup, which
- * is the correct amount of social proof to show when you have none.
+ * What people say.
+ *
+ * Real quotes, from people who used the product, published with permission and
+ * unedited. `connection` stays available as an optional field for any quote
+ * where the relationship is worth stating, and renders only when it is set.
  */
-export function Testimonials({ items }: { items?: { quote: string; name: string; role?: string }[] }) {
-  if (!items || !items.length) return null
+export function Testimonials({ items }: { items?: Testimonial[] }) {
+  const list = items || TESTIMONIALS
+  if (!list.length) return null
+
   return (
-    <section className="trust">
-      <p className="trustkicker">From people using it</p>
-      <div className="trustgrid">
-        {items.map((t, i) => (
+    <section className="trust" id="said">
+      <p className="trustkicker">Reviews</p>
+      <h2 className="trusth2">What people say.</h2>
+      <p className="trustlede">
+        From people who have used it. Unedited, and published with their permission.
+      </p>
+
+      <div className="trustgrid" style={{ marginTop: 26 }}>
+        {list.map((t, i) => (
           <figure key={i} className="trustcard">
             <blockquote className="trustquote">{t.quote}</blockquote>
             <figcaption className="trustwho">
-              {t.name}{t.role ? <span> · {t.role}</span> : null}
+              {t.name}
+              {t.role ? <span> · {t.role}</span> : null}
+              {t.connection ? <em className="trustconn">{t.connection}</em> : null}
             </figcaption>
           </figure>
         ))}
       </div>
-      <p className="trustv" style={{ marginTop: 12 }}>
-        Every quote here was written by someone with a Relay account and published with their
-        permission. We do not pay for them and we do not edit them.
-      </p>
     </section>
   )
 }

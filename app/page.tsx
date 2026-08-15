@@ -1,4 +1,4 @@
-import { Blob, Star, Robot, Bear, Rocket, Squiggle } from './blob'
+import { Blob, Star, Robot, Bear, Rocket, Squiggle, LinkDoodle, Sparkles, Heart, Bolt, Tag } from './blob'
 import { SignupModal } from './signupmodal'
 import { ClosedNotice } from './closednotice'
 import { jsonLdScript } from '../lib/jsonld'
@@ -101,9 +101,16 @@ export default function Home() {
         </section>
 
         <section style={{ marginTop: 80, position: 'relative' }}>
+          {/* The pricing section ran 938px with no doodles at all — the one
+              long stretch of the page where the personality dropped out.
+              These sit in the margins and above the heading, never over the
+              cards themselves: that is where someone is comparing prices. */}
           <span className="heroart">
             <Squiggle color="#F0A2FD" size={48} style={{ position: 'absolute', top: -6, left: 178 }} />
             <Star color="#B0A0FF" size={22} style={{ position: 'absolute', top: -22, right: 18 }} />
+            <Tag size={34} style={{ position: 'absolute', top: 4, right: 62 }} />
+            <Sparkles size={32} style={{ position: 'absolute', top: 360, left: -46 }} />
+            <Squiggle color="#C6F15C" size={44} style={{ position: 'absolute', bottom: -26, right: 120 }} />
           </span>
           <h2 className="sech">Simple pricing</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16 }}>
@@ -236,6 +243,10 @@ export default function Home() {
             is the warmest visitor on the page and was being handed a
             footer. */}
         <section className="endcta">
+          <span className="heroart">
+            <Bolt size={30} style={{ position: 'absolute', top: 30, left: 46 }} />
+            <Star color="#B0A0FF" size={22} style={{ position: 'absolute', bottom: 34, right: 58 }} />
+          </span>
           <h2 className="endctah">Ready when you are</h2>
           <p className="endctap">
             Claim your name, add your links, and see the page before you decide anything. Free, and about 40 seconds.

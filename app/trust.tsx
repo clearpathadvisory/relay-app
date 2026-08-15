@@ -1,6 +1,7 @@
 'use client'
 
 import { TESTIMONIALS, Testimonial } from './testimonials'
+import { Heart, LinkDoodle } from './blob'
 
 /**
  * What people say.
@@ -20,6 +21,10 @@ export function Testimonials({ items }: { items?: Testimonial[] }) {
 
   return (
     <section className="trust revband" id="said">
+      <span className="heroart">
+        <Heart size={26} style={{ position: 'absolute', top: 34, right: 40 }} />
+        <LinkDoodle size={40} style={{ position: 'absolute', bottom: 22, left: 32 }} />
+      </span>
       <p className="trustkicker">Reviews</p>
       <h2 className="trusth2">What people say.</h2>
       <p className="trustlede">

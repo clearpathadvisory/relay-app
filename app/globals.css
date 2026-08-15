@@ -186,6 +186,7 @@ textarea.field { resize: none; min-height: 104px; line-height: 1.5; }
 .endcta {
   margin-top: 72px; background: var(--block-mint); border-radius: 26px;
   padding: 40px 26px; text-align: center;
+  position: relative; overflow: hidden;
 }
 .endctah { margin: 0 0 8px; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
 .endctap {
@@ -1542,6 +1543,9 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
     radial-gradient(120% 110% at 50% 108%, #F0FADB 0%, rgba(240,250,219,0) 60%),
     var(--surface);
   border: 1px solid var(--line);
+  /* Positioning context for the decorative doodles inside this band, plus a
+     clip so nothing can poke past the 32px rounded corners. */
+  position: relative; overflow: hidden;
 }
 .revgrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 28px; }
 .revcard {

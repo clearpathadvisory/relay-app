@@ -98,3 +98,53 @@ export function Squiggle({ color = '#B0A0FF', size = 54, style = {}, className }
     </svg>
   )
 }
+
+/* The five below follow the same rules as the doodles above: flat fills from
+   the brand palette, no gradients, thick round strokes, and a silhouette
+   that reads at 20-40px. They are decoration only, so every one is
+   aria-hidden and none carries meaning a screen reader would miss. */
+
+export function LinkDoodle({ color = '#B0A0FF', size = 38, style = {}, className }: any) {
+  return (
+    <svg viewBox="0 0 52 30" width={size} height={(size * 30) / 52} style={style} className={className} aria-hidden="true">
+      <rect x="3" y="8" width="26" height="14" rx="7" fill="none" stroke={color} strokeWidth="3.4" />
+      <rect x="23" y="8" width="26" height="14" rx="7" fill="none" stroke="#F0A2FD" strokeWidth="3.4" />
+    </svg>
+  )
+}
+
+export function Sparkles({ color = '#C6F15C', size = 34, style = {}, className }: any) {
+  return (
+    <svg viewBox="0 0 44 44" width={size} height={size} style={style} className={className} aria-hidden="true">
+      <path d="M15 4 L17.6 12.4 L26 15 L17.6 17.6 L15 26 L12.4 17.6 L4 15 L12.4 12.4 Z" fill={color} />
+      <path d="M32 20 L33.6 25.4 L39 27 L33.6 28.6 L32 34 L30.4 28.6 L25 27 L30.4 25.4 Z" fill="#B0A0FF" />
+      <circle cx="10" cy="34" r="3" fill="#F0A2FD" />
+    </svg>
+  )
+}
+
+export function Heart({ color = '#F0A2FD', size = 28, style = {}, className }: any) {
+  return (
+    <svg viewBox="0 0 40 36" width={size} height={(size * 36) / 40} style={style} className={className} aria-hidden="true">
+      <path d="M20 33 C6 24 2 17 2 11.5 C2 6 6 2 11 2 C14.6 2 17.8 4 20 7 C22.2 4 25.4 2 29 2 C34 2 38 6 38 11.5 C38 17 34 24 20 33 Z" fill={color} />
+    </svg>
+  )
+}
+
+export function Bolt({ color = '#C6F15C', size = 30, style = {}, className }: any) {
+  return (
+    <svg viewBox="0 0 28 40" width={size} height={(size * 40) / 28} style={style} className={className} aria-hidden="true">
+      <path d="M17 2 L4 22 L12 22 L10 38 L24 17 L15 17 Z" fill={color} stroke="#1B0D44" strokeWidth="2.2" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+export function Tag({ color = '#FEB591', size = 34, style = {}, className }: any) {
+  return (
+    <svg viewBox="0 0 40 40" width={size} height={size} style={style} className={className} aria-hidden="true">
+      <path d="M20 3 L37 20 L22 35 L5 18 L5 3 Z" fill={color} />
+      <circle cx="13" cy="11" r="3.6" fill="#FBFAF9" />
+      <circle cx="13" cy="11" r="1.6" fill="#1B0D44" />
+    </svg>
+  )
+}

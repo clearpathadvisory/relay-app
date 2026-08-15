@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { toCsv, downloadCsv, stamp } from '../lib/csv'
 
 /**
  * Where your visitors are.
@@ -69,6 +70,24 @@ export function Countries({ pageId, isPro }: { pageId: string; isPro: boolean })
     return () => { cancelled = true }
   }, [pageId, isPro])
 
+  function exportCsv() {
+    if (!rows || rows.length === 0) return
+    downloadCsv(
+      'relay-countries-' + stamp() + '.csv',
+      toCsv(
+        ['country_code', 'country', 'visits', 'opened', 'tapped', 'share_percent'],
+        rows.map((r) => [
+          r.country,
+          NAMES[r.country] || r.country,
+          r.count,
+          r.views,
+          r.clicks,
+          total > 0 ? Math.round((r.count / total) * 100) : 0,
+        ])
+      )
+    )
+  }
+
   if (!isPro) {
     return (
       <div className="block block-sun">
@@ -105,6 +124,11 @@ export function Countries({ pageId, isPro }: { pageId: string; isPro: boolean })
                 <span className="statrowname">
                   <span className="cflag" aria-hidden="true">{flag(r.country)}</span>
                   {NAMES[r.country] || r.country}
+                  {/* The API already separates opens from taps per country, and
+                      that split is the interesting part for anyone pitching a
+                      brand: it is the difference between being seen somewhere
+                      and being acted on somewhere. */}
+                  <span className="csplit">{r.views} opened · {r.clicks} tapped</span>
                 </span>
                 <span className="statrowbar">
                   <span style={{ width: Math.round((r.count / Math.max(1, rows[0].count)) * 100) + '%' }} />
@@ -116,6 +140,12 @@ export function Countries({ pageId, isPro }: { pageId: string; isPro: boolean })
           <p className="bsub" style={{ margin: '16px 0 0' }}>
             {total} {total === 1 ? 'visit' : 'visits'} with a known country across{' '}
             {rows.length} {rows.length === 1 ? 'place' : 'places'}.
+          </p>
+          <button className="btn small ghost" style={{ marginTop: 14 }} onClick={exportCsv}>
+            Download as CSV
+          </button>
+          <p className="bsub" style={{ margin: '8px 0 0', fontSize: 13 }}>
+            Opens in a spreadsheet. Useful when a brand asks where your audience is.
           </p>
         </>
       )}

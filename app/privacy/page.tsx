@@ -16,7 +16,7 @@ export default function Privacy() {
         </nav>
 
         <div className="legal">
-          <p className="legalkicker">Last updated 13 August 2026</p>
+          <p className="legalkicker">Last updated 15 August 2026</p>
           <h1>Privacy Policy</h1>
           <p className="legallede">
             This explains what Relay does with personal data. Relay is a link-in-bio service at
@@ -96,11 +96,42 @@ export default function Privacy() {
           <p>
             Because these are strictly necessary to provide a service you asked for, they fall within
             the exemption in Article 5(3) of the ePrivacy Directive and do not require consent. We tell
-            you about them here rather than interrupting you with a banner. Should we ever add
-            analytics or advertising, we will ask first.
+            you about them here rather than interrupting you with a banner. We have not added
+            advertising, and we do not intend to. If we ever add anything that tracks you between
+            sites or builds a profile, we will ask first.
           </p>
 
-          <h2>6. Why we are allowed to process this</h2>
+          <h2>6. Analytics on our own marketing pages</h2>
+          <p>
+            Our own pages — the home page, pricing, the blog, this page and the terms — use Vercel Web
+            Analytics so we can see how many people visit and which pages they read. It records the
+            page address, the referring site, and coarse device and country information. It sets no
+            cookies, stores no identifier on your device, and does not follow you to other websites.
+          </p>
+          <p>
+            Because it is cookieless and does not identify anyone, it does not require consent under
+            Article 5(3), which is why you are reading this instead of dismissing a banner.
+          </p>
+          <p>
+            <strong>It does not run on the pages our users publish.</strong> If you arrived here by
+            opening someone&rsquo;s <span style={{ whiteSpace: 'nowrap' }}>relayme.bio/name</span>{' '}
+            page, no analytics of ours ran on it. That is a deliberate line: creator pages carry our
+            own counting and nothing belonging to anyone else.
+          </p>
+
+          <h2>7. Exporting and sharing what we hold</h2>
+          <p>
+            Page owners can download their own statistics — including the country breakdown described
+            in section 4 — as a spreadsheet file. The export contains totals per country and nothing
+            about individual visitors, because nothing about individual visitors exists to export.
+          </p>
+          <p>
+            We can also export account records for our own administration and for answering the
+            requests described in section 9. Those exports stay with us and are not shared with
+            anyone else.
+          </p>
+
+          <h2>8. Why we are allowed to process this</h2>
           <table className="legaltable">
             <thead><tr><th>Purpose</th><th>Legal basis</th></tr></thead>
             <tbody>
@@ -118,13 +149,13 @@ export default function Privacy() {
             way it does.
           </p>
 
-          <h2>7. Who else is involved</h2>
+          <h2>9. Who else is involved</h2>
           <p>We use a small number of processors, each handling data only on our instructions.</p>
           <table className="legaltable">
             <thead><tr><th>Provider</th><th>What they do</th><th>Where</th></tr></thead>
             <tbody>
               <tr><td>Supabase</td><td>Database, authentication, file storage</td><td>EU (Frankfurt)</td></tr>
-              <tr><td>Vercel</td><td>Website hosting and delivery</td><td>US, edge worldwide</td></tr>
+              <tr><td>Vercel</td><td>Website hosting and delivery, and cookieless analytics on our own marketing pages only</td><td>US, edge worldwide</td></tr>
               <tr><td>Stripe</td><td>Payment processing</td><td>EU and US</td></tr>
               <tr><td>Resend</td><td>Sending email</td><td>US</td></tr>
             </tbody>
@@ -168,7 +199,7 @@ export default function Privacy() {
             containing such a link, and only for the icon.
           </p>
 
-          <h2>8. How long we keep it</h2>
+          <h2>10. How long we keep it</h2>
           <ul>
             <li><strong>Account and page data</strong> — for as long as your account exists.</li>
             <li><strong>After you delete your account</strong> — removed within 30 days, other than anything we must keep for tax or accounting.</li>
@@ -176,7 +207,7 @@ export default function Privacy() {
             <li><strong>Payment records</strong> — five years from the end of the relevant tax year, as Polish accounting law requires.</li>
           </ul>
 
-          <h2>9. Your rights</h2>
+          <h2>11. Your rights</h2>
           <p>Under the GDPR you may ask us to:</p>
           <ul>
             <li>give you a copy of your data (<strong>access</strong>)</li>
@@ -200,7 +231,7 @@ export default function Privacy() {
             uodo.gov.pl. You may also complain to the authority where you live or work.
           </p>
 
-          <h2>10. Security</h2>
+          <h2>12. Security</h2>
           <p>
             Access is enforced at the database level by row-level security, so one account cannot read
             another&rsquo;s private data even if the application layer were to fail. Card details never
@@ -212,13 +243,13 @@ export default function Privacy() {
             the supervisory authority within 72 hours and tell you directly where the risk is high.
           </p>
 
-          <h2>11. Children</h2>
+          <h2>13. Children</h2>
           <p>
             Relay is not intended for children under 16 and we do not knowingly create accounts for
             them. If you believe a child has signed up, write to us and we will delete the account.
           </p>
 
-          <h2>12. Changes</h2>
+          <h2>14. Changes</h2>
           <p>
             If we change this policy in a way that affects you, we will email account holders before it
             takes effect. The date at the top always shows the current version.

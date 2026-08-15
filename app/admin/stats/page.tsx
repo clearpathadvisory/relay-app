@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { toCsv, downloadCsv, stamp } from '../../../lib/csv'
 import { supabase } from '../../../lib/supabase'
 
 // Sits beside /admin/blog and behind the same allowlist. Nobody else's
@@ -108,13 +109,61 @@ export default function AdminStats() {
   const peak = Math.max(1, ...days.map((d) => d.n))
   const recent: any[] = s?.recent || []
 
+  // Exports run entirely in the browser from the JSON already on screen. No
+  // new endpoint, so there is no second route to secure — if you could not see
+  // these numbers you could not export them either.
+  function exportAccounts() {
+    if (!s) return
+    downloadCsv(
+      'relay-accounts-' + stamp() + '.csv',
+      toCsv(
+        ['email', 'joined', 'last_seen', 'plan', 'plan_until', 'page', 'published', 'links', 'sub_status', 'sub_interval'],
+        recent.map((r) => [
+          r.email,
+          r.created_at || '',
+          r.last_sign_in_at || '',
+          r.plan || 'free',
+          r.plan_until || '',
+          r.username ? '/' + r.username : '',
+          r.published === true ? 'yes' : r.published === false ? 'no' : '',
+          r.links ?? 0,
+          r.sub_status || '',
+          r.sub_interval || '',
+        ])
+      )
+    )
+  }
+
+  function exportSummary() {
+    if (!s) return
+    const rows: any[][] = []
+    const push = (group: string, obj: any) => {
+      if (!obj) return
+      for (const k of Object.keys(obj)) {
+        const v = (obj as any)[k]
+        if (v !== null && typeof v === 'object') continue
+        rows.push([group, k, v])
+      }
+    }
+    push('users', s.users)
+    push('plans', s.plans)
+    push('subscriptions', s.subscriptions)
+    push('pages', s.pages)
+    for (const d of days) rows.push(['signups_by_day', d.day, d.n])
+    rows.push(['meta', 'generated_at', s.generated_at || ''])
+    rows.push(['meta', 'exported_at', new Date().toISOString()])
+    downloadCsv('relay-summary-' + stamp() + '.csv', toCsv(['group', 'metric', 'value'], rows))
+  }
+
   return (
     <main style={{ background: 'var(--base)', minHeight: '100vh' }}>
       <div className="wrap" style={{ paddingTop: 24, paddingBottom: 80 }}>
         <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 26 }}>
           <a href="/dashboard" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>Relay</a>
-          <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <a href="/admin/blog" className="btn small ghost">Blog</a>
+            <button className="btn small ghost" onClick={exportAccounts} disabled={!s}>Accounts CSV</button>
+            <button className="btn small ghost" onClick={exportSummary} disabled={!s}>Summary CSV</button>
             <button className="btn small" onClick={load}>Refresh</button>
           </div>
         </nav>

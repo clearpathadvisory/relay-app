@@ -186,6 +186,10 @@ textarea.field { resize: none; min-height: 104px; line-height: 1.5; }
    so the country names line up in a column regardless of glyph width. */
 .cflag { display: inline-block; width: 26px; font-size: 17px; line-height: 1; }
 
+/* The opened/tapped split sits under the country name rather than beside it,
+   so a long country name never pushes it into the bar. */
+.csplit { display: block; margin-left: 26px; font-size: 12.5px; color: var(--ink-60); font-weight: 500; }
+
 /* Closing CTA. Uses the same mint block and radius as the rest of the page
    so it reads as part of the family rather than a bolted-on banner. */
 .endcta {

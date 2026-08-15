@@ -72,7 +72,7 @@ export default function Dashboard() {
   // hundreds of pixels above the button that triggered it — so clicking a
   // locked control looked like nothing happening at all. This puts the reason
   // in the row the person actually clicked.
-  const [proNote, setProNote] = useState<{ id: string; text: string } | null>(null)
+  const [proNote, setProNote] = useState<{ id: string; text: string; why: string } | null>(null)
   const firstRun = useRef(true)
   const bioRef = useRef<HTMLTextAreaElement | null>(null)
   const [pending, setPending] = useState<any>({})
@@ -442,7 +442,7 @@ export default function Dashboard() {
   // Reuses the shrink and upload path the avatar already uses. 256 square is
   // ample for a 28px circle on a phone and keeps the page light.
   async function uploadThumb(linkId: string, file: File) {
-    if (!isPro) { setProNote({ id: linkId, text: 'Your own image on a link is part of Pro.' }); return }
+    if (!isPro) { setProNote({ id: linkId, text: 'Your own image on a link is part of Pro.', why: 'Your own artwork on the row instead of the site\u2019s icon.' }); return }
     if (!file.type.startsWith('image/')) { setErr('That needs to be an image.'); return }
     if (file.size > 4 * 1024 * 1024) { setErr('Under 4MB, please.'); return }
     setErr(''); setThumbBusy(linkId)
@@ -471,7 +471,7 @@ export default function Dashboard() {
   // datetime-local hands back wall-clock text with no zone. new Date() reads it
   // in the browser's own zone, which is what the person means when they type it.
   async function setWindow(linkId: string, field: 'starts_at' | 'ends_at', local: string) {
-    if (!isPro) { setProNote({ id: linkId, text: 'Scheduling a link is part of Pro.' }); return }
+    if (!isPro) { setProNote({ id: linkId, text: 'Scheduling a link is part of Pro.', why: 'The link appears and disappears on the dates you set, on its own.' }); return }
     const value = local ? new Date(local).toISOString() : null
 
     const row = links.filter((l) => l.id === linkId)[0]
@@ -559,7 +559,7 @@ export default function Dashboard() {
   }
 
   async function toggleEmbed(linkId: string) {
-    if (!isPro) { setProNote({ id: linkId, text: 'Playing a link on your page is part of Pro.' }); return }
+    if (!isPro) { setProNote({ id: linkId, text: 'Playing a link on your page is part of Pro.', why: 'Visitors play the video or track without leaving your page.' }); return }
     const row = links.filter((l) => l.id === linkId)[0]
     if (!row) return
     const playable = detectEmbed(row.url)
@@ -1014,7 +1014,7 @@ export default function Dashboard() {
                         <button className="thumbbtn" title={isPro ? 'Change this image' : 'Your own image is a Pro feature'}
                           aria-label={'Change the image for ' + l.title}
                           aria-expanded={thumbFor === l.id}
-                          onClick={() => { setConfirmLink(null); setScheduleFor(null); setProNote(null); isPro ? setThumbFor(thumbFor === l.id ? null : l.id) : setProNote({ id: l.id, text: 'Your own image on a link is part of Pro.' }) }}>
+                          onClick={() => { setConfirmLink(null); setScheduleFor(null); setProNote(null); isPro ? setThumbFor(thumbFor === l.id ? null : l.id) : setProNote({ id: l.id, text: 'Your own image on a link is part of Pro.', why: 'Your own artwork on the row instead of the site\u2019s icon.' }) }}>
                           {l.embed_kind && !l.image_url
                             ? <span className="fav kindmark" style={{
                                 background: l.embed_kind === 'youtube' ? '#FF0000' : l.embed_kind === 'spotify' ? '#1DB954' : '#FF5500',
@@ -1071,7 +1071,7 @@ export default function Dashboard() {
                           title={isPro ? 'Give this link a start or an end' : 'Scheduling is a Pro feature'}
                           aria-label={'Schedule ' + l.title}
                           aria-expanded={scheduleFor === l.id}
-                          onClick={() => { setConfirmLink(null); setThumbFor(null); setProNote(null); isPro ? setScheduleFor(scheduleFor === l.id ? null : l.id) : setProNote({ id: l.id, text: 'Scheduling a link is part of Pro.' }) }}>◷</button>
+                          onClick={() => { setConfirmLink(null); setThumbFor(null); setProNote(null); isPro ? setScheduleFor(scheduleFor === l.id ? null : l.id) : setProNote({ id: l.id, text: 'Scheduling a link is part of Pro.', why: 'The link appears and disappears on the dates you set, on its own.' }) }}>◷</button>
                       )}
                       {l.kind === 'link'
                         ? <button className={l.is_primary ? 'icon on' : 'icon'} title="Make this the main link" onClick={() => makePrimary(l.id)}>★</button>
@@ -1090,12 +1090,12 @@ export default function Dashboard() {
                     {proNote && proNote.id === l.id && (
                       <div className="rowpanel rowpro">
                         <p style={{ margin: 0 }}>
-                          <strong>{proNote.text}</strong> You can try it, and everything else in Pro,
-                          without paying — nothing saves until you subscribe.
+                          <strong>{proNote.text}</strong> {proNote.why} Pro unlocks it on your
+                          live page straight away, along with everything else.
                         </p>
                         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
-                          <button className="btn small" onClick={() => { setProNote(null); setTab('design') }}>
-                            See what Pro adds
+                          <button className="btn small" onClick={() => { setProNote(null); setTab('account') }}>
+                            See Pro
                           </button>
                           <button className="btn small ghost" onClick={() => setProNote(null)}>Not now</button>
                         </div>

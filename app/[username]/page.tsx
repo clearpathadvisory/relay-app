@@ -149,14 +149,16 @@ export default async function PublicPage({ params }: { params: { username: strin
         )}
 
         {socials.length > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap', marginTop: 18 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '14px 20px', flexWrap: 'wrap', marginTop: 18 }}>
             {socials.map((sc) => (
               <a key={sc.id} href={socialHref(sc.platform, sc.url)} target="_blank" rel="noopener noreferrer"
                 aria-label={socialName(sc.platform)} title={socialName(sc.platform)}
                 style={{ display: 'inline-flex', padding: 4 }}>
-                {/* 36px glyph in 4px of padding is a 44px tap target exactly,
-                    so the icons grew without dropping back under the touch
-                    minimum. Gap tightened to 12 to hold the row's width. */}
+                {/* 36px glyph in 4px of padding is a 44px tap target exactly.
+                    The gap is written as "row column": 20px between icons so a
+                    long row of eight reads as separate marks rather than one
+                    block, and 14px between rows when they wrap, which flexbox
+                    would otherwise set to the same 20 and space out too far. */}
                 <SocialIcon id={sc.platform} color={L.iconColor} size={36} />
               </a>
             ))}

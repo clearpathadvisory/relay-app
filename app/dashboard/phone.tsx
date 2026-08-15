@@ -76,7 +76,7 @@ export function Phone({ page, links, theme, showBrand, socials = [] }: { page: P
           </p>
 
           {socials.length > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 11, flexWrap: 'wrap', marginBottom: 18 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '11px 16px', flexWrap: 'wrap', marginBottom: 18 }}>
               {socials.map((sc) => (
                 // The preview is a scaled-down phone, so this tracks the public
                 // page's 36px rather than matching it: 30 here reads the same

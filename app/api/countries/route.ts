@@ -39,7 +39,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Slow down.' }, { status: 429 })
   }
 
-  const { data, error: rpcErr } = await admin.schema('private').rpc('page_country_stats', {
+  // Called through a public-schema bridge rather than .schema('private'):
+  // PostgREST only serves its exposed schemas, and private is deliberately not
+  // one of them. The bridge is executable by service_role only, and the real
+  // ownership and Pro checks still run inside the private function.
+  const { data, error: rpcErr } = await admin.rpc('rpc_page_country_stats', {
     p_user_id: userRes.user.id,
     p_page_id: pageId,
     p_days: Number.isFinite(days) ? days : 30,

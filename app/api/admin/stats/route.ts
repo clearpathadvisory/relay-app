@@ -33,7 +33,10 @@ export async function GET(req: NextRequest) {
     .maybeSingle()
   if (!isAdmin) return NextResponse.json({ ok: false }, { status: 404 })
 
-  const { data, error: rpcErr } = await admin.schema('private').rpc('admin_stats')
+  // Same bridge pattern as /api/countries. This route called
+  // .schema('private') directly, which PostgREST cannot serve because private
+  // is not an exposed schema — that is what produced the 500 on /admin/stats.
+  const { data, error: rpcErr } = await admin.rpc('rpc_admin_stats')
   if (rpcErr) return NextResponse.json({ error: rpcErr.message }, { status: 500 })
 
   return NextResponse.json({ ok: true, stats: data })

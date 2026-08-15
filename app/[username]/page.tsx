@@ -149,12 +149,16 @@ export default async function PublicPage({ params }: { params: { username: strin
         )}
 
         {socials.length > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 18, flexWrap: 'wrap', marginTop: 18 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 14, flexWrap: 'wrap', marginTop: 18 }}>
             {socials.map((sc) => (
               <a key={sc.id} href={socialHref(sc.platform, sc.url)} target="_blank" rel="noopener noreferrer"
                 aria-label={socialName(sc.platform)} title={socialName(sc.platform)}
-                style={{ display: 'inline-flex', padding: 4 }}>
-                <SocialIcon id={sc.platform} color={L.iconColor} size={24} />
+                style={{ display: 'inline-flex', padding: 7 }}>
+                {/* 30px glyph in a 44px tap target: 30 + 7 padding either side.
+                    Was 24 in a 32px target, which both read small next to the
+                    link cards and sat under the 44px touch minimum. The gap
+                    drops from 18 to 14 so the row keeps its original width. */}
+                <SocialIcon id={sc.platform} color={L.iconColor} size={30} />
               </a>
             ))}
           </div>

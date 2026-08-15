@@ -76,9 +76,12 @@ export function Phone({ page, links, theme, showBrand, socials = [] }: { page: P
           </p>
 
           {socials.length > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 14, flexWrap: 'wrap', marginBottom: 18 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 13, flexWrap: 'wrap', marginBottom: 18 }}>
               {socials.map((sc) => (
-                <SocialIcon key={sc.id} id={sc.platform} color={L.iconColor} size={20} />
+                // The preview is a scaled-down phone, so this tracks the public
+                // page's 30px rather than matching it: 25 here reads the same
+                // size relative to the card as 30 does at full width.
+                <SocialIcon key={sc.id} id={sc.platform} color={L.iconColor} size={25} />
               ))}
             </div>
           )}

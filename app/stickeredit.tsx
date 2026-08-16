@@ -89,9 +89,8 @@ export function StickerEdit({
     setSelected(i)
     drag.current = {
       i, mode, pointerId: e.pointerId,
-      // x is a fraction of the card, so it needs no scale correction. y is
-      // page pixels, so screen pixels are divided back out.
-      startX: (e.clientX - (r.left + r.width / 2)) / r.width,
+      // Both are page pixels, so screen pixels are divided back out.
+      startX: (e.clientX - (r.left + r.width / 2)) / scale,
       startY: (e.clientY - r.top) / scale,
       orig: { ...stickers[i] },
       w: r.width, h: r.height,
@@ -104,7 +103,7 @@ export function StickerEdit({
     if (!d || d.pointerId !== e.pointerId) return
     const r = rect()
     if (!r) return
-    const px = (e.clientX - (r.left + r.width / 2)) / r.width
+    const px = (e.clientX - (r.left + r.width / 2)) / scale
     const py = (e.clientY - r.top) / scale
     d.moved = true
     const next = stickers.slice()
@@ -119,8 +118,11 @@ export function StickerEdit({
       // sticker's own width converted into fractions of the card. That keeps
       // it inside the edge on THIS card — and because x scales with width, it
       // stays inside on every narrower one as well.
+      // The editor draws the 520px page, so the drag may go as wide as the
+      // page allows. Narrower screens are handled at render by the clamp,
+      // not by refusing the placement here.
       const half = d.orig.w / 2
-      const xLim = Math.max(0, X_MAX - half / (r.width / scale))
+      const xLim = Math.min(X_MAX, r.width / scale / 2 - half)
       next[d.i] = {
         ...d.orig,
         x: clamp(d.orig.x + (px - d.startX), -xLim, xLim),
@@ -129,14 +131,14 @@ export function StickerEdit({
     } else if (d.mode === 'size') {
       // Distance from the sticker's centre to the pointer drives the width, so
       // the corner handle follows the finger instead of drifting away from it.
-      const dx = ((px - d.orig.x) * r.width) / scale
+      const dx = px - d.orig.x
       const dy = py - d.orig.y
       const dist = Math.sqrt(dx * dx + dy * dy)
       const w = clamp(dist * 1.9, W_MIN, W_MAX)
       // Growing a sticker near an edge would push it past the boundary that the
       // drag path enforces, so nudge the centre back in as it grows.
       const half = w / 2
-      const xLim = Math.max(0, X_MAX - half / (r.width / scale))
+      const xLim = Math.min(X_MAX, r.width / scale / 2 - half)
       next[d.i] = { ...d.orig, w, x: clamp(d.orig.x, -xLim, xLim) }
     }
     setStickers(next)
@@ -179,7 +181,7 @@ export function StickerEdit({
             onPointerDown={(e) => start(e, i, 'move')}
             style={{
               position: 'absolute',
-              left: `calc(50% + ${st.x * 100}%)`,
+              left: `clamp(${st.w / 2}px, calc(50% + ${st.x}px), calc(100% - ${st.w / 2}px))`,
               top: st.y + 'px',
               width: st.w + 'px',
               transform: `translate(-50%, -50%) rotate(${st.r}deg)`,

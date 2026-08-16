@@ -39,18 +39,7 @@ const FRAME_H = 672                           // 690 less the 9px bezel each sid
 // the zoom is assumed rather than read.
 const ZOOM_GUESS = 314 / PAGE_W
 
-/**
- * How wide the card is on a phone: a 393px viewport less the page's 20px of
- * padding either side. Everything vertical is identical there — same 23px
- * name, same 96px avatar — so the ONLY thing a phone takes away is width.
- *
- * That is worth drawing while someone is placing a sticker. A sticker beside
- * the name has about 135px of clear space on a desktop and about 50px on a
- * phone, so a placement that looks generous here can land on the name there,
- * and nothing about the coordinate system can rescue it: the room is not
- * there. Seeing the edge is the only thing that helps.
- */
-const PHONE_CARD_W = 353
+
 
 export function Phone({
   page, links, theme, showBrand, socials = [],
@@ -139,24 +128,6 @@ export function Phone({
 
             {/* Stickers sit against this 520px column, exactly as they do on
                 the public page — same box, same numbers, same component. */}
-            {/* Only while placing stickers, and behind them. */}
-            {editStickers && (
-              <div aria-hidden="true" style={{
-                position: 'absolute', top: 0, bottom: 0,
-                left: (REF_CARD_W - PHONE_CARD_W) / 2, width: PHONE_CARD_W,
-                borderLeft: '2px dashed rgba(119,86,226,.42)',
-                borderRight: '2px dashed rgba(119,86,226,.42)',
-                pointerEvents: 'none', zIndex: 0,
-              }}>
-                <span style={{
-                  position: 'absolute', top: 6, left: '50%', transform: 'translateX(-50%)',
-                  background: 'rgba(119,86,226,.92)', color: '#fff',
-                  fontSize: 13, fontWeight: 700, lineHeight: 1,
-                  padding: '5px 10px', borderRadius: 999, whiteSpace: 'nowrap',
-                }}>Phone edge</span>
-              </div>
-            )}
-
             {!editStickers && <StickerLayer stickers={stickers} />}
             {editStickers && setStickers && setStickerSel && (
               <StickerEdit stickers={stickers} setStickers={setStickers}

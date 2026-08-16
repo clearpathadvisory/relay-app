@@ -10,10 +10,12 @@ import { Placed, STICKER_BY_ID, stickerSrc } from './stickers'
  *
  * The parent must be position:relative.
  *
- * x is a fraction of width measured from the centre line, so `left: 50%` plus
- * a percentage; y and w are plain pixels. Nothing reads the card's HEIGHT,
- * which is what stops a longer page from moving a sticker, and x scaling with
- * width is what stops a narrow screen from pushing one off the edge. */
+ * Coordinates are pixels. x is an offset from the centre line, wrapped in a
+ * CSS clamp() so a sticker that sits comfortably beside the name on a 520px
+ * card slides in to the edge of a 353px one instead of being cut in half by
+ * the layer's overflow. The browser does the fitting, at whatever width the
+ * card happens to be, with nothing measured in JavaScript.
+ */
 export function StickerLayer({ stickers }: { stickers: Placed[] }) {
   if (!stickers.length) return null
   return (
@@ -39,7 +41,7 @@ export function StickerLayer({ stickers }: { stickers: Placed[] }) {
             decoding="async"
             style={{
               position: 'absolute',
-              left: `calc(50% + ${st.x * 100}%)`,
+              left: `clamp(${st.w / 2}px, calc(50% + ${st.x}px), calc(100% - ${st.w / 2}px))`,
               top: st.y + 'px',
               width: st.w + 'px',
               height: 'auto',

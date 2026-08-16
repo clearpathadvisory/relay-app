@@ -109,23 +109,21 @@ export function stickerSrc(id: string) {
 /**
  * One placed sticker.
  *
- *   x  FRACTION of the card's width, from its centre line. -0.5 is the left
- *      edge, 0 the centre, +0.5 the right edge.
- *   y  PIXELS from the top edge of the card, to the sticker's centre.
- *   w  PIXELS wide.
+ *   x  PIXELS left (negative) or right of the card's centre line
+ *   y  PIXELS from the top edge of the card, to the sticker's centre
+ *   w  PIXELS wide
  *
- * The two axes use different units because the card behaves differently along
- * each one. Vertically, the public page is identical on a phone and a desktop:
- * the name sits 112px down at 23px type on both, so only an absolute offset
- * stays level with it — and unlike a fraction of height, it cannot be moved by
- * adding a link.
+ * All three are pixels, because the public page renders identically on a
+ * phone and a desktop — same 23px name, same 96px avatar, same 56px rows. Only
+ * the card's WIDTH changes, from 520px down to about 353px. So an absolute
+ * offset keeps a sticker in the same relation to the words at every size,
+ * where a fraction of width would pull it inward on a phone and land it on the
+ * name, and a fraction of height would move it every time a link was added.
  *
- * Horizontally the card really does change: 520px on a desktop, around 353px
- * on a phone. An absolute offset that sits comfortably inside the wide card
- * falls outside the narrow one and gets clipped, so x has to scale with the
- * card. The content is centred, so x is measured from the centre line rather
- * than the left edge, and the sticker keeps its relation to the name at any
- * width.
+ * The one thing width does decide is whether the sticker still fits. That is
+ * handled where it is drawn, by clamping to the card's edge in CSS, rather
+ * than by bending the stored value into a unit that fits everywhere and is
+ * faithful nowhere.
  */
 export type Placed = { s: string; x: number; y: number; w: number; r: number }
 
@@ -134,8 +132,8 @@ export const MAX_STICKERS = 30
 /** Furthest below the top edge a sticker may sit, in pixels. */
 export const Y_MAX = 6000
 
-/** x is a fraction from the centre, so half a card is the whole range. */
-export const X_MAX = 0.5
+/** Half the widest card (520), so x reaches either edge and no further. */
+export const X_MAX = 300
 
 /**
  * The card `w` and `y` are quoted against: the public page's own 520px column.

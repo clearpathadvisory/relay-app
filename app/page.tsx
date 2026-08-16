@@ -164,6 +164,7 @@ export default function Home() {
                 <li>Links that appear and disappear on a schedule</li>
                 <li>Music and video that plays on your page</li>
                 <li>Collect email addresses, and take the list with you</li>
+                <li>81 stickers to decorate your page</li>
                 <li>Which countries your visitors come from</li>
                 <li>Download your stats as a spreadsheet</li>
                 <li>Remove the Relay badge from your page</li>
@@ -198,6 +199,7 @@ export default function Home() {
                 <li>Links that appear and disappear on a schedule</li>
                 <li>Music and video that plays on your page</li>
                 <li>Collect email addresses, and take the list with you</li>
+                <li>81 stickers to decorate your page</li>
                 <li>Which countries your visitors come from</li>
                 <li>Download your stats as a spreadsheet</li>
                 <li>Remove the Relay badge from your page</li>

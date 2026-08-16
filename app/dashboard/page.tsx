@@ -80,6 +80,11 @@ export default function Dashboard() {
   // sticker in the picker can immediately select the one it just added.
   const [stickerSel, setStickerSel] = useState<number | null>(null)
   const [stickerCat, setStickerCat] = useState<string>(STICKER_CATS[0])
+  // Shown the first time a free account places a sticker. They are allowed to
+  // arrange them and see the result — that is the point of the trial — but they
+  // should be told plainly that it will not save, rather than finding out when
+  // it silently vanishes on their next visit.
+  const [stickerProNote, setStickerProNote] = useState(false)
   const firstRun = useRef(true)
   const bioRef = useRef<HTMLTextAreaElement | null>(null)
   const [pending, setPending] = useState<any>({})
@@ -885,6 +890,7 @@ export default function Dashboard() {
     }])
     writeStickers(next)
     setStickerSel(next.length - 1)
+    if (!isPro) setStickerProNote(true)
   }
 
   const dirty = Object.keys(pending).length > 0
@@ -1468,6 +1474,20 @@ export default function Dashboard() {
                     Tap one to drop it on your page, then drag it where you like. Pull the corner to
                     resize, and the red cross removes it. {isPro ? '' : 'Free accounts can play with this; Pro keeps it.'}
                   </p>
+
+                  {!isPro && stickerProNote && (
+                    <div className="rowpanel rowpro" style={{ marginBottom: 14 }}>
+                      <p style={{ margin: 0 }}>
+                        <strong>Stickers are part of Pro.</strong> Arrange them however you like and
+                        see exactly how your page will look — nothing here saves, and it all applies
+                        to your real page the moment you subscribe.
+                      </p>
+                      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
+                        <button className="btn small" disabled={busy} onClick={() => startCheckout('year')}>Get Pro — $49.99/yr</button>
+                        <button className="btn small ghost" onClick={() => setStickerProNote(false)}>Keep playing</button>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="stkcats">
                     {STICKER_CATS.map((c) => (

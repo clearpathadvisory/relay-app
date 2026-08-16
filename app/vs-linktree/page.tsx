@@ -31,6 +31,7 @@ const ROWS: { label: string; relay: string; rt: Tone; other: string; ot: Tone; o
   { label: 'Links on a schedule', relay: 'Included in Pro', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },
   { label: 'Email capture', relay: 'Included in Pro, confirmed opt-in', rt: 'yes', other: 'Yes', ot: 'yes', ours: true },
   { label: 'Music and video embeds', relay: 'Included in Pro, click to play', rt: 'yes', other: 'Yes', ot: 'yes', ours: true },
+  { label: 'Stickers on your page', relay: '81, included in Pro', rt: 'yes', other: 'Yes, free', ot: 'yes' },
   { label: 'Visitor countries', relay: 'Included in Pro', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },
   { label: 'Export your own stats', relay: 'Included in Pro, spreadsheet file', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },
   { label: 'Your own domain', relay: 'No', rt: 'no', other: 'Yes, on higher tiers', ot: 'yes' },

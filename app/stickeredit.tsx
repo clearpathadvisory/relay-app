@@ -18,11 +18,18 @@ import { Placed, STICKER_BY_ID, stickerSrc, MAX_STICKERS, X_MAX, Y_MAX, W_MIN, W
 type Mode = 'move' | 'size' | null
 
 export function StickerEdit({
-  stickers, setStickers, commit, selected, setSelected, sizeScale = 1,
+  stickers, setStickers, commit, selected, setSelected, scale = 1,
 }: {
   stickers: Placed[]
-  /** Shrinks how a sticker is DRAWN here without changing what is stored. */
-  sizeScale?: number
+  /**
+   * How small this copy of the page is drawn. The dashboard preview renders
+   * the 520px page under CSS zoom, so a pointer moving 10px on screen has
+   * moved 10/scale page pixels. Sizes and offsets are stored against the
+   * page, never against the screen, so pointer input is divided by this on
+   * the way in. Nothing is multiplied on the way out — zoom already draws
+   * everything at the right size.
+   */
+  scale?: number
   /** Called on every frame of a drag. Local state only — never the database. */
   setStickers: (v: Placed[]) => void
   /** Called once when the gesture ends, and for add/delete. This one saves. */
@@ -82,9 +89,10 @@ export function StickerEdit({
     setSelected(i)
     drag.current = {
       i, mode, pointerId: e.pointerId,
-      // Matching Placed: x a fraction of width from the centre line, y raw px.
+      // x is a fraction of the card, so it needs no scale correction. y is
+      // page pixels, so screen pixels are divided back out.
       startX: (e.clientX - (r.left + r.width / 2)) / r.width,
-      startY: e.clientY - r.top,
+      startY: (e.clientY - r.top) / scale,
       orig: { ...stickers[i] },
       w: r.width, h: r.height,
     }
@@ -97,7 +105,7 @@ export function StickerEdit({
     const r = rect()
     if (!r) return
     const px = (e.clientX - (r.left + r.width / 2)) / r.width
-    const py = e.clientY - r.top
+    const py = (e.clientY - r.top) / scale
     d.moved = true
     const next = stickers.slice()
 
@@ -111,25 +119,24 @@ export function StickerEdit({
       // sticker's own width converted into fractions of the card. That keeps
       // it inside the edge on THIS card — and because x scales with width, it
       // stays inside on every narrower one as well.
-      const half = (d.orig.w * sizeScale) / 2
-      const xLim = Math.max(0, X_MAX - half / r.width)
+      const half = d.orig.w / 2
+      const xLim = Math.max(0, X_MAX - half / (r.width / scale))
       next[d.i] = {
         ...d.orig,
         x: clamp(d.orig.x + (px - d.startX), -xLim, xLim),
-        y: clamp(d.orig.y + (py - d.startY), half, Math.min(Y_MAX, r.height - half)),
+        y: clamp(d.orig.y + (py - d.startY), half, Math.min(Y_MAX, r.height / scale - half)),
       }
     } else if (d.mode === 'size') {
       // Distance from the sticker's centre to the pointer drives the width, so
       // the corner handle follows the finger instead of drifting away from it.
-      const dx = (px - d.orig.x) * r.width
+      const dx = ((px - d.orig.x) * r.width) / scale
       const dy = py - d.orig.y
       const dist = Math.sqrt(dx * dx + dy * dy)
-      // dist is measured on screen; w is stored against the public card.
-      const w = clamp((dist * 1.9) / sizeScale, W_MIN, W_MAX)
+      const w = clamp(dist * 1.9, W_MIN, W_MAX)
       // Growing a sticker near an edge would push it past the boundary that the
       // drag path enforces, so nudge the centre back in as it grows.
-      const half = (w * sizeScale) / 2
-      const xLim = Math.max(0, X_MAX - half / r.width)
+      const half = w / 2
+      const xLim = Math.max(0, X_MAX - half / (r.width / scale))
       next[d.i] = { ...d.orig, w, x: clamp(d.orig.x, -xLim, xLim) }
     }
     setStickers(next)
@@ -174,7 +181,7 @@ export function StickerEdit({
               position: 'absolute',
               left: `calc(50% + ${st.x * 100}%)`,
               top: st.y + 'px',
-              width: st.w * sizeScale + 'px',
+              width: st.w + 'px',
               transform: `translate(-50%, -50%) rotate(${st.r}deg)`,
               cursor: 'grab', touchAction: 'none', pointerEvents: 'auto',
             }}

@@ -3,15 +3,41 @@
 import { useRef, useState, useEffect } from 'react'
 import { Theme, Link, Page, Social, resolveLook } from '../../lib/supabase'
 import { scheduleState } from '../../lib/schedule'
-import { SocialIcon, socialHref } from '../socialicons'
+import { detectEmbed } from '../../lib/embed'
+import { SocialIcon } from '../socialicons'
 import { BlobMark } from '../blobmark'
-import { Placed } from '../stickers'
+import { Placed, REF_CARD_W } from '../stickers'
 import { StickerLayer } from '../stickerlayer'
 import { StickerEdit } from '../stickeredit'
-import { REF_CARD_W } from '../stickers'
 
-// The preview card is 340px wide with 20px of padding each side.
-const STICKER_SCALE = 300 / REF_CARD_W
+/**
+ * The dashboard preview.
+ *
+ * This used to be a hand-tuned miniature: its own avatar size, its own type
+ * scale, its own row padding, all chosen to look right at 340px. Every one of
+ * those numbers was a chance to disagree with the real page, and they did —
+ * a sticker placed beside the name in here landed over the bio out there,
+ * because the name was 17px in one and 23px in the other.
+ *
+ * It now renders the public page's OWN dimensions at the public page's own
+ * width, then shrinks the whole thing with CSS zoom. Nothing is re-tuned, so
+ * nothing can drift: change a size on the public page and this follows.
+ *
+ * zoom rather than transform: scale, because zoom affects layout. The frame's
+ * scroll height ends up correct on its own, where a transform would leave the
+ * element claiming its full unscaled height and the phone scrolling through
+ * empty space.
+ */
+
+// Public geometry: a 520px column inside 20px of card padding.
+const PAGE_PAD = 20
+const PAGE_W = REF_CARD_W + PAGE_PAD * 2      // 560
+const FRAME_H = 672                           // 690 less the 9px bezel each side
+// Starting guess only. The real figure is measured below, because
+// .phonescroll reserves a scrollbar gutter on both edges and the usable width
+// is a few pixels narrower than the bezel — enough to clip the card's edge if
+// the zoom is assumed rather than read.
+const ZOOM_GUESS = 314 / PAGE_W
 
 export function Phone({
   page, links, theme, showBrand, socials = [],
@@ -32,8 +58,26 @@ export function Phone({
   const hasAvatar = !!(page.avatar_url && page.avatar_url.length > 4)
   // matches the public page: a link outside its window is not there at all
   const shown = links.filter((l) => l.is_active && scheduleState(l) !== 'waiting' && scheduleState(l) !== 'ended')
-  const many = shown.length > 5
-  const tight = shown.length > 8
+
+  // How far down the page has to be shrunk to fit this frame. Measured from
+  // the element rather than assumed, so a change to the frame, the bezel or
+  // the scrollbar gutter cannot silently start clipping the card — or, worse,
+  // leave the sticker editor converting pointer moves against a stale figure.
+  const scroller = useRef<HTMLDivElement | null>(null)
+  const [zoom, setZoom] = useState(ZOOM_GUESS)
+  useEffect(() => {
+    const el = scroller.current
+    if (!el) return
+    const measure = () => {
+      const w = el.clientWidth
+      if (w > 0) setZoom(w / PAGE_W)
+    }
+    measure()
+    if (typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   // the scrollbar only appears while the frame is actually being scrolled
   const [scrolling, setScrolling] = useState(false)
@@ -57,10 +101,11 @@ export function Phone({
     shell.backgroundPosition = 'center'
   }
 
+  // Identical to the public page's avatar, not a smaller cousin of it.
   const av: any = {
-    width: 82, height: 82, borderRadius: '50%', margin: '0 auto 12px',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 25, fontWeight: 700, overflow: 'hidden', flexShrink: 0,
+    width: 96, height: 96, borderRadius: '50%', overflow: 'hidden',
+    margin: '0 auto 16px', display: 'flex', alignItems: 'center',
+    justifyContent: 'center', fontSize: 30, fontWeight: 700, flexShrink: 0,
   }
   if (!hasAvatar) { av.backgroundColor = L.accentBg; av.color = L.accentText }
 
@@ -68,157 +113,166 @@ export function Phone({
 
   return (
     <div className="phoneframe" style={shell}>
-      <div className={'phonescroll' + (scrolling ? ' scrolling' : '')} onScroll={onScroll}
-        style={{ background: L.bgImage ? 'rgba(0,0,0,.2)' : 'transparent' }}>
-        <div style={{ padding: many ? '26px 20px 46px' : '34px 22px 52px', minHeight: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-          {/* Inside the scrolling content, not pinned to the frame. A sticker
-              belongs to the page, so it has to travel with the links as they
-              scroll — anything else reads as a floating watermark. This also
-              matches the public page, where the layer lives inside the card
-              column, so the same fractions describe the same spot in both. */}
-          <div style={{
-            // Inset by this frame's own padding so the sticker coordinate space
-            // is the CONTENT column, which is what pubinner is on the public
-            // page. Without this, absolute inset:0 would measure from the
-            // padding box and every sticker would sit a few percent off from
-            // where the owner placed it.
-            position: 'absolute',
-            top: many ? 26 : 34, bottom: many ? 46 : 52,
-            left: many ? 20 : 22, right: many ? 20 : 22,
-            // Always none here; the sticker elements themselves re-enable
-            // pointer events. A parent set to auto would catch scrolls across
-            // the whole content area and the preview would stop scrolling.
-            pointerEvents: 'none',
-          }}>
-            {/* Sticker SIZE is quoted against the public page's 520px card. This
-                preview card is 300px of content, so drawing at full size would
-                make every sticker look a third bigger than it really is and
-                bury the name under it. Position is left alone: the preview's
-                vertical rhythm already matches the real page closely. */}
-            {!editStickers && <StickerLayer stickers={stickers} sizeScale={STICKER_SCALE} />}
+      <div
+        ref={scroller}
+        className={scrolling ? 'phonescroll scrolling' : 'phonescroll'}
+        onScroll={onScroll}
+        style={{ background: L.bgImage ? 'rgba(0,0,0,.2)' : 'transparent' }}
+      >
+        {/* Everything below is public-page sizing. The zoom is the only thing
+            that makes it a preview. */}
+        <div style={{ zoom, width: PAGE_W, padding: `54px ${PAGE_PAD}px 34px`, boxSizing: 'border-box', minHeight: FRAME_H / zoom }}>
+          <div style={{ width: REF_CARD_W, margin: '0 auto', position: 'relative' }}>
+
+            {/* Stickers sit against this 520px column, exactly as they do on
+                the public page — same box, same numbers, same component. */}
+            {!editStickers && <StickerLayer stickers={stickers} />}
             {editStickers && setStickers && setStickerSel && (
               <StickerEdit stickers={stickers} setStickers={setStickers}
                 commit={commitStickers || setStickers}
-                sizeScale={STICKER_SCALE}
+                scale={zoom}
                 selected={stickerSel} setSelected={setStickerSel} />
             )}
-          </div>
-          <span style={{
-            position: 'absolute', top: many ? 18 : 24, right: many ? 16 : 18,
-            display: 'inline-flex', alignItems: 'center', gap: 5,
-            padding: '6px 11px 6px 9px', borderRadius: 999,
-            background: 'rgba(255,255,255,.16)', border: '1px solid ' + L.nameColor,
-            color: L.nameColor, fontSize: 10.5, fontWeight: 700, opacity: .82,
-          }}>
-            <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
-              <path d="M12 15.5V3.5M12 3.5 7.6 8M12 3.5 16.4 8" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M4.5 14v4.6A1.9 1.9 0 0 0 6.4 20.5h11.2a1.9 1.9 0 0 0 1.9-1.9V14" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" />
-            </svg>
-            Share
-          </span>
-          <div style={av}>
-            {hasAvatar ? <img src={page.avatar_url as string} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}
-          </div>
 
-          <p style={{ textAlign: 'center', margin: 0, fontSize: 17, fontWeight: 700, color: L.nameColor, ...wrap }}>
-            {page.display_name || page.username}
-          </p>
-          <p style={{ textAlign: 'center', margin: '7px 0 14px', fontSize: 13, lineHeight: 1.5, color: L.bioColor, whiteSpace: 'pre-wrap', ...wrap }}>
-            {page.bio}
-          </p>
-
-          {socials.length > 0 && (
-            // Chips and cap scaled to the preview: 5 x 42 + 4 x 14 = 266,
-            // which fits this 322px-wide frame while six would not. So the
-            // preview wraps 5 + 3 exactly like a real phone does, instead of
-            // fitting everything on one line and misleading the owner.
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '11px 14px', flexWrap: 'wrap', marginBottom: 18, maxWidth: 266, marginLeft: 'auto', marginRight: 'auto' }}>
-              {socials.map((sc) => (
-                <span key={sc.id} style={{
-                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  width: 42, height: 42, borderRadius: '50%',
-                  background: L.buttonBg, border: L.buttonBorder,
-                  boxSizing: 'border-box',
-                }}>
-                  <SocialIcon id={sc.platform} color={L.iconColor} size={23} />
-                </span>
-              ))}
-            </div>
-          )}
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: tight ? 8 : many ? 9 : 11 }}>
-            {shown.map((l) => l.kind === 'divider' ? (
-              <hr key={l.id} style={{ border: 'none', height: 1, margin: '6px 14px', background: L.bioColor, opacity: .28 }} />
-            ) : l.kind === 'heading' ? (
-              <p key={l.id} style={{
-                margin: '8px 2px 0', fontSize: tight ? 9 : 9.5, fontWeight: 800,
-                letterSpacing: '.08em', textTransform: 'uppercase', textAlign: 'center',
-                color: L.bioColor, lineHeight: 1.4, ...wrap,
-              }}>{l.title}</p>
-            ) : (
-              <div key={l.id} className={l.is_primary ? 'jiggle' : undefined} style={{
-                display: 'flex', alignItems: 'center', gap: 10, minHeight: 46, padding: tight ? '10px 12px' : many ? '12px 13px' : '14px 14px', fontSize: tight ? 12.5 : 13,
-                fontWeight: l.is_primary ? 700 : 500, borderRadius: L.buttonRadius,
-                background: l.is_primary ? L.accentBg : L.buttonBg,
-                color: l.is_primary ? L.accentText : L.buttonText,
-                border: l.is_primary ? 'none' : L.buttonBorder, boxShadow: L.buttonShadow,
-              }}>
-                {(l.image_url || l.favicon_url) ? (
-                  <img src={(l.image_url || l.favicon_url) as string} alt="" style={{ width: 24, height: 24, borderRadius: 7, objectFit: 'cover', flexShrink: 0 }} />
-                ) : (
-                  <BlobMark size={24} radius={7} />
-                )}
-                <span className="linklabel" style={{ flex: 1, minWidth: 0, textAlign: 'center', lineHeight: 1.32, paddingRight: 34, ...wrap }}>{l.title}</span>
-              </div>
-            ))}
-            {shown.length === 0 && (
-              <p style={{ textAlign: 'center', fontSize: 12.5, color: L.bioColor }}>Nothing to relay yet.</p>
-            )}
-          </div>
-
-          {page.capture_on && (
-            <div style={{
-              marginTop: 10, padding: '12px 12px 10px', borderRadius: L.buttonRadius,
-              background: L.buttonBg, color: L.buttonText, border: L.buttonBorder,
+            {/* A still copy of the share control. Not the real button: nothing
+                in a preview should be able to open a share sheet. */}
+            <span style={{
+              position: 'absolute', top: 0, right: 0,
+              display: 'inline-flex', alignItems: 'center', gap: 7,
+              padding: '9px 15px 9px 13px', borderRadius: 999,
+              background: 'rgba(255,255,255,.16)', border: '1px solid ' + L.nameColor,
+              color: L.nameColor, fontSize: 13.5, fontWeight: 700, opacity: .82,
             }}>
-              <p style={{ margin: '0 0 8px', fontSize: 10.5, fontWeight: 700, lineHeight: 1.35, ...wrap }}>
-                {page.capture_heading || 'Get my emails'}
-              </p>
-              <div style={{ display: 'flex', gap: 5 }}>
-                <span style={{
-                  flex: 1, minWidth: 0, padding: '7px 8px', fontSize: 9,
-                  border: '1px solid currentColor', borderRadius: 9, opacity: .45,
-                }}>you@email.com</span>
-                <span style={{
-                  padding: '7px 10px', fontSize: 9, fontWeight: 700, borderRadius: L.buttonRadius,
-                  background: L.accentBg, color: L.accentText, whiteSpace: 'nowrap',
-                }}>{page.capture_button || 'Sign me up'}</span>
+              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                <path d="M12 15.5V3.5M12 3.5 7.6 8M12 3.5 16.4 8" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M4.5 14v4.6A1.9 1.9 0 0 0 6.4 20.5h11.2a1.9 1.9 0 0 0 1.9-1.9V14" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" />
+              </svg>
+              Share
+            </span>
+
+            <div style={av}>
+              {hasAvatar ? <img src={page.avatar_url as string} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}
+            </div>
+
+            <h1 style={{ textAlign: 'center', fontSize: 23, margin: 0, fontWeight: 700, color: L.nameColor, ...wrap }}>
+              {page.display_name || page.username}
+            </h1>
+            {page.bio && (
+              <p style={{ textAlign: 'center', fontSize: 15, margin: '10px 0 0', color: L.bioColor, lineHeight: 1.55, whiteSpace: 'pre-wrap', ...wrap }}>{page.bio}</p>
+            )}
+
+            {socials.length > 0 && (
+              // 340px cap and 52px chips, same as the page, so a row of eight
+              // wraps here exactly where it wraps there.
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '14px 20px', flexWrap: 'wrap', marginTop: 18, maxWidth: 340, marginLeft: 'auto', marginRight: 'auto' }}>
+                {socials.map((sc) => (
+                  <span key={sc.id} style={{
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    width: 52, height: 52, borderRadius: '50%',
+                    background: L.buttonBg, border: L.buttonBorder,
+                    boxSizing: 'border-box',
+                  }}>
+                    <SocialIcon id={sc.platform} color={L.iconColor} size={28} />
+                  </span>
+                ))}
               </div>
-              <p style={{ margin: '8px 0 0', fontSize: 7.5, lineHeight: 1.45, opacity: .7, ...wrap }}>
-                {page.capture_note ? page.capture_note + ' ' : ''}
-                We will email you once to check it is really you.
-              </p>
-            </div>
-          )}
+            )}
 
-          {showBrand && (
-            <div style={{ textAlign: 'center', marginTop: 'auto', paddingTop: many ? 20 : 30 }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fff', color: '#1B0D44', padding: '10px 17px', borderRadius: 999, fontSize: 11.5, fontWeight: 700 }}>
-                <span style={{ width: 13, height: 13, borderRadius: 4, background: '#7C5CE6', display: 'inline-block' }} />
-                Join {page.username} on RelayMe
-              </span>
-            </div>
-          )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 28 }}>
+              {shown.map((l) => l.kind === 'divider' ? (
+                <hr key={l.id} style={{ border: 'none', height: 1, margin: '10px 22px', background: L.bioColor, opacity: .28 }} />
+              ) : l.kind === 'heading' ? (
+                <h2 key={l.id} style={{
+                  margin: '14px 4px 2px', fontSize: 13, fontWeight: 800,
+                  letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'center',
+                  color: L.bioColor, lineHeight: 1.4, ...wrap,
+                }}>{l.title}</h2>
+              ) : (l.embed_kind && detectEmbed(l.url)) ? (
+                // A stand-in for the player. Loading real iframes into a
+                // preview that re-renders on every keystroke would be slow and
+                // would start playing things at people; this keeps the height
+                // an embed occupies so the rows below sit where they will.
+                <div key={l.id} style={{
+                  borderRadius: L.buttonRadius, background: L.buttonBg,
+                  border: L.buttonBorder, boxShadow: L.buttonShadow, overflow: 'hidden',
+                }}>
+                  <div style={{
+                    aspectRatio: '16 / 9', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: L.buttonText, opacity: .55,
+                  }}>
+                    <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10.2" fill="none" stroke="currentColor" strokeWidth="1.7" />
+                      <path d="M10 8.4 16 12l-6 3.6Z" fill="currentColor" />
+                    </svg>
+                  </div>
+                  <p style={{ margin: 0, padding: '12px 16px 14px', fontSize: 14, fontWeight: 600, textAlign: 'center', color: L.buttonText, ...wrap }}>{l.title}</p>
+                </div>
+              ) : (
+                <div key={l.id} className={l.is_primary ? 'jiggle' : undefined} style={{
+                  display: 'flex', alignItems: 'center', gap: 12, minHeight: 56, padding: '16px 18px',
+                  fontSize: 15, fontWeight: l.is_primary ? 700 : 500,
+                  borderRadius: L.buttonRadius,
+                  background: l.is_primary ? L.accentBg : L.buttonBg,
+                  color: l.is_primary ? L.accentText : L.buttonText,
+                  border: l.is_primary ? 'none' : L.buttonBorder, boxShadow: L.buttonShadow,
+                }}>
+                  {(l.image_url || l.favicon_url) ? (
+                    <img src={(l.image_url || l.favicon_url) as string} alt="" style={{ width: 28, height: 28, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+                  ) : (
+                    <BlobMark size={28} radius={8} />
+                  )}
+                  <span className="linklabel" style={{ flex: 1, minWidth: 0, textAlign: 'center', lineHeight: 1.35, paddingRight: 40, ...wrap }}>{l.title}</span>
+                </div>
+              ))}
 
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            gap: 7, flexWrap: 'wrap', marginTop: showBrand ? 20 : 'auto',
-            paddingTop: showBrand ? 0 : 24,
-            fontSize: 9.5, opacity: .72, color: L.bioColor,
-          }}>
-            <span>Privacy</span><span aria-hidden="true">·</span>
-            <span>Terms</span><span aria-hidden="true">·</span>
-            <span>Made with RelayMe</span>
+              {page.capture_on && (
+                <div style={{
+                  padding: '18px 18px 16px', marginTop: 4, borderRadius: L.buttonRadius,
+                  background: L.buttonBg, color: L.buttonText, border: L.buttonBorder,
+                }}>
+                  <p style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 700, lineHeight: 1.35, ...wrap }}>
+                    {page.capture_heading || 'Get my emails'}
+                  </p>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{
+                      flex: 1, minWidth: 150, padding: '12px 14px', fontSize: 15,
+                      border: '1px solid currentColor', borderRadius: 12, opacity: .45,
+                    }}>you@email.com</span>
+                    <span style={{
+                      padding: '12px 20px', fontSize: 15, fontWeight: 700, borderRadius: L.buttonRadius,
+                      background: L.accentBg, color: L.accentText, whiteSpace: 'nowrap',
+                    }}>{page.capture_button || 'Sign me up'}</span>
+                  </div>
+                  <p style={{ margin: '12px 0 0', fontSize: 11.5, lineHeight: 1.5, opacity: .72, ...wrap }}>
+                    {page.capture_note ? page.capture_note + ' ' : ''}
+                    We will email you once to check it is really you.
+                  </p>
+                </div>
+              )}
+
+              {shown.length === 0 && (
+                <p style={{ textAlign: 'center', fontSize: 14, color: L.bioColor }}>Nothing to relay yet.</p>
+              )}
+            </div>
+
+            {showBrand && (
+              <div style={{ marginTop: 44, textAlign: 'center' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#FFFFFF', color: '#1B0D44', padding: '13px 24px', borderRadius: 999, fontSize: 14, fontWeight: 700 }}>
+                  <span style={{ width: 16, height: 16, borderRadius: 5, background: '#7C5CE6', display: 'inline-block' }} />
+                  Join {page.username} on RelayMe
+                </span>
+              </div>
+            )}
+
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              gap: 10, flexWrap: 'wrap', margin: '30px 0 0',
+              fontSize: 12.5, opacity: .72, color: L.bioColor,
+            }}>
+              <span>Privacy</span><span aria-hidden="true">·</span>
+              <span>Terms</span><span aria-hidden="true">·</span>
+              <span>Made with RelayMe</span>
+            </div>
           </div>
         </div>
       </div>

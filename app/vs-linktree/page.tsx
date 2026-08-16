@@ -3,9 +3,9 @@ import { Blob, Star, Squiggle } from '../blob'
 import { jsonLdScript } from '../../lib/jsonld'
 
 export const metadata: Metadata = {
-  title: 'Relay next to Linktree',
+  title: 'RelayMe next to Linktree',
   description:
-    'An honest side-by-side: what Relay does, what it does not do yet, and who each one suits. Unlimited links on the free plan, 47 themes, no advertising.',
+    'An honest side-by-side: what RelayMe does, what it does not do yet, and who each one suits. Unlimited links on the free plan, 47 themes, no advertising.',
   alternates: { canonical: 'https://relayme.bio/vs-linktree' },
 }
 
@@ -46,8 +46,8 @@ export default function VsLinktree() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: 'Relay next to Linktree',
-    description: 'A side-by-side comparison of Relay and Linktree, including what Relay does not do.',
+    headline: 'RelayMe next to Linktree',
+    description: 'A side-by-side comparison of RelayMe and Linktree, including what RelayMe does not do.',
     author: { '@type': 'Organization', name: 'ClearPath Advisory' },
     publisher: { '@type': 'Organization', name: 'ClearPath Advisory' },
     mainEntityOfPage: 'https://relayme.bio/vs-linktree',
@@ -58,27 +58,27 @@ export default function VsLinktree() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }} />
       <div className="wrap" style={{ paddingTop: 24, paddingBottom: 70 }}>
         <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40 }}>
-          <a href="/" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>Relay</a>
+          <a href="/" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>RelayMe</a>
           <a href="/login" className="btn small">Sign in</a>
         </nav>
 
         <div className="legal" style={{ maxWidth: 760 }}>
           <p className="legalkicker">Comparison</p>
-          <h1>Relay next to Linktree</h1>
+          <h1>RelayMe next to Linktree</h1>
           <p className="legallede">
-            Linktree invented this category and it is a good product. Relay is smaller, cheaper and
+            Linktree invented this category and it is a good product. RelayMe is smaller, cheaper and
             more private, and there are things it does not do yet. All of that is below, including
             the parts that do not flatter us.
           </p>
         </div>
 
         {/* One grid rather than two lists, so every row lines up across both
-            columns. The Relay column carries the colour, which is what makes it
+            columns. The RelayMe column carries the colour, which is what makes it
             read as the same kind of object as the pricing cards. */}
         <div className="cmp">
           <div className="cmpspacer" />
           <div className="cmphead cmpmine">
-            <p className="cmpbrand">Relay</p>
+            <p className="cmpbrand">RelayMe</p>
             <p className="cmpprice">$49.99<span>/year</span></p>
             <p className="cmpnote">Or $8 a month, plus VAT. Free plan with no time limit.</p>
           </div>
@@ -91,7 +91,7 @@ export default function VsLinktree() {
           {ROWS.map((r) => (
             <div key={r.label} className="cmprow">
               <div className="cmplabel">{r.label}</div>
-              <div className={r.ours ? 'cmpcell cmpmine win' : 'cmpcell cmpmine'} data-side="Relay">
+              <div className={r.ours ? 'cmpcell cmpmine win' : 'cmpcell cmpmine'} data-side="RelayMe">
                 <Mark tone={r.rt} />
                 <span>{r.relay}</span>
               </div>
@@ -115,7 +115,7 @@ export default function VsLinktree() {
             have them.
           </p>
           <p>
-            <strong>Take Relay</strong> if you want a page that looks made rather than generated, if
+            <strong>Take RelayMe</strong> if you want a page that looks made rather than generated, if
             you would rather try the paid styling before deciding, if $49.99 a year suits you
             better than the alternative, or if it matters to you that your visitors&rsquo; addresses
             are not handed to a font network and an analytics company on the way in.
@@ -143,7 +143,7 @@ export default function VsLinktree() {
           <a href="/blog">Blog</a>
           <a href="/privacy">Privacy</a>
           <a href="/terms">Terms</a>
-          <span>Relay is made by ClearPath Advisory.</span>
+          <span>RelayMe is made by ClearPath Advisory.</span>
         </footer>
       </div>
     </main>

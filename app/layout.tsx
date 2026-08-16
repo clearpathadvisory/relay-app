@@ -20,11 +20,11 @@ const DESC =
 export const metadata: Metadata = {
   metadataBase: new URL('https://relayme.bio'),
   title: {
-    default: 'Relay — one link for everything you make',
-    template: '%s — Relay',
+    default: 'RelayMe — one link for everything you make',
+    template: '%s — RelayMe',
   },
   description: DESC,
-  applicationName: 'Relay',
+  applicationName: 'RelayMe',
   keywords: ['link in bio', 'bio link', 'link page', 'linktree alternative', 'creator links', 'one link'],
   authors: [{ name: 'ClearPath Advisory' }],
   creator: 'ClearPath Advisory',
@@ -32,13 +32,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
-    siteName: 'Relay',
+    siteName: 'RelayMe',
     url: 'https://relayme.bio',
-    title: 'Relay — one link for everything you make',
+    title: 'RelayMe — one link for everything you make',
     description: DESC,
     locale: 'en_GB',
   },
-  twitter: { card: 'summary_large_image', title: 'Relay — one link for everything you make', description: DESC },
+  twitter: { card: 'summary_large_image', title: 'RelayMe — one link for everything you make', description: DESC },
   robots: {
     index: true,
     follow: true,

@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import { Blob } from '../blob'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service', // layout template appends ' — Relay'
-  description: 'The terms that govern your use of Relay.',
+  title: 'Terms of Service', // layout template appends ' — RelayMe'
+  description: 'The terms that govern your use of RelayMe.',
 }
 
 export default function Terms() {
@@ -11,7 +11,7 @@ export default function Terms() {
     <main style={{ background: 'var(--base)', minHeight: '100vh' }}>
       <div className="wrap" style={{ paddingTop: 24, paddingBottom: 70 }}>
         <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40 }}>
-          <a href="/" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>Relay</a>
+          <a href="/" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>RelayMe</a>
           <a href="/login" className="btn small">Sign in</a>
         </nav>
 
@@ -19,18 +19,18 @@ export default function Terms() {
           <p className="legalkicker">Last updated 13 August 2026</p>
           <h1>Terms of Service</h1>
           <p className="legallede">
-            These terms govern your use of Relay at relayme.bio. By creating an account you agree to
+            These terms govern your use of RelayMe at relayme.bio. By creating an account you agree to
             them. If you do not, please do not use the service.
           </p>
           <p>
-            Relay is operated by <strong>ClearPath Advisory</strong>, ul. Michała Kleofasa Ogińskiego
+            RelayMe is operated by <strong>ClearPath Advisory</strong>, ul. Michała Kleofasa Ogińskiego
             11 lok. 9, 03-318 Warszawa, Poland, NIP 9512604332.
             Contact <a href="mailto:hello@relayme.bio">hello@relayme.bio</a>.
           </p>
 
-          <h2>1. What Relay is</h2>
+          <h2>1. What RelayMe is</h2>
           <p>
-            Relay gives you a single public page at relayme.bio/yourname holding as many links as you
+            RelayMe gives you a single public page at relayme.bio/yourname holding as many links as you
             like, with your own photo, bio, social icons and choice of styling.
           </p>
 
@@ -62,7 +62,7 @@ export default function Terms() {
           </p>
 
           <h2>5. What you may not do</h2>
-          <p>Do not use Relay to publish or link to:</p>
+          <p>Do not use RelayMe to publish or link to:</p>
           <ul>
             <li>material that is unlawful where you or your audience are</li>
             <li>content that infringes copyright, trademarks or other rights</li>
@@ -129,11 +129,11 @@ export default function Terms() {
 
           <h2>8. Availability</h2>
           <p>
-            We work to keep Relay running but do not promise uninterrupted service. We may carry out
+            We work to keep RelayMe running but do not promise uninterrupted service. We may carry out
             maintenance, change features, or discontinue parts of the service.
           </p>
           <p>
-            If we discontinue Relay entirely, we will give account holders at least{' '}
+            If we discontinue RelayMe entirely, we will give account holders at least{' '}
             <strong>30 days&rsquo; notice</strong>, provide a way to export your links, and refund the
             unused portion of any subscription.
           </p>
@@ -156,7 +156,7 @@ export default function Terms() {
             rights as a consumer.
           </p>
           <p>
-            Subject to that: Relay is provided as it is; we are not liable for indirect or
+            Subject to that: RelayMe is provided as it is; we are not liable for indirect or
             consequential loss, lost profits, or lost data beyond what we can restore from routine
             backups; and our total liability in any twelve-month period is limited to the greater of
             the amount you paid us in that period, or $50.
@@ -166,7 +166,7 @@ export default function Terms() {
           <h2>11. Changes to these terms</h2>
           <p>
             We may update these terms. For material changes we will email account holders at least 14
-            days before they take effect. Continuing to use Relay after that means you accept them. If
+            days before they take effect. Continuing to use RelayMe after that means you accept them. If
             you do not, close your account and we will refund any unused subscription period.
           </p>
 
@@ -196,7 +196,7 @@ export default function Terms() {
         <footer className="legalfoot">
           <a href="/">Home</a>
           <a href="/privacy">Privacy</a>
-          <span>Relay is made by ClearPath Advisory.</span>
+          <span>RelayMe is made by ClearPath Advisory.</span>
         </footer>
       </div>
     </main>

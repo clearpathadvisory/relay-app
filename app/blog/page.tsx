@@ -10,10 +10,10 @@ const DESC =
   'Writing for people trying to sell something online for the first time. What actually works, how long it takes, and what to ignore.'
 
 export const metadata: Metadata = {
-  title: 'The Relay blog',
+  title: 'The RelayMe blog',
   description: DESC,
   alternates: { canonical: BLOG_BASE + '/blog' },
-  openGraph: { type: 'website', title: 'The Relay blog', description: DESC, url: BLOG_BASE + '/blog' },
+  openGraph: { type: 'website', title: 'The RelayMe blog', description: DESC, url: BLOG_BASE + '/blog' },
 }
 
 function Card({ post, wide }: { post: Post; wide?: boolean }) {
@@ -41,10 +41,10 @@ export default async function BlogIndex({ searchParams }: { searchParams?: { cat
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Blog',
-    name: 'The Relay blog',
+    name: 'The RelayMe blog',
     description: DESC,
     url: BLOG_BASE + '/blog',
-    publisher: { '@type': 'Organization', name: 'Relay', url: BLOG_BASE },
+    publisher: { '@type': 'Organization', name: 'RelayMe', url: BLOG_BASE },
     blogPost: all.slice(0, 20).map((p) => ({
       '@type': 'BlogPosting',
       headline: p.title,
@@ -59,7 +59,7 @@ export default async function BlogIndex({ searchParams }: { searchParams?: { cat
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }} />
       <div className="wrap" style={{ paddingTop: 24, paddingBottom: 70 }}>
         <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40 }}>
-          <a href="/" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>Relay</a>
+          <a href="/" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>RelayMe</a>
           <a href="/login" className="btn small">Sign in</a>
         </nav>
 
@@ -102,7 +102,7 @@ export default async function BlogIndex({ searchParams }: { searchParams?: { cat
           <a href="/vs-linktree">Compare</a>
           <a href="/privacy">Privacy</a>
           <a href="/terms">Terms</a>
-          <span>Relay is made by ClearPath Advisory.</span>
+          <span>RelayMe is made by ClearPath Advisory.</span>
         </footer>
       </div>
     </main>

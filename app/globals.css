@@ -955,7 +955,7 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 .faq summary:focus-visible { outline: 3px solid var(--violet); outline-offset: 4px; border-radius: 8px; }
 
 /* ---------- comparison ---------- */
-/* One grid, three columns, with the Relay column carrying the colour. Rows use
+/* One grid, three columns, with the RelayMe column carrying the colour. Rows use
    display:contents so every cell sits in the same grid and the two sides line
    up exactly — two separate cards drift as soon as one value wraps. */
 .cmp {

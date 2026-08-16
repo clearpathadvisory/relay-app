@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import { Blob } from '../blob'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy', // layout template appends ' — Relay'
-  description: 'What Relay does with personal data, and what you can ask us to do about it.',
+  title: 'Privacy Policy', // layout template appends ' — RelayMe'
+  description: 'What RelayMe does with personal data, and what you can ask us to do about it.',
 }
 
 export default function Privacy() {
@@ -11,7 +11,7 @@ export default function Privacy() {
     <main style={{ background: 'var(--base)', minHeight: '100vh' }}>
       <div className="wrap" style={{ paddingTop: 24, paddingBottom: 70 }}>
         <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40 }}>
-          <a href="/" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>Relay</a>
+          <a href="/" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>RelayMe</a>
           <a href="/login" className="btn small">Sign in</a>
         </nav>
 
@@ -19,7 +19,7 @@ export default function Privacy() {
           <p className="legalkicker">Last updated 15 August 2026</p>
           <h1>Privacy Policy</h1>
           <p className="legallede">
-            This explains what Relay does with personal data. Relay is a link-in-bio service at
+            This explains what RelayMe does with personal data. RelayMe is a link-in-bio service at
             relayme.bio, operated by ClearPath Advisory.
           </p>
 
@@ -85,7 +85,7 @@ export default function Privacy() {
 
           <h2>5. Storage in your browser</h2>
           <p>
-            Relay stores three things in your browser. None are advertising or analytics trackers, and
+            RelayMe stores three things in your browser. None are advertising or analytics trackers, and
             all three are necessary for the service to work:
           </p>
           <ul>
@@ -165,12 +165,12 @@ export default function Privacy() {
             Contractual Clauses, and where applicable the EU–US Data Privacy Framework.
           </p>
           <p>
-            <strong>If you give a Relay page your email address.</strong> Some pages carry a card
+            <strong>If you give a RelayMe page your email address.</strong> Some pages carry a card
             asking for one. That address belongs to the person whose page it is, not to us &mdash;
             they decide what to send you and they are responsible for it. We store it for them,
             send you one message to check the address is really yours, and store nothing at all
             until you click the link in it. Every message includes a way to leave, and leaving
-            deletes the address rather than marking it. Relay itself will never email you.
+            deletes the address rather than marking it. RelayMe itself will never email you.
           </p>
           <p>
             <strong>Links that play on a page.</strong> A Pro account can set a YouTube, Spotify or
@@ -182,7 +182,7 @@ export default function Privacy() {
             no-cookie domain.
           </p>
           <p>
-            <strong>Counting a visit.</strong> When someone opens a Relay page or taps a link, we
+            <strong>Counting a visit.</strong> When someone opens a RelayMe page or taps a link, we
             record the event so the page&rsquo;s owner can see how it is doing. To avoid counting the
             same person over and over, we take a one-way hash of their IP address, keep only the
             hash, and delete it within a few hours. The address itself is never stored, and the hash
@@ -190,7 +190,7 @@ export default function Privacy() {
           </p>
           <p>
             <strong>Fonts are served from our own servers,</strong> not from a font network, so
-            loading a Relay page does not reveal your IP address to any third party for typography.
+            loading a RelayMe page does not reveal your IP address to any third party for typography.
           </p>
           <p>
             <strong>One exception.</strong> Where a link&rsquo;s own website does not publish an icon,
@@ -245,7 +245,7 @@ export default function Privacy() {
 
           <h2>13. Children</h2>
           <p>
-            Relay is not intended for children under 16 and we do not knowingly create accounts for
+            RelayMe is not intended for children under 16 and we do not knowingly create accounts for
             them. If you believe a child has signed up, write to us and we will delete the account.
           </p>
 
@@ -267,7 +267,7 @@ export default function Privacy() {
         <footer className="legalfoot">
           <a href="/">Home</a>
           <a href="/terms">Terms</a>
-          <span>Relay is made by ClearPath Advisory.</span>
+          <span>RelayMe is made by ClearPath Advisory.</span>
         </footer>
       </div>
     </main>

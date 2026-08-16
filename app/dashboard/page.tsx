@@ -903,7 +903,7 @@ export default function Dashboard() {
     const n = viewStickers.length
     const next = viewStickers.concat([{
       s: id,
-      x: ((n % 3) - 1) * 90,
+      x: ((n % 3) - 1) * 0.17,
       y: 250 + Math.floor(n / 3) * 80,
       w: 104,
       r: [0, -8, 7, -14, 12][n % 5],

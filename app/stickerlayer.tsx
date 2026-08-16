@@ -10,10 +10,10 @@ import { Placed, STICKER_BY_ID, stickerSrc } from './stickers'
  *
  * The parent must be position:relative.
  *
- * Coordinates are pixels (see Placed). x is measured from the card's centre
- * line, so `left: 50%` plus a pixel offset; y is a plain pixel offset from the
- * top. Nothing here reads the card's width or height, which is the point —
- * neither a longer page nor a narrower screen can move a sticker. */
+ * x is a fraction of width measured from the centre line, so `left: 50%` plus
+ * a percentage; y and w are plain pixels. Nothing reads the card's HEIGHT,
+ * which is what stops a longer page from moving a sticker, and x scaling with
+ * width is what stops a narrow screen from pushing one off the edge. */
 export function StickerLayer({ stickers }: { stickers: Placed[] }) {
   if (!stickers.length) return null
   return (
@@ -39,7 +39,7 @@ export function StickerLayer({ stickers }: { stickers: Placed[] }) {
             decoding="async"
             style={{
               position: 'absolute',
-              left: `calc(50% + ${st.x}px)`,
+              left: `calc(50% + ${st.x * 100}%)`,
               top: st.y + 'px',
               width: st.w + 'px',
               height: 'auto',

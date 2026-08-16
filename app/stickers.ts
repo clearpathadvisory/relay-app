@@ -107,25 +107,25 @@ export function stickerSrc(id: string) {
 }
 
 /**
- * One placed sticker, in PIXELS against the public page's own layout.
+ * One placed sticker.
  *
- *   x  pixels left (negative) or right of the card's vertical centre line
- *   y  pixels from the top edge of the card, to the sticker's centre
- *   w  pixels wide
+ *   x  FRACTION of the card's width, from its centre line. -0.5 is the left
+ *      edge, 0 the centre, +0.5 the right edge.
+ *   y  PIXELS from the top edge of the card, to the sticker's centre.
+ *   w  PIXELS wide.
  *
- * Pixels rather than fractions, because the public page keeps every type size
- * and every avatar identical on a phone and on a desktop — only the card's
- * WIDTH changes, from 520px down to whatever the screen allows. Measured:
- * the name sits 112px from the top of the card at both sizes.
+ * The two axes use different units because the card behaves differently along
+ * each one. Vertically, the public page is identical on a phone and a desktop:
+ * the name sits 112px down at 23px type on both, so only an absolute offset
+ * stays level with it — and unlike a fraction of height, it cannot be moved by
+ * adding a link.
  *
- * So a fraction of width drifts against the content on a narrow screen, and a
- * fraction of height drifts every time a link is added. An absolute offset
- * from the top, taken from a centre line the content is centred on too, is the
- * only anchor that holds still in both directions.
- *
- * The dashboard preview is a smaller, separately tuned layout rather than a
- * scaled copy — its name sits at 128px, not 112 — so a sticker lands close
- * there but not to the pixel. The public page is the one that must be exact.
+ * Horizontally the card really does change: 520px on a desktop, around 353px
+ * on a phone. An absolute offset that sits comfortably inside the wide card
+ * falls outside the narrow one and gets clipped, so x has to scale with the
+ * card. The content is centred, so x is measured from the centre line rather
+ * than the left edge, and the sticker keeps its relation to the name at any
+ * width.
  */
 export type Placed = { s: string; x: number; y: number; w: number; r: number }
 
@@ -134,8 +134,8 @@ export const MAX_STICKERS = 30
 /** Furthest below the top edge a sticker may sit, in pixels. */
 export const Y_MAX = 6000
 
-/** Half the widest card (520), so x reaches either edge and no further. */
-export const X_MAX = 300
+/** x is a fraction from the centre, so half a card is the whole range. */
+export const X_MAX = 0.5
 
 /** Size bounds in pixels: below MIN it is a speck, above MAX a background. */
 export const W_MIN = 24

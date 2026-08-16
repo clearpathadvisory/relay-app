@@ -274,12 +274,19 @@ export default function Home() {
             the standard way of saying "this profile belongs to this site". */}
         <footer className="homefoot">
           <div className="homefootl">
-            <Bear size={40} />
-            <span>Relay is made by ClearPath Advisory.</span>
-            <a href="/blog">Blog</a>
-            <a href="/privacy">Privacy</a>
-            <a href="/terms">Terms</a>
-            <Star color="#F0A2FD" size={15} />
+            {/* Credit and links are separate groups so they can stack as two
+                tidy centred rows on a phone instead of the links wrapping
+                mid-sentence after "ClearPath Advisory." */}
+            <span className="footcredit">
+              <Bear size={40} />
+              <span>Relay is made by ClearPath Advisory.</span>
+            </span>
+            <span className="footlinks">
+              <a href="/blog">Blog</a>
+              <a href="/privacy">Privacy</a>
+              <a href="/terms">Terms</a>
+              <Star color="#F0A2FD" size={15} />
+            </span>
           </div>
           <div className="homefootr">
             <a href="https://www.instagram.com/relayme.bio/" target="_blank" rel="me noopener noreferrer"

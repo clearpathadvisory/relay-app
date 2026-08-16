@@ -859,6 +859,13 @@ export default function Dashboard() {
   // a free account arranging stickers sees them live without anything saving.
   const viewStickers = safeStickers((view as any).stickers)
 
+  // Leaving the Design tab drops the selection: the editor is not on screen
+  // any more, so leaving a sticker outlined means coming back to handles the
+  // person did not ask for.
+  useEffect(() => {
+    if (tab !== 'design' && stickerSel !== null) setStickerSel(null)
+  }, [tab, stickerSel])
+
   function writeStickers(next: Placed[]) {
     const f = { stickers: next }
     isPro ? patch(f) : preview(f)

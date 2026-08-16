@@ -51,6 +51,22 @@ export function StickerEdit({
     return () => window.removeEventListener('keydown', onKey)
   }, [selected, stickers, commit, setSelected])
 
+  // The overlay is pointer-events:none so the preview still scrolls, which
+  // means it cannot catch an outside click itself. Listening on the document
+  // instead: anything that is not part of a sticker clears the selection, so
+  // the handles do not sit there permanently once the person moves on.
+  useEffect(() => {
+    if (selected === null) return
+    function onDown(e: PointerEvent) {
+      const t = e.target as HTMLElement | null
+      if (t && t.closest && t.closest('[data-sticker]')) return
+      setSelected(null)
+    }
+    // Capture phase, so this runs even when a handler below stops propagation.
+    document.addEventListener('pointerdown', onDown, true)
+    return () => document.removeEventListener('pointerdown', onDown, true)
+  }, [selected, setSelected])
+
   function rect() {
     return wrap.current ? wrap.current.getBoundingClientRect() : null
   }
@@ -135,6 +151,7 @@ export function StickerEdit({
         return (
           <div
             key={i}
+            data-sticker="1"
             onPointerDown={(e) => start(e, i, 'move')}
             style={{
               position: 'absolute',

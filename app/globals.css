@@ -1186,9 +1186,16 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
   transition: color .12s ease, background .12s ease;
 }
 .footsoc:hover { color: var(--violet); background: rgba(119,86,226,.10); }
+.footcredit { display: inline-flex; align-items: center; gap: 12px; }
+.footlinks { display: inline-flex; align-items: center; gap: 12px; }
+
 @media (max-width: 620px) {
-  .homefoot { gap: 12px; }
-  .homefootr { margin-left: auto; }
+  /* On a phone the footer becomes three centred rows: credit, then page
+     links, then the social marks. Left-aligned groups looked accidental once
+     they wrapped, and the links used to break mid-sentence after the credit. */
+  .homefoot { flex-direction: column; align-items: center; text-align: center; gap: 14px; }
+  .homefootl { flex-direction: column; align-items: center; gap: 12px; }
+  .homefootr { margin-left: 0; justify-content: center; }
 }
 .rowpanel p { margin: 0 0 12px; font-size: 14px; line-height: 1.55; color: var(--ink-70); }
 .rowpanel .label { display: block; }

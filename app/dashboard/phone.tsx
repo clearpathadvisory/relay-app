@@ -11,7 +11,7 @@ import { StickerEdit } from '../stickeredit'
 
 export function Phone({
   page, links, theme, showBrand, socials = [],
-  stickers = [], editStickers = false, setStickers, stickerSel = null, setStickerSel,
+  stickers = [], editStickers = false, setStickers, commitStickers, stickerSel = null, setStickerSel,
 }: {
   page: Page; links: Link[]; theme: Theme | undefined; showBrand: boolean; socials?: Social[]
   // Sticker props are optional so the Phone stays usable anywhere that just
@@ -19,6 +19,7 @@ export function Phone({
   stickers?: Placed[]
   editStickers?: boolean
   setStickers?: (v: Placed[]) => void
+  commitStickers?: (v: Placed[]) => void
   stickerSel?: number | null
   setStickerSel?: (i: number | null) => void
 }) {
@@ -70,6 +71,7 @@ export function Phone({
       {!editStickers && <StickerLayer stickers={stickers} />}
       {editStickers && setStickers && setStickerSel && (
         <StickerEdit stickers={stickers} setStickers={setStickers}
+          commit={commitStickers || setStickers}
           selected={stickerSel} setSelected={setStickerSel} />
       )}
       <div className={'phonescroll' + (scrolling ? ' scrolling' : '')} onScroll={onScroll}

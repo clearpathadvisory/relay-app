@@ -859,6 +859,14 @@ export default function Dashboard() {
     isPro ? patch(f) : preview(f)
   }
 
+  // Called on every pointer move during a drag. patch() writes to the database
+  // and pushes a live update, so routing drag frames through it would fire
+  // dozens of writes per second, lag the gesture and hammer the row. During a
+  // drag the value is held locally; writeStickers is called once on release.
+  function dragStickers(next: Placed[]) {
+    setPending({ ...pending, stickers: next })
+  }
+
   function addSticker(id: string) {
     if (viewStickers.length >= MAX_STICKERS) {
       setErr('That is the most stickers one page can hold.')
@@ -1449,6 +1457,45 @@ export default function Dashboard() {
 
             {tab === 'design' && (
               <div>
+                <div className="block block-plain">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 }}>
+                    <h2 className="bh">Stickers</h2>
+                    <span className="bsub" style={{ margin: 0 }}>
+                      {viewStickers.length} of {MAX_STICKERS}
+                    </span>
+                  </div>
+                  <p className="bsub">
+                    Tap one to drop it on your page, then drag it where you like. Pull the corner to
+                    resize, and the red cross removes it. {isPro ? '' : 'Free accounts can play with this; Pro keeps it.'}
+                  </p>
+
+                  <div className="stkcats">
+                    {STICKER_CATS.map((c) => (
+                      <button key={c} className={stickerCat === c ? 'bfilter on' : 'bfilter'}
+                        onClick={() => setStickerCat(c)}>{c}</button>
+                    ))}
+                  </div>
+
+                  <div className="stkgrid">
+                    {STICKERS.filter((s) => s.cat === stickerCat).map((s) => (
+                      <button key={s.id} className="stkpick" title="Add this sticker"
+                        onClick={() => addSticker(s.id)}>
+                        <img src={stickerSrc(s.id)} alt="" loading="lazy" />
+                      </button>
+                    ))}
+                  </div>
+
+                  {viewStickers.length > 0 && (
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
+                      <button className="btn small ghost" onClick={() => {
+                        setStickerSel(null)
+                        const f = { stickers: [] }
+                        isPro ? patch(f) : preview(f)
+                      }}>Clear all stickers</button>
+                    </div>
+                  )}
+                </div>
+
                 <div className="block block-sun">
                   <h2 className="bh">Pick a look</h2>
                   <p className="bsub">5 are free. Tap any Pro one to try it — the preview updates straight away, and nothing saves until you subscribe.</p>
@@ -1564,45 +1611,6 @@ export default function Dashboard() {
                       }} />
                     <span>Hide the Relay badge on my page</span>
                   </label>
-                </div>
-
-                <div className="block block-plain">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 }}>
-                    <h2 className="bh">Stickers</h2>
-                    <span className="bsub" style={{ margin: 0 }}>
-                      {viewStickers.length} of {MAX_STICKERS}
-                    </span>
-                  </div>
-                  <p className="bsub">
-                    Tap one to drop it on your page, then drag it where you like. Pull the corner to
-                    resize, and the red cross removes it. {isPro ? '' : 'Free accounts can play with this; Pro keeps it.'}
-                  </p>
-
-                  <div className="stkcats">
-                    {STICKER_CATS.map((c) => (
-                      <button key={c} className={stickerCat === c ? 'bfilter on' : 'bfilter'}
-                        onClick={() => setStickerCat(c)}>{c}</button>
-                    ))}
-                  </div>
-
-                  <div className="stkgrid">
-                    {STICKERS.filter((s) => s.cat === stickerCat).map((s) => (
-                      <button key={s.id} className="stkpick" title="Add this sticker"
-                        onClick={() => addSticker(s.id)}>
-                        <img src={stickerSrc(s.id)} alt="" loading="lazy" />
-                      </button>
-                    ))}
-                  </div>
-
-                  {viewStickers.length > 0 && (
-                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
-                      <button className="btn small ghost" onClick={() => {
-                        setStickerSel(null)
-                        const f = { stickers: [] }
-                        isPro ? patch(f) : preview(f)
-                      }}>Clear all stickers</button>
-                    </div>
-                  )}
                 </div>
 
                 <div className="block block-plain">
@@ -1911,7 +1919,8 @@ export default function Dashboard() {
               <Phone page={view} links={links} theme={theme} showBrand={view.show_branding !== false} socials={socials}
                 stickers={viewStickers}
                 editStickers={tab === 'design'}
-                setStickers={writeStickers}
+                setStickers={dragStickers}
+                commitStickers={writeStickers}
                 stickerSel={stickerSel}
                 setStickerSel={setStickerSel} />
               <p className="previewcap">Live preview</p>

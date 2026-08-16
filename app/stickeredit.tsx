@@ -18,10 +18,13 @@ import { Placed, STICKER_BY_ID, stickerSrc, MAX_STICKERS } from './stickers'
 type Mode = 'move' | 'size' | null
 
 export function StickerEdit({
-  stickers, setStickers, selected, setSelected,
+  stickers, setStickers, commit, selected, setSelected,
 }: {
   stickers: Placed[]
+  /** Called on every frame of a drag. Local state only — never the database. */
   setStickers: (v: Placed[]) => void
+  /** Called once when the gesture ends, and for add/delete. This one saves. */
+  commit: (v: Placed[]) => void
   selected: number | null
   setSelected: (i: number | null) => void
 }) {
@@ -38,7 +41,7 @@ export function StickerEdit({
       if (t && /input|textarea|select/i.test(t.tagName)) return
       if (e.key === 'Delete' || e.key === 'Backspace') {
         e.preventDefault()
-        setStickers(stickers.filter((_, i) => i !== selected))
+        commit(stickers.filter((_, i) => i !== selected))
         setSelected(null)
       } else if (e.key === 'Escape') {
         setSelected(null)
@@ -46,7 +49,7 @@ export function StickerEdit({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [selected, stickers, setStickers, setSelected])
+  }, [selected, stickers, commit, setSelected])
 
   function rect() {
     return wrap.current ? wrap.current.getBoundingClientRect() : null
@@ -76,6 +79,7 @@ export function StickerEdit({
     if (!r) return
     const px = (e.clientX - r.left) / r.width
     const py = (e.clientY - r.top) / r.height
+    d.moved = true
     const next = stickers.slice()
 
     if (d.mode === 'move') {
@@ -99,7 +103,12 @@ export function StickerEdit({
   }
 
   function end(e: React.PointerEvent) {
-    if (drag.current && drag.current.pointerId === e.pointerId) drag.current = null
+    const d = drag.current
+    if (!d || d.pointerId !== e.pointerId) return
+    drag.current = null
+    // Save the position the gesture finished on. Everything up to this point
+    // was local, so the row is written once per drag rather than per frame.
+    if (d.moved) commit(stickers)
     force((n) => n + 1)
   }
 
@@ -109,8 +118,15 @@ export function StickerEdit({
       onPointerMove={move}
       onPointerUp={end}
       onPointerCancel={end}
-      onPointerDown={() => setSelected(null)}
-      style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', overflow: 'hidden', zIndex: 3, touchAction: 'none' }}
+      style={{
+        position: 'absolute', inset: 0, borderRadius: 'inherit', overflow: 'hidden',
+        zIndex: 3, touchAction: 'none',
+        // The layer spans the whole phone so a drag can run anywhere, but it
+        // must not swallow input: with pointerEvents none here and auto on each
+        // sticker, the preview still scrolls and its links still respond
+        // everywhere a sticker is not.
+        pointerEvents: 'none',
+      }}
     >
       {stickers.map((st, i) => {
         const meta = STICKER_BY_ID[st.s]
@@ -126,7 +142,7 @@ export function StickerEdit({
               top: st.y * 100 + '%',
               width: st.w * 100 + '%',
               transform: `translate(-50%, -50%) rotate(${st.r}deg)`,
-              cursor: 'grab', touchAction: 'none',
+              cursor: 'grab', touchAction: 'none', pointerEvents: 'auto',
             }}
           >
             <img src={stickerSrc(st.s)} alt="" draggable={false}
@@ -149,7 +165,7 @@ export function StickerEdit({
                   onPointerDown={(e) => { e.stopPropagation() }}
                   onClick={(e) => {
                     e.stopPropagation()
-                    setStickers(stickers.filter((_, k) => k !== i))
+                    commit(stickers.filter((_, k) => k !== i))
                     setSelected(null)
                   }}
                   aria-label="Delete sticker"

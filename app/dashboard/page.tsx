@@ -1510,15 +1510,10 @@ export default function Dashboard() {
                   )}
 
                   <div className="stkcats">
-                    {STICKER_CATS.map((c) => {
-                      const count = STICKERS.filter((s) => s.cat === c).length
-                      return (
-                        <button key={c} className={stickerCat === c ? 'bfilter on' : 'bfilter'}
-                          onClick={() => setStickerCat(c)}>
-                          {c} <span className="stkcount">{count}</span>
-                        </button>
-                      )
-                    })}
+                    {STICKER_CATS.map((c) => (
+                      <button key={c} className={stickerCat === c ? 'bfilter on' : 'bfilter'}
+                        onClick={() => setStickerCat(c)}>{c}</button>
+                    ))}
                   </div>
 
                   <div className="stkgrid">

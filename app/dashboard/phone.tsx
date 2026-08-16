@@ -195,7 +195,7 @@ export function Phone({
             <div style={{ textAlign: 'center', marginTop: 'auto', paddingTop: many ? 20 : 30 }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#fff', color: '#1B0D44', padding: '10px 17px', borderRadius: 999, fontSize: 11.5, fontWeight: 700 }}>
                 <span style={{ width: 13, height: 13, borderRadius: 4, background: '#7C5CE6', display: 'inline-block' }} />
-                Join {page.username} on Relay
+                Join {page.username} on RelayMe
               </span>
             </div>
           )}
@@ -208,7 +208,7 @@ export function Phone({
           }}>
             <span>Privacy</span><span aria-hidden="true">·</span>
             <span>Terms</span><span aria-hidden="true">·</span>
-            <span>Made with Relay</span>
+            <span>Made with RelayMe</span>
           </div>
         </div>
       </div>

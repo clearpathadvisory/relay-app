@@ -99,13 +99,15 @@ export function StickerEdit({
     const next = stickers.slice()
 
     if (d.mode === 'move') {
+      // Kept fully inside the card. x is the sticker's CENTRE, so the limit is
+      // half its own width in from each edge — otherwise it slides under the
+      // phone bezel and looks broken rather than playful. The vertical bound
+      // is a flat inset because the card's height is not known here.
+      const half = d.orig.w / 2
       next[d.i] = {
         ...d.orig,
-        // Allowed slightly past the edge so a sticker can hang off the corner,
-        // which is most of the charm of stickers. safeStickers clamps to the
-        // same range when the page is read back.
-        x: clamp(d.orig.x + (px - d.startX), -0.15, 1.15),
-        y: clamp(d.orig.y + (py - d.startY), -0.15, 1.15),
+        x: clamp(d.orig.x + (px - d.startX), half, 1 - half),
+        y: clamp(d.orig.y + (py - d.startY), 0.04, 0.96),
       }
     } else if (d.mode === 'size') {
       // Distance from the sticker's centre to the pointer drives the width, so
@@ -113,7 +115,11 @@ export function StickerEdit({
       const dx = px - d.orig.x
       const dy = (py - d.orig.y) * (r.height / r.width)
       const dist = Math.sqrt(dx * dx + dy * dy)
-      next[d.i] = { ...d.orig, w: clamp(dist * 1.9, 0.06, 0.85) }
+      const w = clamp(dist * 1.9, 0.06, 0.85)
+      // Growing a sticker near an edge would push it past the boundary that the
+      // drag path enforces, so nudge the centre back in as it grows.
+      const half = w / 2
+      next[d.i] = { ...d.orig, w, x: clamp(d.orig.x, half, 1 - half) }
     }
     setStickers(next)
   }

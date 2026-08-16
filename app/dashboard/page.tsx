@@ -85,6 +85,12 @@ export default function Dashboard() {
   // should be told plainly that it will not save, rather than finding out when
   // it silently vanishes on their next visit.
   const [stickerProNote, setStickerProNote] = useState(false)
+  // Sticker positions during an active drag. Deliberately NOT `pending`:
+  // pending is the free-trial buffer, and anything in it turns on the
+  // "You are trying out Pro" banner and the Keep/Discard bar. Routing drag
+  // frames through it made a paying account look like a trial account every
+  // time they nudged a sticker.
+  const [liveStickers, setLiveStickers] = useState<Placed[] | null>(null)
   const firstRun = useRef(true)
   const bioRef = useRef<HTMLTextAreaElement | null>(null)
   const [pending, setPending] = useState<any>({})
@@ -866,9 +872,10 @@ export default function Dashboard() {
   const view = { ...page, ...pending } as Page
   // Stickers as the preview and editor see them: pending changes included, so
   // a free account arranging stickers sees them live without anything saving.
-  const viewStickers = safeStickers((view as any).stickers)
+  const viewStickers = liveStickers || safeStickers((view as any).stickers)
 
   function writeStickers(next: Placed[]) {
+    setLiveStickers(null)
     const f = { stickers: next }
     isPro ? patch(f) : preview(f)
   }
@@ -878,7 +885,7 @@ export default function Dashboard() {
   // dozens of writes per second, lag the gesture and hammer the row. During a
   // drag the value is held locally; writeStickers is called once on release.
   function dragStickers(next: Placed[]) {
-    setPending({ ...pending, stickers: next })
+    setLiveStickers(next)
   }
 
   function addSticker(id: string) {

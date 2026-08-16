@@ -1501,7 +1501,20 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 /* Article preview inside the editor. Bordered and inset so it reads as a
    rendering of the text above rather than more of the form, and height-capped
    because a seventeen-step guide would otherwise push Save off the screen. */
-.abar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+/* A ghost button is white on white with no border (.btn sets border:none,
+   .btn.ghost sets background:var(--surface) which is #FFF). On the grey page
+   shell it reads fine; inside the white editor card it disappears and looks
+   like a stray line of text — which is what happened to both the preview
+   toggle and Add a question. Inside the card they get an outline. */
+.acard .btn.ghost,
+.abar .btn.ghost {
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.acard .btn.ghost:hover,
+.abar .btn.ghost:hover { background: var(--surface-2, #F7F5FC); opacity: 1; }
+
+.abar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
 .apane {
   margin-top: 12px; padding: 22px 26px;
   border: 1px solid var(--line); border-radius: 18px; background: #fff;

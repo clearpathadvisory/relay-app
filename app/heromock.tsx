@@ -1,4 +1,4 @@
-// The strongest thing Relay has is what a finished page looks like, and the
+// The strongest thing RelayMe has is what a finished page looks like, and the
 // homepage was showing a mascot instead. This is a real page in Sherbet — the
 // theme a free account lands on — drawn as markup rather than a screenshot, so
 // it stays sharp at any size and costs no image request.
@@ -75,7 +75,7 @@ export function HeroMock() {
               ))}
             </div>
 
-            <span className="heromockbadge">Join adawren on Relay</span>
+            <span className="heromockbadge">Join adawren on RelayMe</span>
           </div>
         </div>
       </div>

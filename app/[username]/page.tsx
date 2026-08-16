@@ -44,9 +44,9 @@ export async function generateMetadata({ params }: { params: { username: string 
   const title = (data.page as any).seo_title || name
   const desc = (data.page as any).seo_desc || data.page.bio || ('Links from ' + name)
   return {
-    // No ' — Relay' suffix here. The root layout sets a title template of
-    // '%s — Relay', which Next applies to every page title automatically.
-    // Appending it here too produced 'name — Relay — Relay' in the tab, in
+    // No ' — RelayMe' suffix here. The root layout sets a title template of
+    // '%s — RelayMe', which Next applies to every page title automatically.
+    // Appending it here too produced 'name — RelayMe — RelayMe' in the tab, in
     // search results, and in the text of any shared link.
     title: title,
     description: desc,
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: { params: { username: string 
       title: title,
       description: desc,
       url: 'https://relayme.bio/' + data.page.username,
-      siteName: 'Relay',
+      siteName: 'RelayMe',
       type: 'profile',
     },
     twitter: { card: 'summary_large_image', title: title, description: desc },
@@ -202,7 +202,7 @@ export default async function PublicPage({ params }: { params: { username: strin
             <div style={{ marginTop: 44, textAlign: 'center' }}>
               <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 9, background: '#FFFFFF', color: '#1B0D44', padding: '13px 24px', borderRadius: 999, fontSize: 14, fontWeight: 700 }}>
                 <span style={{ width: 16, height: 16, borderRadius: 5, background: '#7C5CE6', display: 'inline-block' }} />
-                Join {page.username} on Relay
+                Join {page.username} on RelayMe
               </a>
             </div>
           )}
@@ -212,7 +212,7 @@ export default async function PublicPage({ params }: { params: { username: strin
             <span aria-hidden="true">·</span>
             <a href="/terms" style={{ color: L.bioColor }}>Terms</a>
             <span aria-hidden="true">·</span>
-            <a href="/" style={{ color: L.bioColor }}>Made with Relay</a>
+            <a href="/" style={{ color: L.bioColor }}>Made with RelayMe</a>
           </div>
         </div>
       </div>

@@ -16,8 +16,8 @@ export async function GET(_req: Request, { params }: { params: { slug: string } 
   const look = coverLook(post.cover_variant)
   // Satori draws nothing at all for emoji, so a title carrying one would come
   // back as an empty card rather than an error.
-  const title = cardText(post.title, 'Relay')
-  const category = cardText(post.category, 'Relay')
+  const title = cardText(post.title, 'RelayMe')
+  const category = cardText(post.category, 'RelayMe')
 
   const image = new ImageResponse(
     (
@@ -30,7 +30,7 @@ export async function GET(_req: Request, { params }: { params: { slug: string } 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ display: 'flex', width: 40, height: 40, borderRadius: 13, background: look.accent }} />
-            <div style={{ display: 'flex', fontSize: 34, fontWeight: 700, color: look.ink }}>Relay</div>
+            <div style={{ display: 'flex', fontSize: 34, fontWeight: 700, color: look.ink }}>RelayMe</div>
           </div>
           <div
             style={{

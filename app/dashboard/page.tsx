@@ -1482,9 +1482,13 @@ export default function Dashboard() {
                 <div className="block block-plain">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 }}>
                     <h2 className="bh">Stickers</h2>
-                    <span className="bsub" style={{ margin: 0 }}>
-                      {viewStickers.length} of {MAX_STICKERS}
-                    </span>
+                    {viewStickers.length >= MAX_STICKERS - 5 && (
+                      <span className="bsub" style={{ margin: 0 }}>
+                        {viewStickers.length === MAX_STICKERS
+                          ? 'That is the most one page can hold'
+                          : (MAX_STICKERS - viewStickers.length) + ' left'}
+                      </span>
+                    )}
                   </div>
                   <p className="bsub">
                     Tap one to drop it on your page, then drag it where you like. Pull the corner to
@@ -1506,10 +1510,15 @@ export default function Dashboard() {
                   )}
 
                   <div className="stkcats">
-                    {STICKER_CATS.map((c) => (
-                      <button key={c} className={stickerCat === c ? 'bfilter on' : 'bfilter'}
-                        onClick={() => setStickerCat(c)}>{c}</button>
-                    ))}
+                    {STICKER_CATS.map((c) => {
+                      const count = STICKERS.filter((s) => s.cat === c).length
+                      return (
+                        <button key={c} className={stickerCat === c ? 'bfilter on' : 'bfilter'}
+                          onClick={() => setStickerCat(c)}>
+                          {c} <span className="stkcount">{count}</span>
+                        </button>
+                      )
+                    })}
                   </div>
 
                   <div className="stkgrid">

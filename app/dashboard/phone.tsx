@@ -64,19 +64,35 @@ export function Phone({
 
   return (
     <div className="phoneframe" style={shell}>
-      {/* Stickers sit outside the scrolling area on purpose: they are stuck to
-          the phone, not to the list, so they stay put while the links scroll
-          underneath — the same as on the real page, where they are fixed to
-          the card. */}
-      {!editStickers && <StickerLayer stickers={stickers} />}
-      {editStickers && setStickers && setStickerSel && (
-        <StickerEdit stickers={stickers} setStickers={setStickers}
-          commit={commitStickers || setStickers}
-          selected={stickerSel} setSelected={setStickerSel} />
-      )}
       <div className={'phonescroll' + (scrolling ? ' scrolling' : '')} onScroll={onScroll}
         style={{ background: L.bgImage ? 'rgba(0,0,0,.2)' : 'transparent' }}>
         <div style={{ padding: many ? '26px 20px 46px' : '34px 22px 52px', minHeight: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+          {/* Inside the scrolling content, not pinned to the frame. A sticker
+              belongs to the page, so it has to travel with the links as they
+              scroll — anything else reads as a floating watermark. This also
+              matches the public page, where the layer lives inside the card
+              column, so the same fractions describe the same spot in both. */}
+          <div style={{
+            // Inset by this frame's own padding so the sticker coordinate space
+            // is the CONTENT column, which is what pubinner is on the public
+            // page. Without this, absolute inset:0 would measure from the
+            // padding box and every sticker would sit a few percent off from
+            // where the owner placed it.
+            position: 'absolute',
+            top: many ? 26 : 34, bottom: many ? 46 : 52,
+            left: many ? 20 : 22, right: many ? 20 : 22,
+            // Always none here; the sticker elements themselves re-enable
+            // pointer events. A parent set to auto would catch scrolls across
+            // the whole content area and the preview would stop scrolling.
+            pointerEvents: 'none',
+          }}>
+            {!editStickers && <StickerLayer stickers={stickers} />}
+            {editStickers && setStickers && setStickerSel && (
+              <StickerEdit stickers={stickers} setStickers={setStickers}
+                commit={commitStickers || setStickers}
+                selected={stickerSel} setSelected={setStickerSel} />
+            )}
+          </div>
           <span style={{
             position: 'absolute', top: many ? 18 : 24, right: many ? 16 : 18,
             display: 'inline-flex', alignItems: 'center', gap: 5,

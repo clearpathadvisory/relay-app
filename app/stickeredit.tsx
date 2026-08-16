@@ -18,9 +18,11 @@ import { Placed, STICKER_BY_ID, stickerSrc, MAX_STICKERS, X_MAX, Y_MAX, W_MIN, W
 type Mode = 'move' | 'size' | null
 
 export function StickerEdit({
-  stickers, setStickers, commit, selected, setSelected,
+  stickers, setStickers, commit, selected, setSelected, sizeScale = 1,
 }: {
   stickers: Placed[]
+  /** Shrinks how a sticker is DRAWN here without changing what is stored. */
+  sizeScale?: number
   /** Called on every frame of a drag. Local state only — never the database. */
   setStickers: (v: Placed[]) => void
   /** Called once when the gesture ends, and for add/delete. This one saves. */
@@ -109,7 +111,7 @@ export function StickerEdit({
       // sticker's own width converted into fractions of the card. That keeps
       // it inside the edge on THIS card — and because x scales with width, it
       // stays inside on every narrower one as well.
-      const half = d.orig.w / 2
+      const half = (d.orig.w * sizeScale) / 2
       const xLim = Math.max(0, X_MAX - half / r.width)
       next[d.i] = {
         ...d.orig,
@@ -122,10 +124,11 @@ export function StickerEdit({
       const dx = (px - d.orig.x) * r.width
       const dy = py - d.orig.y
       const dist = Math.sqrt(dx * dx + dy * dy)
-      const w = clamp(dist * 1.9, W_MIN, Math.min(W_MAX, r.width))
+      // dist is measured on screen; w is stored against the public card.
+      const w = clamp((dist * 1.9) / sizeScale, W_MIN, W_MAX)
       // Growing a sticker near an edge would push it past the boundary that the
       // drag path enforces, so nudge the centre back in as it grows.
-      const half = w / 2
+      const half = (w * sizeScale) / 2
       const xLim = Math.max(0, X_MAX - half / r.width)
       next[d.i] = { ...d.orig, w, x: clamp(d.orig.x, -xLim, xLim) }
     }
@@ -171,7 +174,7 @@ export function StickerEdit({
               position: 'absolute',
               left: `calc(50% + ${st.x * 100}%)`,
               top: st.y + 'px',
-              width: st.w + 'px',
+              width: st.w * sizeScale + 'px',
               transform: `translate(-50%, -50%) rotate(${st.r}deg)`,
               cursor: 'grab', touchAction: 'none', pointerEvents: 'auto',
             }}

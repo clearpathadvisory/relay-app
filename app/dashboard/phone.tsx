@@ -8,6 +8,10 @@ import { BlobMark } from '../blobmark'
 import { Placed } from '../stickers'
 import { StickerLayer } from '../stickerlayer'
 import { StickerEdit } from '../stickeredit'
+import { REF_CARD_W } from '../stickers'
+
+// The preview card is 340px wide with 20px of padding each side.
+const STICKER_SCALE = 300 / REF_CARD_W
 
 export function Phone({
   page, links, theme, showBrand, socials = [],
@@ -86,10 +90,16 @@ export function Phone({
             // the whole content area and the preview would stop scrolling.
             pointerEvents: 'none',
           }}>
-            {!editStickers && <StickerLayer stickers={stickers} />}
+            {/* Sticker SIZE is quoted against the public page's 520px card. This
+                preview card is 300px of content, so drawing at full size would
+                make every sticker look a third bigger than it really is and
+                bury the name under it. Position is left alone: the preview's
+                vertical rhythm already matches the real page closely. */}
+            {!editStickers && <StickerLayer stickers={stickers} sizeScale={STICKER_SCALE} />}
             {editStickers && setStickers && setStickerSel && (
               <StickerEdit stickers={stickers} setStickers={setStickers}
                 commit={commitStickers || setStickers}
+                sizeScale={STICKER_SCALE}
                 selected={stickerSel} setSelected={setStickerSel} />
             )}
           </div>

@@ -137,6 +137,18 @@ export const Y_MAX = 6000
 /** x is a fraction from the centre, so half a card is the whole range. */
 export const X_MAX = 0.5
 
+/**
+ * The card `w` and `y` are quoted against: the public page's own 520px column.
+ *
+ * The public page uses these values as-is, because its type and spacing do not
+ * change with screen width. The dashboard preview is a 300px card carrying
+ * smaller type, so a sticker sized in public pixels fills a quarter of it and
+ * crowds the name. The preview therefore scales SIZE by its width over this
+ * number — and leaves position alone, because its vertical rhythm already
+ * lines up with the real page (its name sits at ~120px against the page's 112).
+ */
+export const REF_CARD_W = 520
+
 /** Size bounds in pixels: below MIN it is a speck, above MAX a background. */
 export const W_MIN = 24
 export const W_MAX = 460

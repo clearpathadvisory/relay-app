@@ -14,7 +14,8 @@ import { Placed, STICKER_BY_ID, stickerSrc } from './stickers'
  * a percentage; y and w are plain pixels. Nothing reads the card's HEIGHT,
  * which is what stops a longer page from moving a sticker, and x scaling with
  * width is what stops a narrow screen from pushing one off the edge. */
-export function StickerLayer({ stickers }: { stickers: Placed[] }) {
+export function StickerLayer({ stickers, sizeScale = 1 }:
+  { stickers: Placed[]; sizeScale?: number }) {
   if (!stickers.length) return null
   return (
     <div
@@ -41,7 +42,7 @@ export function StickerLayer({ stickers }: { stickers: Placed[] }) {
               position: 'absolute',
               left: `calc(50% + ${st.x * 100}%)`,
               top: st.y + 'px',
-              width: st.w + 'px',
+              width: st.w * sizeScale + 'px',
               height: 'auto',
               // Translating by half its own size means x/y describe the
               // sticker's centre, so rotation spins in place instead of

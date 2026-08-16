@@ -6,8 +6,11 @@ import { Heart, LinkDoodle } from './blob'
 /**
  * What people say.
  *
- * Five testers used Relay before launch and wrote in with what they thought.
- * Their words, unedited, published with permission. Renders nothing while the
+ * Five testers used RelayMe before launch and wrote in with what they thought.
+ * Their words, published with permission. Only the product name has been
+ * updated since they wrote them — nothing else is altered, and the page no
+ * longer claims the quotes are unedited, because that would no longer be true.
+ * Renders nothing while the
  * array is empty, which is the correct amount of social proof to show when you
  * have none.
  *
@@ -28,7 +31,7 @@ export function Testimonials({ items }: { items?: Testimonial[] }) {
       <p className="trustkicker">Reviews</p>
       <h2 className="trusth2">What people say.</h2>
       <p className="trustlede">
-        From people who have used it. Unedited, and published with their permission.
+        From people who have used it, published with their permission.
       </p>
 
       <div className="revgrid">

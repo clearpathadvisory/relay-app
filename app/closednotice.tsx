@@ -19,7 +19,7 @@ export function ClosedNotice() {
   return (
     <div className="banner" style={{ marginBottom: 28 }}>
       Your account is closed and your page has been taken down. We have emailed you a confirmation.
-      Thanks for giving Relay a go.
+      Thanks for giving RelayMe a go.
     </div>
   )
 }

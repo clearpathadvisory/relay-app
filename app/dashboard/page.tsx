@@ -9,6 +9,8 @@ import { Blob, Star, Robot, Bear, Rocket, Squiggle } from '../blob'
 import { BlobMark } from '../blobmark'
 import { Phone } from './phone'
 import { Countries } from '../countries'
+import { STICKERS, STICKER_CATS, stickerSrc, safeStickers, Placed, MAX_STICKERS } from '../stickers'
+import { StickerEdit } from '../stickeredit'
 
 const FREE_FONT = 'manrope'
 const PKEY = 'relay.pending'
@@ -73,6 +75,22 @@ export default function Dashboard() {
   // locked control looked like nothing happening at all. This puts the reason
   // in the row the person actually clicked.
   const [proNote, setProNote] = useState<{ id: string; text: string } | null>(null)
+  // Which sticker is selected in the preview, and which category the picker is
+  // showing. Selection lives here rather than inside the editor so clicking a
+  // sticker in the picker can immediately select the one it just added.
+  const [stickerSel, setStickerSel] = useState<number | null>(null)
+  const [stickerCat, setStickerCat] = useState<string>(STICKER_CATS[0])
+  // Shown the first time a free account places a sticker. They are allowed to
+  // arrange them and see the result — that is the point of the trial — but they
+  // should be told plainly that it will not save, rather than finding out when
+  // it silently vanishes on their next visit.
+  const [stickerProNote, setStickerProNote] = useState(false)
+  // Sticker positions during an active drag. Deliberately NOT `pending`:
+  // pending is the free-trial buffer, and anything in it turns on the
+  // "You are trying out Pro" banner and the Keep/Discard bar. Routing drag
+  // frames through it made a paying account look like a trial account every
+  // time they nudged a sticker.
+  const [liveStickers, setLiveStickers] = useState<Placed[] | null>(null)
   const firstRun = useRef(true)
   const bioRef = useRef<HTMLTextAreaElement | null>(null)
   const [pending, setPending] = useState<any>({})
@@ -817,6 +835,15 @@ export default function Dashboard() {
     } catch (e) { setErr('Could not reach the billing service.'); setBusy(false) }
   }
 
+  // Leaving the Design tab drops the selection: the editor is not on screen
+  // any more, so coming back would show handles the person did not ask for.
+  // This must sit ABOVE the early returns below — a hook after a conditional
+  // return changes the hook count between renders, which is React error #310
+  // and takes the whole dashboard down.
+  useEffect(() => {
+    if (tab !== 'design' && stickerSel !== null) setStickerSel(null)
+  }, [tab, stickerSel])
+
   if (!ready) return <main style={{ background: 'var(--base)', minHeight: '100vh' }} />
 
   if (!userId)
@@ -843,6 +870,45 @@ export default function Dashboard() {
     )
 
   const view = { ...page, ...pending } as Page
+  // Stickers as the preview and editor see them: pending changes included, so
+  // a free account arranging stickers sees them live without anything saving.
+  const viewStickers = liveStickers || safeStickers((view as any).stickers)
+
+  function writeStickers(next: Placed[]) {
+    setLiveStickers(null)
+    const f = { stickers: next }
+    isPro ? patch(f) : preview(f)
+  }
+
+  // Called on every pointer move during a drag. patch() writes to the database
+  // and pushes a live update, so routing drag frames through it would fire
+  // dozens of writes per second, lag the gesture and hammer the row. During a
+  // drag the value is held locally; writeStickers is called once on release.
+  function dragStickers(next: Placed[]) {
+    setLiveStickers(next)
+  }
+
+  function addSticker(id: string) {
+    if (viewStickers.length >= MAX_STICKERS) {
+      setErr('That is the most stickers one page can hold.')
+      return
+    }
+    // New stickers land near the middle but nudged by how many are already
+    // there, so adding several in a row does not stack them into one lump the
+    // person then has to prise apart.
+    const n = viewStickers.length
+    const next = viewStickers.concat([{
+      s: id,
+      x: 0.5 + ((n % 3) - 1) * 0.16,
+      y: 0.34 + Math.floor(n / 3) * 0.12,
+      w: 0.2,
+      r: [0, -8, 7, -14, 12][n % 5],
+    }])
+    writeStickers(next)
+    setStickerSel(next.length - 1)
+    if (!isPro) setStickerProNote(true)
+  }
+
   const dirty = Object.keys(pending).length > 0
   const theme = themes.filter((t) => t.id === view.theme_id)[0]
   const nav = [
@@ -1413,6 +1479,59 @@ export default function Dashboard() {
 
             {tab === 'design' && (
               <div>
+                <div className="block block-plain">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 }}>
+                    <h2 className="bh">Stickers</h2>
+                    <span className="bsub" style={{ margin: 0 }}>
+                      {viewStickers.length} of {MAX_STICKERS}
+                    </span>
+                  </div>
+                  <p className="bsub">
+                    Tap one to drop it on your page, then drag it where you like. Pull the corner to
+                    resize, and the red cross removes it. {isPro ? '' : 'Free accounts can play with this; Pro keeps it.'}
+                  </p>
+
+                  {!isPro && stickerProNote && (
+                    <div className="rowpanel rowpro" style={{ marginBottom: 14 }}>
+                      <p style={{ margin: 0 }}>
+                        <strong>Stickers are part of Pro.</strong> Arrange them however you like and
+                        see exactly how your page will look — nothing here saves, and it all applies
+                        to your real page the moment you subscribe.
+                      </p>
+                      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
+                        <button className="btn small" disabled={busy} onClick={() => startCheckout('year')}>Get Pro — $49.99/yr</button>
+                        <button className="btn small ghost" onClick={() => setStickerProNote(false)}>Keep playing</button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="stkcats">
+                    {STICKER_CATS.map((c) => (
+                      <button key={c} className={stickerCat === c ? 'bfilter on' : 'bfilter'}
+                        onClick={() => setStickerCat(c)}>{c}</button>
+                    ))}
+                  </div>
+
+                  <div className="stkgrid">
+                    {STICKERS.filter((s) => s.cat === stickerCat).map((s) => (
+                      <button key={s.id} className="stkpick" title="Add this sticker"
+                        onClick={() => addSticker(s.id)}>
+                        <img src={stickerSrc(s.id)} alt="" loading="lazy" />
+                      </button>
+                    ))}
+                  </div>
+
+                  {viewStickers.length > 0 && (
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
+                      <button className="btn small ghost" onClick={() => {
+                        setStickerSel(null)
+                        const f = { stickers: [] }
+                        isPro ? patch(f) : preview(f)
+                      }}>Clear all stickers</button>
+                    </div>
+                  )}
+                </div>
+
                 <div className="block block-sun">
                   <h2 className="bh">Pick a look</h2>
                   <p className="bsub">5 are free. Tap any Pro one to try it — the preview updates straight away, and nothing saves until you subscribe.</p>
@@ -1833,7 +1952,13 @@ export default function Dashboard() {
             <Star color="#F0A2FD" size={18} style={{ position: 'absolute', top: 250, left: 0 }} />
             <Star color="#B0A0FF" size={22} style={{ position: 'absolute', bottom: 60, right: 14 }} />
             <div className="previewinner">
-              <Phone page={view} links={links} theme={theme} showBrand={view.show_branding !== false} socials={socials} />
+              <Phone page={view} links={links} theme={theme} showBrand={view.show_branding !== false} socials={socials}
+                stickers={viewStickers}
+                editStickers={tab === 'design'}
+                setStickers={dragStickers}
+                commitStickers={writeStickers}
+                stickerSel={stickerSel}
+                setStickerSel={setStickerSel} />
               <p className="previewcap">Live preview</p>
               {links.filter((l) => l.is_active).length > 5 && (
                 <p className="previewhint">Scroll inside the phone to see the rest</p>

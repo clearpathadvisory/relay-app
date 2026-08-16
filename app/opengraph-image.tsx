@@ -5,7 +5,7 @@ import { ImageResponse } from 'next/og'
 // so the share card, which is the point, was traded for a typeface, which is
 // not. The card renders in next/og's built-in font instead.
 export const runtime = 'edge'
-export const alt = 'Relay — one link for everything you make'
+export const alt = 'RelayMe — one link for everything you make'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -21,7 +21,7 @@ export default async function OgImage() {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 34 }}>
           <div style={{ display: 'flex', width: 44, height: 44, borderRadius: 14, background: '#7C5CE6' }} />
-          <div style={{ display: 'flex', fontSize: 46, fontWeight: 700, color: '#1B0D44' }}>Relay</div>
+          <div style={{ display: 'flex', fontSize: 46, fontWeight: 700, color: '#1B0D44' }}>RelayMe</div>
         </div>
 
         <div

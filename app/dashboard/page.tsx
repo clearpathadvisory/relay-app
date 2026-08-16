@@ -829,6 +829,15 @@ export default function Dashboard() {
     } catch (e) { setErr('Could not reach the billing service.'); setBusy(false) }
   }
 
+  // Leaving the Design tab drops the selection: the editor is not on screen
+  // any more, so coming back would show handles the person did not ask for.
+  // This must sit ABOVE the early returns below — a hook after a conditional
+  // return changes the hook count between renders, which is React error #310
+  // and takes the whole dashboard down.
+  useEffect(() => {
+    if (tab !== 'design' && stickerSel !== null) setStickerSel(null)
+  }, [tab, stickerSel])
+
   if (!ready) return <main style={{ background: 'var(--base)', minHeight: '100vh' }} />
 
   if (!userId)
@@ -858,13 +867,6 @@ export default function Dashboard() {
   // Stickers as the preview and editor see them: pending changes included, so
   // a free account arranging stickers sees them live without anything saving.
   const viewStickers = safeStickers((view as any).stickers)
-
-  // Leaving the Design tab drops the selection: the editor is not on screen
-  // any more, so leaving a sticker outlined means coming back to handles the
-  // person did not ask for.
-  useEffect(() => {
-    if (tab !== 'design' && stickerSel !== null) setStickerSel(null)
-  }, [tab, stickerSel])
 
   function writeStickers(next: Placed[]) {
     const f = { stickers: next }

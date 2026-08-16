@@ -4,7 +4,12 @@
 // text that arrives from a model on a schedule with nobody watching. Every
 // character is escaped before any tag is produced, so the only HTML that can
 // reach the page is HTML this file wrote. It supports exactly what the drafts
-// use: h2, h3, paragraphs, bold, italic, links, lists and blockquotes.
+// use: h2, h3, paragraphs, bold, italic, links, lists, blockquotes and images.
+//
+// Images are the one tag that can pull bytes from somewhere else, so unlike
+// links they are not merely scheme-checked — the host has to be ours. A
+// third-party image URL in a post is a silent tracking pixel for whoever
+// serves it, and it rots the moment they move their storage.
 
 function esc(s: string): string {
   return s
@@ -25,9 +30,44 @@ function safeHref(raw: string): string | null {
   return null
 }
 
+// Hosts allowed to serve an image inside an article. Anything else is dropped:
+// pasted drafts routinely carry CDN URLs from whatever tool produced them, and
+// those expire, move, or watch the reader. Upload to the blog bucket instead.
+const IMAGE_HOSTS = [
+  'relayme.bio',
+  'www.relayme.bio',
+  'fhwxxobzeqiypgeazdub.supabase.co',
+]
+
+function safeImageSrc(raw: string): string | null {
+  const url = (raw || '').trim()
+  if (!url) return null
+  if (url.charAt(0) === '/') return url          // same-origin, always fine
+  const m = /^https:\/\/([^/?#]+)/i.exec(url)   // https only — no http, no data:
+  if (!m) return null
+  return IMAGE_HOSTS.indexOf(m[1].toLowerCase()) >= 0 ? url : null
+}
+
+// Shared by the block and inline paths so a figure and a run-in image can
+// never disagree about what is allowed.
+function imageTag(alt: string, href: string): string | null {
+  const src = safeImageSrc(String(href).replace(/&amp;/g, '&'))
+  if (!src) return null
+  // loading/decoding hints matter here: articles carry several screenshots and
+  // they sit well below the fold.
+  return '<img src="' + esc(src) + '" alt="' + esc(alt) + '" loading="lazy" decoding="async" />'
+}
+
 // Runs on already-escaped text, so the tags below are the only ones present.
 function inline(text: string): string {
   let out = esc(text)
+
+  // Before the link rule, or the '[...](...)' half of an image would match it
+  // and leave a stray '!' in front of a blue link — which is exactly what a
+  // pasted draft used to look like.
+  out = out.replace(/!\[([^\]\n]*)\]\(([^)\s]+?)(?:\s+&quot;[^)]*&quot;)?\)+/g, function (whole, alt, href) {
+    return imageTag(String(alt), String(href)) || ''
+  })
 
   out = out.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g, function (whole, label, href) {
     // esc() turned & into &amp; inside the URL too; put it back for the href.
@@ -99,6 +139,22 @@ export function renderMarkdown(src: string): { html: string; headings: Heading[]
 
     if (/^(-{3,}|\*{3,})$/.test(trimmed)) { flushAll(); out.push('<hr />'); continue }
 
+    // An image on its own line is a figure, not a word inside a sentence.
+    // The optional quoted title becomes the visible caption; alt stays for
+    // screen readers, so a decorative shot can have alt text and no caption.
+    const img = /^!\[([^\]\n]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/.exec(trimmed)
+    if (img) {
+      flushAll()
+      const tag = imageTag(img[1] || '', img[2])
+      if (tag) {
+        const caption = (img[3] || '').trim()
+        out.push('<figure class="bfig">' + tag +
+          (caption ? '<figcaption>' + inline(caption) + '</figcaption>' : '') +
+          '</figure>')
+      }
+      continue
+    }
+
     const li = /^[-*]\s+(.*)$/.exec(trimmed)
     if (li) { flushPara(); flushQuote(); list.push(li[1]); continue }
 
@@ -124,6 +180,7 @@ export function firstParagraph(src: string, max = 180): string {
   for (let i = 0; i < lines.length; i++) {
     const t = lines[i].trim()
     if (!t || t.charAt(0) === '#' || t.charAt(0) === '>' || t.charAt(0) === '-') continue
+    if (t.charAt(0) === '!') continue   // an image block is not a description
     const plain = t
       .replace(/\[([^\]\n]+)\]\([^)\s]+\)/g, '$1')
       .replace(/[*`]/g, '')

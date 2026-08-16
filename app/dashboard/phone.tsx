@@ -5,8 +5,23 @@ import { Theme, Link, Page, Social, resolveLook } from '../../lib/supabase'
 import { scheduleState } from '../../lib/schedule'
 import { SocialIcon, socialHref } from '../socialicons'
 import { BlobMark } from '../blobmark'
+import { Placed } from '../stickers'
+import { StickerLayer } from '../stickerlayer'
+import { StickerEdit } from '../stickeredit'
 
-export function Phone({ page, links, theme, showBrand, socials = [] }: { page: Page; links: Link[]; theme: Theme | undefined; showBrand: boolean; socials?: Social[] }) {
+export function Phone({
+  page, links, theme, showBrand, socials = [],
+  stickers = [], editStickers = false, setStickers, stickerSel = null, setStickerSel,
+}: {
+  page: Page; links: Link[]; theme: Theme | undefined; showBrand: boolean; socials?: Social[]
+  // Sticker props are optional so the Phone stays usable anywhere that just
+  // wants a preview and has no editor around it.
+  stickers?: Placed[]
+  editStickers?: boolean
+  setStickers?: (v: Placed[]) => void
+  stickerSel?: number | null
+  setStickerSel?: (i: number | null) => void
+}) {
   const L = resolveLook(page, theme)
   const initials = (page.display_name || page.username).slice(0, 2).toUpperCase()
   const hasAvatar = !!(page.avatar_url && page.avatar_url.length > 4)
@@ -48,6 +63,15 @@ export function Phone({ page, links, theme, showBrand, socials = [] }: { page: P
 
   return (
     <div className="phoneframe" style={shell}>
+      {/* Stickers sit outside the scrolling area on purpose: they are stuck to
+          the phone, not to the list, so they stay put while the links scroll
+          underneath — the same as on the real page, where they are fixed to
+          the card. */}
+      {!editStickers && <StickerLayer stickers={stickers} />}
+      {editStickers && setStickers && setStickerSel && (
+        <StickerEdit stickers={stickers} setStickers={setStickers}
+          selected={stickerSel} setSelected={setStickerSel} />
+      )}
       <div className={'phonescroll' + (scrolling ? ' scrolling' : '')} onScroll={onScroll}
         style={{ background: L.bgImage ? 'rgba(0,0,0,.2)' : 'transparent' }}>
         <div style={{ padding: many ? '26px 20px 46px' : '34px 22px 52px', minHeight: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>

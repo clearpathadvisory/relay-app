@@ -9,6 +9,8 @@ import { Blob, Star, Robot, Bear, Rocket, Squiggle } from '../blob'
 import { BlobMark } from '../blobmark'
 import { Phone } from './phone'
 import { Countries } from '../countries'
+import { STICKERS, STICKER_CATS, stickerSrc, safeStickers, Placed, MAX_STICKERS } from '../stickers'
+import { StickerEdit } from '../stickeredit'
 
 const FREE_FONT = 'manrope'
 const PKEY = 'relay.pending'
@@ -72,7 +74,12 @@ export default function Dashboard() {
   // hundreds of pixels above the button that triggered it — so clicking a
   // locked control looked like nothing happening at all. This puts the reason
   // in the row the person actually clicked.
-  const [proNote, setProNote] = useState<{ id: string; text: string; why: string } | null>(null)
+  const [proNote, setProNote] = useState<{ id: string; text: string } | null>(null)
+  // Which sticker is selected in the preview, and which category the picker is
+  // showing. Selection lives here rather than inside the editor so clicking a
+  // sticker in the picker can immediately select the one it just added.
+  const [stickerSel, setStickerSel] = useState<number | null>(null)
+  const [stickerCat, setStickerCat] = useState<string>(STICKER_CATS[0])
   const firstRun = useRef(true)
   const bioRef = useRef<HTMLTextAreaElement | null>(null)
   const [pending, setPending] = useState<any>({})
@@ -442,7 +449,7 @@ export default function Dashboard() {
   // Reuses the shrink and upload path the avatar already uses. 256 square is
   // ample for a 28px circle on a phone and keeps the page light.
   async function uploadThumb(linkId: string, file: File) {
-    if (!isPro) { setProNote({ id: linkId, text: 'Your own image on a link is part of Pro.', why: 'Your own artwork on the row instead of the site\u2019s icon.' }); return }
+    if (!isPro) { setErr('Your own image on a link is a Pro feature.'); return }
     if (!file.type.startsWith('image/')) { setErr('That needs to be an image.'); return }
     if (file.size > 4 * 1024 * 1024) { setErr('Under 4MB, please.'); return }
     setErr(''); setThumbBusy(linkId)
@@ -471,7 +478,7 @@ export default function Dashboard() {
   // datetime-local hands back wall-clock text with no zone. new Date() reads it
   // in the browser's own zone, which is what the person means when they type it.
   async function setWindow(linkId: string, field: 'starts_at' | 'ends_at', local: string) {
-    if (!isPro) { setProNote({ id: linkId, text: 'Scheduling a link is part of Pro.', why: 'The link appears and disappears on the dates you set, on its own.' }); return }
+    if (!isPro) { setErr('Scheduling a link is a Pro feature.'); return }
     const value = local ? new Date(local).toISOString() : null
 
     const row = links.filter((l) => l.id === linkId)[0]
@@ -559,7 +566,7 @@ export default function Dashboard() {
   }
 
   async function toggleEmbed(linkId: string) {
-    if (!isPro) { setProNote({ id: linkId, text: 'Playing a link on your page is part of Pro.', why: 'Visitors play the video or track without leaving your page.' }); return }
+    if (!isPro) { setErr('Playing a link inline is a Pro feature.'); return }
     const row = links.filter((l) => l.id === linkId)[0]
     if (!row) return
     const playable = detectEmbed(row.url)
@@ -843,6 +850,35 @@ export default function Dashboard() {
     )
 
   const view = { ...page, ...pending } as Page
+  // Stickers as the preview and editor see them: pending changes included, so
+  // a free account arranging stickers sees them live without anything saving.
+  const viewStickers = safeStickers((view as any).stickers)
+
+  function writeStickers(next: Placed[]) {
+    const f = { stickers: next }
+    isPro ? patch(f) : preview(f)
+  }
+
+  function addSticker(id: string) {
+    if (viewStickers.length >= MAX_STICKERS) {
+      setErr('That is the most stickers one page can hold.')
+      return
+    }
+    // New stickers land near the middle but nudged by how many are already
+    // there, so adding several in a row does not stack them into one lump the
+    // person then has to prise apart.
+    const n = viewStickers.length
+    const next = viewStickers.concat([{
+      s: id,
+      x: 0.5 + ((n % 3) - 1) * 0.16,
+      y: 0.34 + Math.floor(n / 3) * 0.12,
+      w: 0.2,
+      r: [0, -8, 7, -14, 12][n % 5],
+    }])
+    writeStickers(next)
+    setStickerSel(next.length - 1)
+  }
+
   const dirty = Object.keys(pending).length > 0
   const theme = themes.filter((t) => t.id === view.theme_id)[0]
   const nav = [
@@ -1014,7 +1050,7 @@ export default function Dashboard() {
                         <button className="thumbbtn" title={isPro ? 'Change this image' : 'Your own image is a Pro feature'}
                           aria-label={'Change the image for ' + l.title}
                           aria-expanded={thumbFor === l.id}
-                          onClick={() => { setConfirmLink(null); setScheduleFor(null); setProNote(null); isPro ? setThumbFor(thumbFor === l.id ? null : l.id) : setProNote({ id: l.id, text: 'Your own image on a link is part of Pro.', why: 'Your own artwork on the row instead of the site\u2019s icon.' }) }}>
+                          onClick={() => { setConfirmLink(null); setScheduleFor(null); setProNote(null); isPro ? setThumbFor(thumbFor === l.id ? null : l.id) : setProNote({ id: l.id, text: 'Your own image on a link is part of Pro.' }) }}>
                           {l.embed_kind && !l.image_url
                             ? <span className="fav kindmark" style={{
                                 background: l.embed_kind === 'youtube' ? '#FF0000' : l.embed_kind === 'spotify' ? '#1DB954' : '#FF5500',
@@ -1061,17 +1097,17 @@ export default function Dashboard() {
                       <button className="icon eyebtn" title={l.is_active ? 'Hide from your page' : 'Show on your page'} onClick={() => toggleActive(l.id)}>{l.is_active ? '◉' : '○'}</button>
                       {l.kind === 'link' && detectEmbed(l.url) && (
                         <button className={l.embed_kind ? 'icon on' : 'icon'}
-                          title={!isPro ? 'Playing a link on your page is a Pro feature' : (l.embed_kind ? 'Plays on your page — tap to make it a button again' : 'Play this on your page instead of sending people away')}
+                          title={l.embed_kind ? 'Plays on your page — tap to make it a button again' : 'Play this on your page instead of sending people away'}
                           aria-label={'Play ' + l.title + ' inline'}
                           aria-pressed={!!l.embed_kind}
-                          onClick={() => { setConfirmLink(null); setScheduleFor(null); setThumbFor(null); setProNote(null); toggleEmbed(l.id) }}>▶</button>
+                          onClick={() => toggleEmbed(l.id)}>▶</button>
                       )}
                       {l.kind === 'link' && (
                         <button className={scheduleState(l) === 'none' ? 'icon' : 'icon on'}
                           title={isPro ? 'Give this link a start or an end' : 'Scheduling is a Pro feature'}
                           aria-label={'Schedule ' + l.title}
                           aria-expanded={scheduleFor === l.id}
-                          onClick={() => { setConfirmLink(null); setThumbFor(null); setProNote(null); isPro ? setScheduleFor(scheduleFor === l.id ? null : l.id) : setProNote({ id: l.id, text: 'Scheduling a link is part of Pro.', why: 'The link appears and disappears on the dates you set, on its own.' }) }}>◷</button>
+                          onClick={() => { setConfirmLink(null); setThumbFor(null); setProNote(null); isPro ? setScheduleFor(scheduleFor === l.id ? null : l.id) : setProNote({ id: l.id, text: 'Scheduling a link is part of Pro.' }) }}>◷</button>
                       )}
                       {l.kind === 'link'
                         ? <button className={l.is_primary ? 'icon on' : 'icon'} title="Make this the main link" onClick={() => makePrimary(l.id)}>★</button>
@@ -1090,12 +1126,12 @@ export default function Dashboard() {
                     {proNote && proNote.id === l.id && (
                       <div className="rowpanel rowpro">
                         <p style={{ margin: 0 }}>
-                          <strong>{proNote.text}</strong> {proNote.why} Pro unlocks it on your
-                          live page straight away, along with everything else.
+                          <strong>{proNote.text}</strong> You can try it, and everything else in Pro,
+                          without paying — nothing saves until you subscribe.
                         </p>
                         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
-                          <button className="btn small" onClick={() => { setProNote(null); setTab('account') }}>
-                            See Pro
+                          <button className="btn small" onClick={() => { setProNote(null); setTab('design') }}>
+                            See what Pro adds
                           </button>
                           <button className="btn small ghost" onClick={() => setProNote(null)}>Not now</button>
                         </div>
@@ -1532,6 +1568,45 @@ export default function Dashboard() {
 
                 <div className="block block-plain">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 }}>
+                    <h2 className="bh">Stickers</h2>
+                    <span className="bsub" style={{ margin: 0 }}>
+                      {viewStickers.length} of {MAX_STICKERS}
+                    </span>
+                  </div>
+                  <p className="bsub">
+                    Tap one to drop it on your page, then drag it where you like. Pull the corner to
+                    resize, and the red cross removes it. {isPro ? '' : 'Free accounts can play with this; Pro keeps it.'}
+                  </p>
+
+                  <div className="stkcats">
+                    {STICKER_CATS.map((c) => (
+                      <button key={c} className={stickerCat === c ? 'bfilter on' : 'bfilter'}
+                        onClick={() => setStickerCat(c)}>{c}</button>
+                    ))}
+                  </div>
+
+                  <div className="stkgrid">
+                    {STICKERS.filter((s) => s.cat === stickerCat).map((s) => (
+                      <button key={s.id} className="stkpick" title="Add this sticker"
+                        onClick={() => addSticker(s.id)}>
+                        <img src={stickerSrc(s.id)} alt="" loading="lazy" />
+                      </button>
+                    ))}
+                  </div>
+
+                  {viewStickers.length > 0 && (
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
+                      <button className="btn small ghost" onClick={() => {
+                        setStickerSel(null)
+                        const f = { stickers: [] }
+                        isPro ? patch(f) : preview(f)
+                      }}>Clear all stickers</button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="block block-plain">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 }}>
                     <h2 className="bh">Background image</h2>
                     {!isPro && <span className="prodot">Pro</span>}
                   </div>
@@ -1833,7 +1908,12 @@ export default function Dashboard() {
             <Star color="#F0A2FD" size={18} style={{ position: 'absolute', top: 250, left: 0 }} />
             <Star color="#B0A0FF" size={22} style={{ position: 'absolute', bottom: 60, right: 14 }} />
             <div className="previewinner">
-              <Phone page={view} links={links} theme={theme} showBrand={view.show_branding !== false} socials={socials} />
+              <Phone page={view} links={links} theme={theme} showBrand={view.show_branding !== false} socials={socials}
+                stickers={viewStickers}
+                editStickers={tab === 'design'}
+                setStickers={writeStickers}
+                stickerSel={stickerSel}
+                setStickerSel={setStickerSel} />
               <p className="previewcap">Live preview</p>
               {links.filter((l) => l.is_active).length > 5 && (
                 <p className="previewhint">Scroll inside the phone to see the rest</p>

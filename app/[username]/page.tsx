@@ -1,5 +1,7 @@
 import { serverClient, Theme, Link, Page, Social, resolveLook } from '../../lib/supabase'
 import { SocialIcon, socialHref, socialName } from '../socialicons'
+import { StickerLayer } from '../stickerlayer'
+import { safeStickers } from '../stickers'
 import { Blob } from '../blob'
 import { Row } from './row'
 import { Capture } from './capture'
@@ -136,6 +138,11 @@ export default async function PublicPage({ params }: { params: { username: strin
       <PageView pageId={page.id} />
       <div className="pubcard" style={card}>
         <div className="pubinner">
+          {/* Inside pubinner, not pubcard: pubcard is the full viewport, so a
+              sticker placed at x=0.9 would fly off to the edge of a wide monitor
+              instead of sitting on the card. pubinner is the 520px column, which
+              is the same thing the dashboard preview represents. */}
+          <StickerLayer stickers={safeStickers((page as any).stickers)} />
           <ShareButton username={page.username} name={page.display_name || page.username} color={L.nameColor} />
         <div style={av}>
           {hasAvatar ? <img src={page.avatar_url as string} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}

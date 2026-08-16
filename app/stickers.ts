@@ -106,10 +106,26 @@ export function stickerSrc(id: string) {
   return '/stickers/' + id + '.webp'
 }
 
-/** One placed sticker. Coordinates are fractions of the card, never pixels. */
+/**
+ * One placed sticker. x and w are fractions of the card's WIDTH. So is y —
+ * measured downward from the top edge, NOT as a fraction of the card's
+ * height.
+ *
+ * That distinction is the whole point. A CSS percentage in `top` resolves
+ * against the parent's height, so while y meant 'fraction of height' a
+ * sticker moved every time the owner added a link: same stored value, taller
+ * card, different place on the page. Anchoring to width makes y a fixed
+ * offset from the top that no amount of content below can disturb.
+ *
+ * A page is taller than it is wide, so y legitimately exceeds 1 — a sticker
+ * two card-widths down the page has y = 2.
+ */
 export type Placed = { s: string; x: number; y: number; w: number; r: number }
 
 export const MAX_STICKERS = 30
+
+/** Furthest a sticker may sit below the top edge, in card widths. */
+export const Y_MAX = 12
 
 /**
  * Accepts whatever came back from the database and returns only entries that
@@ -129,7 +145,7 @@ export function safeStickers(raw: any): Placed[] {
     out.push({
       s,
       x: Math.min(1.2, Math.max(-0.2, x)),
-      y: Math.min(1.2, Math.max(-0.2, y)),
+      y: Math.min(Y_MAX, Math.max(-0.2, y)),
       w: Math.min(0.9, Math.max(0.04, w)),
       r: isFinite(r) ? Math.min(180, Math.max(-180, r)) : 0,
     })

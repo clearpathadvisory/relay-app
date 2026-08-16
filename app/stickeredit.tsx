@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Placed, STICKER_BY_ID, stickerSrc, MAX_STICKERS } from './stickers'
+import { Placed, STICKER_BY_ID, stickerSrc, MAX_STICKERS, Y_MAX } from './stickers'
 
 /**
  * The draggable sticker layer shown inside the dashboard preview.
@@ -81,7 +81,10 @@ export function StickerEdit({
     drag.current = {
       i, mode, pointerId: e.pointerId,
       startX: (e.clientX - r.left) / r.width,
-      startY: (e.clientY - r.top) / r.height,
+      // Divided by WIDTH, matching Placed.y. Using height here would make a
+      // drag feel right on the day and land wrong the next time a link was
+      // added, because the renderer no longer reads height at all.
+      startY: (e.clientY - r.top) / r.width,
       orig: { ...stickers[i] },
       w: r.width, h: r.height,
     }
@@ -94,7 +97,7 @@ export function StickerEdit({
     const r = rect()
     if (!r) return
     const px = (e.clientX - r.left) / r.width
-    const py = (e.clientY - r.top) / r.height
+    const py = (e.clientY - r.top) / r.width
     d.moved = true
     const next = stickers.slice()
 
@@ -102,18 +105,20 @@ export function StickerEdit({
       // Kept fully inside the card. x is the sticker's CENTRE, so the limit is
       // half its own width in from each edge — otherwise it slides under the
       // phone bezel and looks broken rather than playful. The vertical bound
-      // is a flat inset because the card's height is not known here.
+      // is the card's height expressed in width units, which is exact now
+      // that both axes share a reference; it used to be a guessed inset.
       const half = d.orig.w / 2
+      const tall = r.height / r.width
       next[d.i] = {
         ...d.orig,
         x: clamp(d.orig.x + (px - d.startX), half, 1 - half),
-        y: clamp(d.orig.y + (py - d.startY), 0.04, 0.96),
+        y: clamp(d.orig.y + (py - d.startY), half, Math.min(Y_MAX, tall - half)),
       }
     } else if (d.mode === 'size') {
       // Distance from the sticker's centre to the pointer drives the width, so
       // the corner handle follows the finger instead of drifting away from it.
       const dx = px - d.orig.x
-      const dy = (py - d.orig.y) * (r.height / r.width)
+      const dy = py - d.orig.y
       const dist = Math.sqrt(dx * dx + dy * dy)
       const w = clamp(dist * 1.9, 0.06, 0.85)
       // Growing a sticker near an edge would push it past the boundary that the
@@ -148,6 +153,7 @@ export function StickerEdit({
         // sticker, the preview still scrolls and its links still respond
         // everywhere a sticker is not.
         pointerEvents: 'none',
+        containerType: 'inline-size',
       }}
     >
       {stickers.map((st, i) => {
@@ -162,7 +168,7 @@ export function StickerEdit({
             style={{
               position: 'absolute',
               left: st.x * 100 + '%',
-              top: st.y * 100 + '%',
+              top: st.y * 100 + 'cqw',
               width: st.w * 100 + '%',
               transform: `translate(-50%, -50%) rotate(${st.r}deg)`,
               cursor: 'grab', touchAction: 'none', pointerEvents: 'auto',

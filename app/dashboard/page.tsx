@@ -896,11 +896,15 @@ export default function Dashboard() {
     // New stickers land near the middle but nudged by how many are already
     // there, so adding several in a row does not stack them into one lump the
     // person then has to prise apart.
+    //
+    // y is in card WIDTHS from the top, not a fraction of height, so these
+    // numbers are larger than they look: 0.5 is roughly level with the first
+    // link on a typical page, which is where a new sticker wants to appear.
     const n = viewStickers.length
     const next = viewStickers.concat([{
       s: id,
       x: 0.5 + ((n % 3) - 1) * 0.16,
-      y: 0.34 + Math.floor(n / 3) * 0.12,
+      y: 0.5 + Math.floor(n / 3) * 0.16,
       w: 0.2,
       r: [0, -8, 7, -14, 12][n % 5],
     }])

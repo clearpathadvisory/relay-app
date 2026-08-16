@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { COVERS } from '../../../lib/blog'
-import { readingMinutes } from '../../../lib/markdown'
+import { readingMinutes, renderMarkdown } from '../../../lib/markdown'
 
 // Not a tab inside /dashboard. Every other user's dashboard is untouched by
 // the blog existing, and none of this code loads on their side of the app.
@@ -83,6 +83,9 @@ export default function AdminBlog() {
   const [msg, setMsg] = useState('')
   const [err, setErr] = useState('')
   const [when, setWhen] = useState('')
+  // Preview is per-session rather than per-post: someone checking one
+  // article's images usually wants to check the next one's too.
+  const [preview, setPreview] = useState(false)
 
   useEffect(() => {
     // supabase-js restores the session from storage asynchronously, so a single
@@ -300,10 +303,13 @@ export default function AdminBlog() {
                 </button>
               ))}
             </div>
-            {editing.slug && editing.id ? (
+            {editing.slug && editing.id && editing.status === 'published' ? (
               <img className="apreview" src={'/blog/' + editing.slug + '/cover'} alt="" width={1200} height={630} />
             ) : (
-              <p className="ahint">The cover is drawn once the post is saved.</p>
+              <p className="ahint">
+                The cover is drawn from the swatch above once the post is published.
+                {editing.id ? ' A saved draft has no cover yet \u2014 that is expected, not a failed image.' : ''}
+              </p>
             )}
 
             <label className="alab">
@@ -312,6 +318,31 @@ export default function AdminBlog() {
             </label>
             <textarea className="ainp atext" rows={22} value={editing.body_md || ''}
               onChange={(e) => setEditing(Object.assign({}, editing, { body_md: e.target.value }))} />
+
+            {/* Rendered with the same renderMarkdown the public page calls, into
+                the same .bpost classes, so anything that fails here fails there
+                too. This is the only way to catch a blocked image host before a
+                post goes out: a disallowed URL renders nothing at all, silently. */}
+            <div className="abar">
+              <button type="button" className="btn small ghost"
+                onClick={() => setPreview(!preview)}>
+                {preview ? 'Hide preview' : 'Preview the article'}
+              </button>
+              {preview && editing.body_md ? (
+                <span className="ahint" style={{ margin: 0 }}>
+                  {(renderMarkdown(editing.body_md).html.match(/<figure/g) || []).length} images shown
+                  {' \u00b7 '}
+                  {(editing.body_md.match(/^!\[[^\]]*\]\(/gm) || []).length} in the text
+                </span>
+              ) : null}
+            </div>
+
+            {preview ? (
+              <div className="apane">
+                <div className="legal bpost"
+                  dangerouslySetInnerHTML={{ __html: renderMarkdown(editing.body_md || '').html }} />
+              </div>
+            ) : null}
 
             <div className="agrid">
               <div>

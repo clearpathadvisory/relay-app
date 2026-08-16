@@ -1498,6 +1498,21 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 .aswatch span { width: 12px; height: 12px; border-radius: 4px; display: block; }
 .apreview { width: 100%; max-width: 420px; height: auto; border-radius: 14px; margin-top: 12px; display: block; }
 
+/* Article preview inside the editor. Bordered and inset so it reads as a
+   rendering of the text above rather than more of the form, and height-capped
+   because a seventeen-step guide would otherwise push Save off the screen. */
+.abar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+.apane {
+  margin-top: 12px; padding: 22px 26px;
+  border: 1px solid var(--line); border-radius: 18px; background: #fff;
+  max-height: 560px; overflow-y: auto;
+}
+/* The editor is a wide form; an article is not. Holding the same measure the
+   public page uses keeps line lengths here honest. */
+.apane .bpost { max-width: 720px; margin: 0 auto; }
+.apane .bpost > *:first-child { margin-top: 0; }
+@media (max-width: 640px) { .apane { padding: 16px; max-height: 420px; } }
+
 .afaq { display: grid; gap: 8px; margin-bottom: 14px; padding: 14px; background: var(--base); border-radius: 14px; }
 .afaq .btn { justify-self: start; }
 

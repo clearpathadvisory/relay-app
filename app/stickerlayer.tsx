@@ -10,12 +10,10 @@ import { Placed, STICKER_BY_ID, stickerSrc } from './stickers'
  *
  * The parent must be position:relative.
  *
- * Horizontal values are plain percentages, which CSS resolves against width.
- * Vertical position uses cqw — 1% of this layer's own inline size — because a
- * percentage in `top` would resolve against HEIGHT, and then every sticker
- * would slide the moment the owner added a link. cqw makes y a fixed offset
- * from the top edge, so content growing below it changes nothing.
- */
+ * Coordinates are pixels (see Placed). x is measured from the card's centre
+ * line, so `left: 50%` plus a pixel offset; y is a plain pixel offset from the
+ * top. Nothing here reads the card's width or height, which is the point —
+ * neither a longer page nor a narrower screen can move a sticker. */
 export function StickerLayer({ stickers }: { stickers: Placed[] }) {
   if (!stickers.length) return null
   return (
@@ -23,8 +21,6 @@ export function StickerLayer({ stickers }: { stickers: Placed[] }) {
       aria-hidden="true"
       style={{
         position: 'absolute', inset: 0, overflow: 'hidden',
-        // Establishes the containment context that the cqw units below read.
-        containerType: 'inline-size',
         // Stickers are decoration. Letting them eat clicks would put invisible
         // dead zones over the links, which is the entire point of the page.
         pointerEvents: 'none',
@@ -43,9 +39,9 @@ export function StickerLayer({ stickers }: { stickers: Placed[] }) {
             decoding="async"
             style={{
               position: 'absolute',
-              left: st.x * 100 + '%',
-              top: st.y * 100 + 'cqw',
-              width: st.w * 100 + '%',
+              left: `calc(50% + ${st.x}px)`,
+              top: st.y + 'px',
+              width: st.w + 'px',
               height: 'auto',
               // Translating by half its own size means x/y describe the
               // sticker's centre, so rotation spins in place instead of

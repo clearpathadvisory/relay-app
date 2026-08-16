@@ -897,15 +897,15 @@ export default function Dashboard() {
     // there, so adding several in a row does not stack them into one lump the
     // person then has to prise apart.
     //
-    // y is in card WIDTHS from the top, not a fraction of height, so these
-    // numbers are larger than they look: 0.5 is roughly level with the first
-    // link on a typical page, which is where a new sticker wants to appear.
+    // Pixels against the public card. Measured there: the name sits at 112px
+    // and the bio at 153px, so 250 drops a new sticker just above the first
+    // link — visible without landing on the person's own face.
     const n = viewStickers.length
     const next = viewStickers.concat([{
       s: id,
-      x: 0.5 + ((n % 3) - 1) * 0.16,
-      y: 0.5 + Math.floor(n / 3) * 0.16,
-      w: 0.2,
+      x: ((n % 3) - 1) * 90,
+      y: 250 + Math.floor(n / 3) * 80,
+      w: 104,
       r: [0, -8, 7, -14, 12][n % 5],
     }])
     writeStickers(next)

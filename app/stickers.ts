@@ -107,25 +107,39 @@ export function stickerSrc(id: string) {
 }
 
 /**
- * One placed sticker. x and w are fractions of the card's WIDTH. So is y —
- * measured downward from the top edge, NOT as a fraction of the card's
- * height.
+ * One placed sticker, in PIXELS against the public page's own layout.
  *
- * That distinction is the whole point. A CSS percentage in `top` resolves
- * against the parent's height, so while y meant 'fraction of height' a
- * sticker moved every time the owner added a link: same stored value, taller
- * card, different place on the page. Anchoring to width makes y a fixed
- * offset from the top that no amount of content below can disturb.
+ *   x  pixels left (negative) or right of the card's vertical centre line
+ *   y  pixels from the top edge of the card, to the sticker's centre
+ *   w  pixels wide
  *
- * A page is taller than it is wide, so y legitimately exceeds 1 — a sticker
- * two card-widths down the page has y = 2.
+ * Pixels rather than fractions, because the public page keeps every type size
+ * and every avatar identical on a phone and on a desktop — only the card's
+ * WIDTH changes, from 520px down to whatever the screen allows. Measured:
+ * the name sits 112px from the top of the card at both sizes.
+ *
+ * So a fraction of width drifts against the content on a narrow screen, and a
+ * fraction of height drifts every time a link is added. An absolute offset
+ * from the top, taken from a centre line the content is centred on too, is the
+ * only anchor that holds still in both directions.
+ *
+ * The dashboard preview is a smaller, separately tuned layout rather than a
+ * scaled copy — its name sits at 128px, not 112 — so a sticker lands close
+ * there but not to the pixel. The public page is the one that must be exact.
  */
 export type Placed = { s: string; x: number; y: number; w: number; r: number }
 
 export const MAX_STICKERS = 30
 
-/** Furthest a sticker may sit below the top edge, in card widths. */
-export const Y_MAX = 12
+/** Furthest below the top edge a sticker may sit, in pixels. */
+export const Y_MAX = 6000
+
+/** Half the widest card (520), so x reaches either edge and no further. */
+export const X_MAX = 300
+
+/** Size bounds in pixels: below MIN it is a speck, above MAX a background. */
+export const W_MIN = 24
+export const W_MAX = 460
 
 /**
  * Accepts whatever came back from the database and returns only entries that
@@ -144,9 +158,9 @@ export function safeStickers(raw: any): Placed[] {
     if (!isFinite(x) || !isFinite(y) || !isFinite(w)) continue
     out.push({
       s,
-      x: Math.min(1.2, Math.max(-0.2, x)),
-      y: Math.min(Y_MAX, Math.max(-0.2, y)),
-      w: Math.min(0.9, Math.max(0.04, w)),
+      x: Math.min(X_MAX, Math.max(-X_MAX, x)),
+      y: Math.min(Y_MAX, Math.max(-40, y)),
+      w: Math.min(W_MAX, Math.max(W_MIN, w)),
       r: isFinite(r) ? Math.min(180, Math.max(-180, r)) : 0,
     })
     if (out.length >= MAX_STICKERS) break

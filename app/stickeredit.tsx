@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Placed, STICKER_BY_ID, stickerSrc, MAX_STICKERS, Y_MAX } from './stickers'
+import { Placed, STICKER_BY_ID, stickerSrc, MAX_STICKERS, X_MAX, Y_MAX, W_MIN, W_MAX } from './stickers'
 
 /**
  * The draggable sticker layer shown inside the dashboard preview.
@@ -80,11 +80,9 @@ export function StickerEdit({
     setSelected(i)
     drag.current = {
       i, mode, pointerId: e.pointerId,
-      startX: (e.clientX - r.left) / r.width,
-      // Divided by WIDTH, matching Placed.y. Using height here would make a
-      // drag feel right on the day and land wrong the next time a link was
-      // added, because the renderer no longer reads height at all.
-      startY: (e.clientY - r.top) / r.width,
+      // Raw pixels, matching Placed. x is relative to the card's centre line.
+      startX: e.clientX - (r.left + r.width / 2),
+      startY: e.clientY - r.top,
       orig: { ...stickers[i] },
       w: r.width, h: r.height,
     }
@@ -96,23 +94,23 @@ export function StickerEdit({
     if (!d || d.pointerId !== e.pointerId) return
     const r = rect()
     if (!r) return
-    const px = (e.clientX - r.left) / r.width
-    const py = (e.clientY - r.top) / r.width
+    const px = e.clientX - (r.left + r.width / 2)
+    const py = e.clientY - r.top
     d.moved = true
     const next = stickers.slice()
 
     if (d.mode === 'move') {
-      // Kept fully inside the card. x is the sticker's CENTRE, so the limit is
-      // half its own width in from each edge — otherwise it slides under the
-      // phone bezel and looks broken rather than playful. The vertical bound
-      // is the card's height expressed in width units, which is exact now
-      // that both axes share a reference; it used to be a guessed inset.
+      // Kept fully inside the card. x and y are the sticker's CENTRE, so the
+      // limit is half its own width in from each edge — otherwise it slides
+      // under the phone bezel and looks broken rather than playful. Both
+      // bounds come from the card's real measured size, in the same pixels
+      // the value is stored in.
       const half = d.orig.w / 2
-      const tall = r.height / r.width
+      const xLim = Math.min(X_MAX, r.width / 2 - half)
       next[d.i] = {
         ...d.orig,
-        x: clamp(d.orig.x + (px - d.startX), half, 1 - half),
-        y: clamp(d.orig.y + (py - d.startY), half, Math.min(Y_MAX, tall - half)),
+        x: clamp(d.orig.x + (px - d.startX), -xLim, xLim),
+        y: clamp(d.orig.y + (py - d.startY), half, Math.min(Y_MAX, r.height - half)),
       }
     } else if (d.mode === 'size') {
       // Distance from the sticker's centre to the pointer drives the width, so
@@ -120,11 +118,12 @@ export function StickerEdit({
       const dx = px - d.orig.x
       const dy = py - d.orig.y
       const dist = Math.sqrt(dx * dx + dy * dy)
-      const w = clamp(dist * 1.9, 0.06, 0.85)
+      const w = clamp(dist * 1.9, W_MIN, Math.min(W_MAX, r.width))
       // Growing a sticker near an edge would push it past the boundary that the
       // drag path enforces, so nudge the centre back in as it grows.
       const half = w / 2
-      next[d.i] = { ...d.orig, w, x: clamp(d.orig.x, half, 1 - half) }
+      const xLim = Math.min(X_MAX, r.width / 2 - half)
+      next[d.i] = { ...d.orig, w, x: clamp(d.orig.x, -xLim, xLim) }
     }
     setStickers(next)
   }
@@ -153,7 +152,6 @@ export function StickerEdit({
         // sticker, the preview still scrolls and its links still respond
         // everywhere a sticker is not.
         pointerEvents: 'none',
-        containerType: 'inline-size',
       }}
     >
       {stickers.map((st, i) => {
@@ -167,9 +165,9 @@ export function StickerEdit({
             onPointerDown={(e) => start(e, i, 'move')}
             style={{
               position: 'absolute',
-              left: st.x * 100 + '%',
-              top: st.y * 100 + 'cqw',
-              width: st.w * 100 + '%',
+              left: `calc(50% + ${st.x}px)`,
+              top: st.y + 'px',
+              width: st.w + 'px',
               transform: `translate(-50%, -50%) rotate(${st.r}deg)`,
               cursor: 'grab', touchAction: 'none', pointerEvents: 'auto',
             }}

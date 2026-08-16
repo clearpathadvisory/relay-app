@@ -185,7 +185,7 @@ export default function AdminBlog() {
   // Two different problems used to look identical here, which cost an evening.
   // Not signed in is a thing the visitor can fix; signed in as the wrong
   // account is a thing they need told. Neither reveals that the page exists to
-  // anyone who was not already signed in to Relay.
+  // anyone who was not already signed in to RelayMe.
   if (!allowed) {
     return (
       <main style={{ background: 'var(--base)', minHeight: '100vh' }}>
@@ -229,7 +229,7 @@ export default function AdminBlog() {
     <main style={{ background: 'var(--base)', minHeight: '100vh' }}>
       <div className="wrap" style={{ paddingTop: 24, paddingBottom: 80 }}>
         <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 30 }}>
-          <a href="/dashboard" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>Relay</a>
+          <a href="/dashboard" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>RelayMe</a>
           <div style={{ display: 'flex', gap: 10 }}>
             <a href="/admin/stats" className="btn small ghost">Stats</a>
             <a href="/blog" className="btn small ghost">View blog</a>

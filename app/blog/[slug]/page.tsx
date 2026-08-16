@@ -64,7 +64,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
       datePublished: post.published_at,
       dateModified: post.updated_at,
       author: { '@type': 'Person', name: post.author_name },
-      publisher: { '@type': 'Organization', name: 'Relay', url: BLOG_BASE },
+      publisher: { '@type': 'Organization', name: 'RelayMe', url: BLOG_BASE },
       mainEntityOfPage: { '@type': 'WebPage', '@id': url },
       articleSection: post.category,
       wordCount: (post.body_md || '').split(/\s+/).filter(Boolean).length,
@@ -101,7 +101,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
       />
       <div className="wrap" style={{ paddingTop: 24, paddingBottom: 70 }}>
         <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 34 }}>
-          <a href="/" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>Relay</a>
+          <a href="/" style={{ fontSize: 23, fontWeight: 800, letterSpacing: '-0.03em' }}>RelayMe</a>
           <span style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <a href="/blog" style={{ fontWeight: 600, fontSize: 15 }}>Blog</a>
             <a href="/login" className="btn small">Sign in</a>
@@ -152,7 +152,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
           <div className="legalend">
             <Blob size={92} />
             <p>
-              Relay is a link page with everything you sell on it. Unlimited links on the free plan,
+              RelayMe is a link page with everything you sell on it. Unlimited links on the free plan,
               no card, no time limit.
               <br />
               <a href="/login" className="btn" style={{ marginTop: 14, display: 'inline-block' }}>Grab your name &rarr;</a>
@@ -182,7 +182,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
           <a href="/">Home</a>
           <a href="/vs-linktree">Compare</a>
           <a href="/privacy">Privacy</a>
-          <span>Relay is made by ClearPath Advisory.</span>
+          <span>RelayMe is made by ClearPath Advisory.</span>
         </footer>
       </div>
     </main>

@@ -1343,6 +1343,13 @@ export default function Dashboard() {
 
                     {addKind === 'link' ? (
                       <>
+                        <p className="bsub" style={{ margin: '0 0 10px' }}>
+                          Anything with an address: a shop, a booking page, a newsletter, a
+                          profile.{' '}
+                          {isPro
+                            ? 'YouTube, Spotify and SoundCloud can play on your page instead of sending people away.'
+                            : 'On Pro, YouTube, Spotify and SoundCloud play on your page instead of sending people away.'}
+                        </p>
                         <input className="field" placeholder="https://..." value={url}
                           onChange={(e) => setUrl(e.target.value)}
                           onKeyDown={(e) => { if (e.key === 'Enter' && !adding) addLink() }} />

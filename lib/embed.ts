@@ -147,13 +147,14 @@ export function bandcampPlayer(html: string): { src: string; height: number } | 
   const opts = [
     'EmbeddedPlayer', id,
     'size=large', 'bgcol=ffffff', 'linkcol=7756e2',
-    track ? 'minimal=true' : 'artwork=small',
+    'artwork=small',
     'tracklist=' + (track ? 'false' : 'true'),
     'transparent=true',
   ]
   return {
     src: 'https://bandcamp.com/' + opts.join('/') + '/',
-    // A single track is one row; an album carries its tracklist.
+    // Bandcamp's own published heights for size=large with small artwork.
+    // A track is a single row; an album adds its tracklist underneath.
     height: track ? 120 : 470,
   }
 }

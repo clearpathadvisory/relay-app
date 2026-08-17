@@ -781,6 +781,46 @@ export default function Dashboard() {
     }
   }
 
+  /**
+   * Is this file actually animated?
+   *
+   * The extension is not enough: most .webp files are stills, and a still WebP
+   * put down the animated path would lose the shrink that keeps avatars light.
+   * So the bytes are read.
+   *
+   * GIF — look for a second Graphic Control Extension block (0x21 0xF9). One
+   * means a single frame; two or more means it animates.
+   * WebP — a RIFF container, animated only if it carries an ANMF chunk.
+   */
+  async function isAnimated(file: File): Promise<boolean> {
+    const buf = new Uint8Array(await file.slice(0, 262144).arrayBuffer())
+    const ascii = (i: number, s: string) =>
+      s.split('').every((c, k) => buf[i + k] === c.charCodeAt(0))
+
+    if (file.type === 'image/webp' || ascii(8, 'WEBP')) {
+      for (let i = 12; i < buf.length - 4; i++) if (ascii(i, 'ANMF')) return true
+      return false
+    }
+    if (file.type === 'image/gif' || ascii(0, 'GIF8')) {
+      let count = 0
+      for (let i = 0; i < buf.length - 1; i++) {
+        if (buf[i] === 0x21 && buf[i + 1] === 0xF9 && ++count > 1) return true
+      }
+      return false
+    }
+    return false
+  }
+
+  /** The first frame, as a still. Browsers paint frame one of an animation to
+   *  a canvas, so this needs no decoder — it is the same path a still takes. */
+  async function firstFrame(file: File): Promise<Blob | null> {
+    try {
+      return await shrink(file, 512, true) as Blob
+    } catch (e) {
+      return null
+    }
+  }
+
   async function upload(bucket: string, file: File, cap: number, field: string) {
     if (!page || !userId) return
     if (file.size > cap) { setErr('That image is too large. Keep it under ' + Math.round(cap / 1048576) + 'MB.'); return }
@@ -788,13 +828,50 @@ export default function Dashboard() {
     bucket === 'avatars' ? setUploading(true) : setBgUploading(true)
 
     const isAvatar = bucket === 'avatars'
-    const body = await shrink(file, isAvatar ? 512 : 1800, isAvatar)
+
+    // shrink() draws onto a canvas and re-encodes as JPEG. A canvas holds one
+    // frame, so putting an animation through it silently returns a still —
+    // which is exactly what used to happen to every GIF anyone uploaded.
+    const animated = isAvatar && await isAnimated(file)
+    if (animated && !isPro) {
+      setErr('An animated avatar is part of Pro. A still image works on any plan.')
+      setUploading(false)
+      return
+    }
+    if (animated && file.size > 1048576) {
+      // Tighter than the 2MB the bucket allows. A still avatar leaves here as
+      // a ~30KB JPEG because shrink() made it one; an animation is uploaded
+      // whole and is the first heavy thing on the page. For reference, the
+      // mascot loops are 22-77KB as WebP — a megabyte is generous, not mean.
+      setErr('Animations need to be under 1MB. WebP is usually a fifth the size of the same GIF.')
+      setUploading(false)
+      return
+    }
+
+    const body = animated ? file : await shrink(file, isAvatar ? 512 : 1800, isAvatar)
     const ext = body === file ? (file.name.split('.').pop() || 'png').toLowerCase() : 'jpg'
     const path = userId + '/' + field + '-' + Date.now() + '.' + ext
     const { error: e } = await supabase.storage.from(bucket).upload(path, body, { upsert: true, contentType: body.type || undefined })
     if (e) { setErr(e.message) } else {
       const { data } = supabase.storage.from(bucket).getPublicUrl(path)
       const f: any = {}; f[field] = data.publicUrl
+
+      if (isAvatar) {
+        // A still to fall back to for anyone who has asked their system for
+        // reduced motion. Cleared on a still upload, or an old poster would
+        // outlive the animation it belonged to.
+        f.avatar_poster_url = null
+        if (animated) {
+          const poster = await firstFrame(file)
+          if (poster) {
+            const pp = userId + '/avatar-poster-' + Date.now() + '.jpg'
+            const { error: pe } = await supabase.storage.from('avatars')
+              .upload(pp, poster, { upsert: true, contentType: 'image/jpeg' })
+            if (!pe) f.avatar_poster_url = supabase.storage.from('avatars').getPublicUrl(pp).data.publicUrl
+          }
+        }
+      }
+
       if (isPro || field === 'avatar_url') await patch(f)
       else preview(f)
     }
@@ -1049,6 +1126,11 @@ export default function Dashboard() {
                       <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => { const f = e.target.files && e.target.files[0]; if (f) upload('avatars', f, 2097152, 'avatar_url') }} />
                     </label>
                     {page.avatar_url && <button className="btn small ghost" onClick={() => patch({ avatar_url: null })}>Remove</button>}
+                    <p className="bsub" style={{ width: '100%', margin: '10px 0 0' }}>
+                      {isPro
+                        ? 'A GIF or animated WebP works here too, under 1MB. Anyone who has asked their device for less motion sees a still frame instead.'
+                        : 'Animated avatars are part of Pro.'}
+                    </p>
                   </div>
                   <label className="label">Display name</label>
                   <input className="field" value={name} onChange={(e) => setName(e.target.value)} maxLength={40} />

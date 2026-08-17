@@ -145,7 +145,17 @@ export default async function PublicPage({ params }: { params: { username: strin
           <StickerLayer stickers={safeStickers((page as any).stickers)} />
           <ShareButton username={page.username} name={page.display_name || page.username} color={L.nameColor} />
         <div style={av}>
-          {hasAvatar ? <img src={page.avatar_url as string} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}
+          {hasAvatar ? (
+                /* A <picture> with a media query, so the still is chosen by the
+                   browser before a byte of the animation is fetched. Doing this
+                   in JavaScript would download both and then hide one. */
+                <picture>
+                  {page.avatar_poster_url ? (
+                    <source media="(prefers-reduced-motion: reduce)" srcSet={page.avatar_poster_url} />
+                  ) : null}
+                  <img src={page.avatar_url as string} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </picture>
+              ) : initials}
         </div>
 
         <h1 style={{ textAlign: 'center', fontSize: 23, margin: 0, color: L.nameColor, ...wrap }}>

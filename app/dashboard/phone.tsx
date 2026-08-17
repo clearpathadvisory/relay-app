@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { Theme, Link, Page, Social, resolveLook } from '../../lib/supabase'
 import { scheduleState } from '../../lib/schedule'
-import { detectEmbed } from '../../lib/embed'
+import { detectEmbed, embedName, EmbedKind } from '../../lib/embed'
 import { SocialIcon } from '../socialicons'
 import { BlobMark } from '../blobmark'
 import { Placed, REF_CARD_W } from '../stickers'
@@ -30,6 +30,17 @@ import { StickerEdit } from '../stickeredit'
  */
 
 // Public geometry: a 520px column inside 20px of card padding.
+// The dot each service puts on its own play row. Kept here rather than
+// imported from the public component because that one is a client component
+// with its own state; only the colours are wanted.
+const MARK_BG: Record<string, string> = {
+  youtube: '#FF0000',
+  spotify: '#1DB954',
+  soundcloud: '#FF5500',
+  applemusic: '#FA2D48',
+  bandcamp: '#1DA0C3',
+}
+
 const PAGE_PAD = 20
 const PAGE_W = REF_CARD_W + PAGE_PAD * 2      // 560
 const FRAME_H = 672                           // 690 less the 9px bezel each side
@@ -200,25 +211,44 @@ export function Phone({
                   color: L.bioColor, lineHeight: 1.4, ...wrap,
                 }}>{l.title}</h2>
               ) : (l.embed_kind && (detectEmbed(l.url) || l.embed_src)) ? (
-                // A stand-in for the player. Loading real iframes into a
-                // preview that re-renders on every keystroke would be slow and
-                // would start playing things at people; this keeps the height
-                // an embed occupies so the rows below sit where they will.
-                <div key={l.id} style={{
-                  borderRadius: L.buttonRadius, background: L.buttonBg,
-                  border: L.buttonBorder, boxShadow: L.buttonShadow, overflow: 'hidden',
-                }}>
-                  <div style={{
-                    aspectRatio: '16 / 9', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: L.buttonText, opacity: .55,
-                  }}>
-                    <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true">
-                      <circle cx="12" cy="12" r="10.2" fill="none" stroke="currentColor" strokeWidth="1.7" />
-                      <path d="M10 8.4 16 12l-6 3.6Z" fill="currentColor" />
-                    </svg>
-                  </div>
-                  <p style={{ margin: 0, padding: '12px 16px 14px', fontSize: 14, fontWeight: 600, textAlign: 'center', color: L.buttonText, ...wrap }}>{l.title}</p>
-                </div>
+                // The play ROW, which is what a visitor actually sees. The
+                // player itself only exists after they tap it, so drawing a
+                // 16:9 block here showed a page that never happens — and it
+                // pushed everything below it down by a couple of hundred
+                // pixels that are not there on the real page.
+                (() => {
+                  const kind = (detectEmbed(l.url)?.kind || l.embed_kind) as EmbedKind
+                  return (
+                    <div key={l.id} style={{
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      minHeight: 56, padding: '14px 16px', fontSize: 15,
+                      borderRadius: L.buttonRadius, background: L.buttonBg,
+                      color: L.buttonText, border: L.buttonBorder, boxShadow: L.buttonShadow,
+                    }}>
+                      <span style={{
+                        flexShrink: 0, width: 30, height: 30, borderRadius: 9,
+                        background: MARK_BG[kind] || '#7C5CE6', display: 'flex',
+                        alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                          <path d="M9.4 8.2 16.2 12 9.4 15.8Z" fill="#FFFFFF" />
+                        </svg>
+                      </span>
+                      <span style={{
+                        display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0,
+                        flex: 1, alignItems: 'center', textAlign: 'center',
+                      }}>
+                        <span style={{ fontWeight: 600, lineHeight: 1.35, ...wrap }}>{l.title}</span>
+                        <span style={{ fontSize: 12, opacity: .7 }}>Plays here · {embedName(kind)}</span>
+                      </span>
+                      <span style={{
+                        flexShrink: 0, width: 30, height: 30, borderRadius: '50%',
+                        background: L.accentBg, color: L.accentText, display: 'flex',
+                        alignItems: 'center', justifyContent: 'center', fontSize: 11, paddingLeft: 2,
+                      }}>▶</span>
+                    </div>
+                  )
+                })()
               ) : (
                 <div key={l.id} className={l.is_primary ? 'jiggle' : undefined} style={{
                   display: 'flex', alignItems: 'center', gap: 12, minHeight: 56, padding: '16px 18px',

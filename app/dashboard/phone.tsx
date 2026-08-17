@@ -255,8 +255,12 @@ export function Phone({
                       background: L.accentBg, color: L.accentText, whiteSpace: 'nowrap',
                     }}>{page.capture_button || 'Sign me up'}</span>
                   </div>
-                  <p style={{ margin: '12px 0 0', fontSize: 11.5, lineHeight: 1.5, opacity: .72, ...wrap }}>
-                    {page.capture_note ? page.capture_note + ' ' : ''}
+                  {page.capture_note ? (
+                    <p style={{ margin: '12px 0 0', fontSize: 13, lineHeight: 1.5, opacity: .92, ...wrap }}>
+                      {page.capture_note}
+                    </p>
+                  ) : null}
+                  <p style={{ margin: '8px 0 0', fontSize: 11.5, lineHeight: 1.5, opacity: .72, ...wrap }}>
                     We will email you once to check it is really you.
                   </p>
                 </div>

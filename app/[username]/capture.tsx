@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-// The one thing on a Relay page that asks a visitor for something. It says who
+// The one thing on a RelayMe page that asks a visitor for something. It says who
 // gets the address, and it says a confirmation is coming — because an address
 // entered and never confirmed is not consent, and a person who does not know a
 // confirmation is due will assume it failed.
@@ -79,10 +79,11 @@ export function Capture({
 
       {state === 'error' && <p className="caperr">{msg}</p>}
 
+      {note ? <p className="capown">{note}</p> : null}
+
       <p className="capnote">
-        {note ? note + ' ' : ''}
         We will email you once to check it is really you. Your address goes to the owner of this
-        page, not to Relay, and you can leave from any message they send.
+        page, not to RelayMe, and you can leave from any message they send.
       </p>
     </div>
   )

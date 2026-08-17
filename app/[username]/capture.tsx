@@ -82,8 +82,12 @@ export function Capture({
       {note ? <p className="capown">{note}</p> : null}
 
       <p className="capnote">
-        We will email you once to check it is really you. Your address goes to the owner of this
-        page, not to RelayMe, and you can leave from any message they send.
+        We will email you once to check it is really you.
+      </p>
+
+      <p className="capnote">
+        Your address goes to the owner of this page, not to RelayMe, and you can
+        leave from any message they send.
       </p>
     </div>
   )

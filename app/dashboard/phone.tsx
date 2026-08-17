@@ -263,6 +263,10 @@ export function Phone({
                   <p style={{ margin: '8px 0 0', fontSize: 11.5, lineHeight: 1.5, opacity: .72, ...wrap }}>
                     We will email you once to check it is really you.
                   </p>
+                  <p style={{ margin: '8px 0 0', fontSize: 11.5, lineHeight: 1.5, opacity: .72, ...wrap }}>
+                    Your address goes to the owner of this page, not to RelayMe, and you can
+                    leave from any message they send.
+                  </p>
                 </div>
               )}
 

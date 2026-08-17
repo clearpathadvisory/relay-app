@@ -132,7 +132,11 @@ export function EmbedCard({ link, look }: { link: Link; look: any }) {
         title={link.title || name}
         height={embed.height}
         loading="lazy"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
+        allow={
+          embed.kind === 'applemusic'
+            ? 'autoplay *; encrypted-media *; clipboard-write; picture-in-picture'
+            : 'accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture'
+        }
         referrerPolicy="strict-origin-when-cross-origin"
         sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
         style={{ border: 'none', width: '100%', display: 'block' }}

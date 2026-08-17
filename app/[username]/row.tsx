@@ -1,7 +1,7 @@
 import { Link } from '../../lib/supabase'
 import { LinkButton } from './linkbutton'
 import { EmbedCard } from './embedcard'
-import { detectEmbed } from '../../lib/embed'
+import { detectEmbed, storedEmbed } from '../../lib/embed'
 
 // Not every row on a page is a link. A heading names the group under it and a
 // divider is a rule; both reorder and hide like anything else, so they share
@@ -35,7 +35,7 @@ export function Row({ link, look }: { link: Link; look: any }) {
 
   // an embeddable link plays where it stands; if the url stopped being
   // embeddable it quietly goes back to being a button
-  if (link.embed_kind && detectEmbed(link.url)) {
+  if (link.embed_kind && (detectEmbed(link.url) || storedEmbed(link.embed_src, link.embed_height))) {
     return <EmbedCard link={link} look={look} />
   }
 

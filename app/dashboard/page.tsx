@@ -635,10 +635,18 @@ export default function Dashboard() {
     // if it can play inline, it does — a Pro account should not have to find a
     // switch to get the thing the feature is for
     const playable = detectEmbed(u)
+    // Bandcamp resolves server-side, because its player id is not in the URL.
+    // The answer is kept on the link; every other service is worked out again
+    // at render from the address alone.
+    const stored = meta.embedSrc ? { src: meta.embedSrc as string, height: meta.embedHeight as number } : null
+    const canPlay = !!(playable || stored)
+
     const { error } = await supabase.from('links').insert({
       page_id: page.id, kind: 'link', title: finalTitle, url: u, position: links.length,
       favicon_url: meta.favicon || null, site_title: null,
-      embed_kind: isPro && playable ? playable.kind : null,
+      embed_kind: isPro && canPlay ? (playable ? playable.kind : 'bandcamp') : null,
+      embed_src: stored ? stored.src : null,
+      embed_height: stored ? stored.height : null,
     })
     setAdding(false)
     if (error) { setErr(error.message); return }
@@ -1209,7 +1217,7 @@ export default function Dashboard() {
                           disabled={i === links.length - 1} onClick={() => move(i, 1)}>▼</button>
                       </div>
                       <button className="icon eyebtn" title={l.is_active ? 'Hide from your page' : 'Show on your page'} onClick={() => toggleActive(l.id)}>{l.is_active ? '◉' : '○'}</button>
-                      {l.kind === 'link' && detectEmbed(l.url) && (
+                      {l.kind === 'link' && (detectEmbed(l.url) || l.embed_src) && (
                         <button className={l.embed_kind ? 'icon on' : 'icon'}
                           title={l.embed_kind ? 'Plays on your page — tap to make it a button again' : 'Play this on your page instead of sending people away'}
                           aria-label={'Play ' + l.title + ' inline'}
@@ -1347,8 +1355,8 @@ export default function Dashboard() {
                           Anything with an address: a shop, a booking page, a newsletter, a
                           profile.{' '}
                           {isPro
-                            ? 'YouTube, Spotify, Apple Music and SoundCloud can play on your page instead of sending people away.'
-                            : 'On Pro, YouTube, Spotify, Apple Music and SoundCloud play on your page instead of sending people away.'}
+                            ? 'YouTube, Spotify, Apple Music, SoundCloud and Bandcamp can play on your page instead of sending people away.'
+                            : 'On Pro, YouTube, Spotify, Apple Music, SoundCloud and Bandcamp play on your page instead of sending people away.'}
                         </p>
                         <input className="field" placeholder="https://..." value={url}
                           onChange={(e) => setUrl(e.target.value)}

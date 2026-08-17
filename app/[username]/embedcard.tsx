@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Link } from '../../lib/supabase'
-import { detectEmbed, embedName, EmbedKind } from '../../lib/embed'
+import { detectEmbed, storedEmbed, embedName, EmbedKind } from '../../lib/embed'
 
 // Only one thing plays at a time. Each card announces when it opens and every
 // other card closes itself, which unmounts the frame and stops the sound —
@@ -19,6 +19,15 @@ function ServiceMark({ kind }: { kind: EmbedKind }) {
       <span className="embedmark" style={{ background: '#FF0000' }}>
         <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
           <path d="M9.2 8.4 L16.4 12 L9.2 15.6 Z" fill="#FFFFFF" />
+        </svg>
+      </span>
+    )
+  }
+  if (kind === 'bandcamp') {
+    return (
+      <span className="embedmark" style={{ background: '#1DA0C3' }}>
+        <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true">
+          <path d="M9.6 6.4h9.2l-4.4 11.2H5.2Z" fill="#FFFFFF" />
         </svg>
       </span>
     )
@@ -65,7 +74,8 @@ function ServiceMark({ kind }: { kind: EmbedKind }) {
 // the page's own theme, and the frame only exists once a visitor asks for it.
 export function EmbedCard({ link, look }: { link: Link; look: any }) {
   const [open, setOpen] = useState(false)
-  const embed = detectEmbed(link.url)
+  // Derived first, stored second: only Bandcamp uses the stored path.
+  const embed = detectEmbed(link.url) || storedEmbed(link.embed_src, link.embed_height)
 
   useEffect(() => {
     function onOther(e: Event) {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { lookup } from 'dns/promises'
 import { isPrivateAddress } from '../../../lib/net'
-import { oembedUrl, tidyTitle } from '../../../lib/embed'
+import { oembedUrl, tidyTitle, isBandcamp, bandcampPlayer } from '../../../lib/embed'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -163,7 +163,18 @@ export async function POST(req: NextRequest) {
     }
     if (!icon) icon = ''
 
-    return NextResponse.json({ title, favicon: icon || null })
+    // Bandcamp is the one service whose player cannot be derived from the
+    // address, so it is read out of the page while the page is in hand and
+    // stored against the link. Everything else is computed at render.
+    let embed: { src: string; height: number } | null = null
+    if (isBandcamp(current.toString())) embed = bandcampPlayer(html)
+
+    return NextResponse.json({
+      title,
+      favicon: icon || null,
+      embedSrc: embed ? embed.src : null,
+      embedHeight: embed ? embed.height : null,
+    })
   } catch (e) {
     return NextResponse.json({ title: host, favicon: null })
   }

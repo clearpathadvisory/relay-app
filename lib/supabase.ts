@@ -61,6 +61,10 @@ export type Link = {
   starts_at: string | null; ends_at: string | null
   // set on a Pro link that plays inline rather than sending the visitor away
   embed_kind: string | null
+  // Bandcamp only: its player id is not in the address, so it is looked up once
+  // when the link is added and kept here. Null for every other service, which
+  // are worked out again at render from the URL.
+  embed_src: string | null; embed_height: number | null
 }
 
 export type Social = {

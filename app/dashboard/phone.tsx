@@ -199,7 +199,7 @@ export function Phone({
                   letterSpacing: '0.08em', textTransform: 'uppercase', textAlign: 'center',
                   color: L.bioColor, lineHeight: 1.4, ...wrap,
                 }}>{l.title}</h2>
-              ) : (l.embed_kind && detectEmbed(l.url)) ? (
+              ) : (l.embed_kind && (detectEmbed(l.url) || l.embed_src)) ? (
                 // A stand-in for the player. Loading real iframes into a
                 // preview that re-renders on every keystroke would be slow and
                 // would start playing things at people; this keeps the height

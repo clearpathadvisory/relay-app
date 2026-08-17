@@ -70,6 +70,9 @@ export type Social = {
 export type Page = {
   id: string; username: string; display_name: string; bio: string
   avatar_url: string | null; theme_id: string; is_published: boolean
+  // First frame of an animated avatar, shown under prefers-reduced-motion.
+  // Null whenever the avatar is a still image.
+  avatar_poster_url: string | null
   bg_image_url: string | null; font_family: string
   custom_bg: string | null; custom_button_bg: string | null
   custom_button_text: string | null; custom_accent_bg: string | null

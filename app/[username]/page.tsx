@@ -107,9 +107,9 @@ export default async function PublicPage({ params }: { params: { username: strin
   }
 
   const av: any = {
-    width: 96, height: 96, borderRadius: '50%', overflow: 'hidden',
+    width: 116, height: 116, borderRadius: '50%', overflow: 'hidden',
     margin: '0 auto 16px', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', fontSize: 30, fontWeight: 700, flexShrink: 0,
+    justifyContent: 'center', fontSize: 36, fontWeight: 700, flexShrink: 0,
   }
   if (!hasAvatar) { av.backgroundColor = L.accentBg; av.color = L.accentText }
 
@@ -149,7 +149,7 @@ export default async function PublicPage({ params }: { params: { username: strin
                 /* A <picture> with a media query, so the still is chosen by the
                    browser before a byte of the animation is fetched. Doing this
                    in JavaScript would download both and then hide one. */
-                <picture>
+                <picture style={{ display: 'contents' }}>
                   {page.avatar_poster_url ? (
                     <source media="(prefers-reduced-motion: reduce)" srcSet={page.avatar_poster_url} />
                   ) : null}

@@ -5,7 +5,7 @@
 // that has never been interacted with still makes no request to YouTube,
 // Spotify or SoundCloud. That is the whole reason the detection lives in a pure
 // function rather than in the component.
-export type EmbedKind = 'youtube' | 'spotify' | 'soundcloud' | 'applemusic'
+export type EmbedKind = 'youtube' | 'spotify' | 'soundcloud' | 'applemusic' | 'bandcamp'
 
 export type Embed = { kind: EmbedKind; src: string; height: number }
 
@@ -93,7 +93,79 @@ export function embedName(kind: EmbedKind): string {
   if (kind === 'youtube') return 'YouTube'
   if (kind === 'spotify') return 'Spotify'
   if (kind === 'applemusic') return 'Apple Music'
+  if (kind === 'bandcamp') return 'Bandcamp'
   return 'SoundCloud'
+}
+
+/**
+ * Is this a Bandcamp release?
+ *
+ * Bandcamp is the one service here whose player cannot be worked out from the
+ * address. The public URL is artist.bandcamp.com/album/some-record; the player
+ * needs bandcamp.com/EmbeddedPlayer/album=1234567890, and that number lives
+ * only in the page's own og:video tag. So this answers "worth looking up",
+ * and the lookup happens once when the link is added.
+ */
+export function isBandcamp(raw: string | null): boolean {
+  if (!raw) return false
+  let u: URL
+  try { u = new URL(raw) } catch (e) { return false }
+  if (u.protocol !== 'https:') return false
+  const h = host(u)
+  if (h !== 'bandcamp.com' && !/\.bandcamp\.com$/.test(h)) return false
+  const first = u.pathname.split('/').filter(Boolean)[0]
+  return first === 'album' || first === 'track'
+}
+
+/**
+ * Pull the player out of a Bandcamp page.
+ *
+ * og:video carries the whole EmbeddedPlayer URL already built, which is more
+ * reliable than assembling one from an id scraped elsewhere — the tag is what
+ * Bandcamp itself hands to Facebook.
+ *
+ * The result is rewritten to the look the rest of the page uses rather than
+ * kept verbatim: Bandcamp's default player is a large dark artwork block, and
+ * a page of neat rows does not want one of those dropped into the middle.
+ */
+export function bandcampPlayer(html: string): { src: string; height: number } | null {
+  const m = html.match(/<meta[^>]+property=["']og:video["'][^>]+content=["']([^"']+)["']/i)
+     || html.match(/<meta[^>]+property=["']og:video:secure_url["'][^>]+content=["']([^"']+)["']/i)
+  if (!m) return null
+
+  let u: URL
+  try { u = new URL(m[1].replace(/&amp;/g, '&')) } catch (e) { return null }
+  if (u.protocol !== 'https:' || host(u) !== 'bandcamp.com') return null
+  if (u.pathname.indexOf('/EmbeddedPlayer') !== 0) return null
+
+  // Bandcamp encodes options as path segments, not query parameters.
+  const seg = u.pathname.split('/').filter(Boolean)
+  const id = seg.find((x) => /^album=\d+$/.test(x) || /^track=\d+$/.test(x))
+  if (!id) return null
+
+  const track = id.indexOf('track=') === 0
+  const opts = [
+    'EmbeddedPlayer', id,
+    'size=large', 'bgcol=ffffff', 'linkcol=7756e2',
+    track ? 'minimal=true' : 'artwork=small',
+    'tracklist=' + (track ? 'false' : 'true'),
+    'transparent=true',
+  ]
+  return {
+    src: 'https://bandcamp.com/' + opts.join('/') + '/',
+    // A single track is one row; an album carries its tracklist.
+    height: track ? 120 : 470,
+  }
+}
+
+/** A player that was resolved once and stored, rather than derived just now. */
+export function storedEmbed(src: string | null, height: number | null): Embed | null {
+  if (!src) return null
+  try {
+    const u = new URL(src)
+    if (u.protocol !== 'https:' || host(u) !== 'bandcamp.com') return null
+  } catch (e) { return null }
+  return { kind: 'bandcamp', src, height: height && height > 40 ? height : 470 }
 }
 
 // The endpoint each service publishes for exactly this: give it a url, get the

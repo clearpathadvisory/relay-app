@@ -1127,9 +1127,7 @@ export default function Dashboard() {
                     </label>
                     {page.avatar_url && <button className="btn small ghost" onClick={() => patch({ avatar_url: null })}>Remove</button>}
                     <p className="bsub" style={{ width: '100%', margin: '10px 0 0' }}>
-                      {isPro
-                        ? 'A GIF or animated WebP works here too, under 1MB. Anyone who has asked their device for less motion sees a still frame instead.'
-                        : 'Animated avatars are part of Pro.'}
+                      {isPro ? 'GIFs work here too.' : 'GIFs work here on Pro.'}
                     </p>
                   </div>
                   <label className="label">Display name</label>

@@ -77,7 +77,9 @@ export default function Redeem() {
   })
 
   return (
-    <main className="legal" style={{ maxWidth: 560 }}>
+    <main style={{ background: 'var(--base)', minHeight: '100vh' }}>
+      <div className="wrap" style={{ paddingTop: 48, paddingBottom: 80 }}>
+        <div className="legal" style={{ maxWidth: 560 }}>
       {done ? (
         <>
           <h1>You are on Pro.</h1>
@@ -141,6 +143,8 @@ export default function Redeem() {
           </p>
         </>
       )}
+        </div>
+      </div>
     </main>
   )
 }

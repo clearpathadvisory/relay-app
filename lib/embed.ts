@@ -5,7 +5,7 @@
 // that has never been interacted with still makes no request to YouTube,
 // Spotify or SoundCloud. That is the whole reason the detection lives in a pure
 // function rather than in the component.
-export type EmbedKind = 'youtube' | 'spotify' | 'soundcloud'
+export type EmbedKind = 'youtube' | 'spotify' | 'soundcloud' | 'applemusic'
 
 export type Embed = { kind: EmbedKind; src: string; height: number }
 
@@ -54,6 +54,30 @@ export function detectEmbed(raw: string | null): Embed | null {
     }
   }
 
+  // Apple Music publishes its player on a parallel host with the same path, so
+  // the whole transform is a hostname swap. The query string carries with it:
+  // ?i=<id> is what distinguishes one song inside an album from the album, and
+  // dropping it would quietly play the wrong thing.
+  if (h === 'music.apple.com') {
+    const parts = u.pathname.split('/').filter(Boolean)
+    // /<storefront>/<type>/<slug>/<id>
+    const store = parts[0]
+    const type = parts[1]
+    const allowed = ['album', 'playlist', 'song', 'artist', 'music-video']
+    const id = parts[3]
+    const idOk = !!id && (/^\d{3,}$/.test(id) || /^pl\.[A-Za-z0-9-]{4,}$/.test(id))
+    if (store && /^[a-z]{2}$/.test(store) && type && allowed.indexOf(type) >= 0 && idOk) {
+      const single = type === 'song' || type === 'music-video' || !!u.searchParams.get('i')
+      return {
+        kind: 'applemusic',
+        src: 'https://embed.music.apple.com' + u.pathname + u.search,
+        // Apple's own guidance: 175 for a single track, 450 for a list. An
+        // album at 175 shows one row and hides the rest behind a scrollbar.
+        height: single ? 175 : 450,
+      }
+    }
+  }
+
   if (h === 'soundcloud.com' && u.pathname.split('/').filter(Boolean).length >= 2) {
     return {
       kind: 'soundcloud',
@@ -68,6 +92,7 @@ export function detectEmbed(raw: string | null): Embed | null {
 export function embedName(kind: EmbedKind): string {
   if (kind === 'youtube') return 'YouTube'
   if (kind === 'spotify') return 'Spotify'
+  if (kind === 'applemusic') return 'Apple Music'
   return 'SoundCloud'
 }
 
@@ -80,6 +105,10 @@ export function oembedUrl(raw: string): string | null {
   const target = encodeURIComponent(raw)
   if (e.kind === 'youtube') return 'https://www.youtube.com/oembed?format=json&url=' + target
   if (e.kind === 'spotify') return 'https://open.spotify.com/oembed?url=' + target
+  // Apple publishes no oEmbed endpoint. Returning null sends the lookup down
+  // the ordinary HTML path, which reads og:title — and tidyTitle already
+  // strips the "- Apple Music" tail from it.
+  if (e.kind === 'applemusic') return null
   return 'https://soundcloud.com/oembed?format=json&url=' + target
 }
 

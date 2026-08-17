@@ -1347,8 +1347,8 @@ export default function Dashboard() {
                           Anything with an address: a shop, a booking page, a newsletter, a
                           profile.{' '}
                           {isPro
-                            ? 'YouTube, Spotify and SoundCloud can play on your page instead of sending people away.'
-                            : 'On Pro, YouTube, Spotify and SoundCloud play on your page instead of sending people away.'}
+                            ? 'YouTube, Spotify, Apple Music and SoundCloud can play on your page instead of sending people away.'
+                            : 'On Pro, YouTube, Spotify, Apple Music and SoundCloud play on your page instead of sending people away.'}
                         </p>
                         <input className="field" placeholder="https://..." value={url}
                           onChange={(e) => setUrl(e.target.value)}

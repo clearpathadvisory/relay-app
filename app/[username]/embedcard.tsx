@@ -23,6 +23,18 @@ function ServiceMark({ kind }: { kind: EmbedKind }) {
       </span>
     )
   }
+  if (kind === 'applemusic') {
+    return (
+      <span className="embedmark" style={{ background: '#FA2D48' }}>
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M16.5 5.4 9.4 7v7.6" fill="none" stroke="#FFFFFF" strokeWidth="1.9"
+                strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="7.6" cy="15.3" r="2.2" fill="#FFFFFF" />
+          <circle cx="14.7" cy="13.7" r="2.2" fill="#FFFFFF" />
+        </svg>
+      </span>
+    )
+  }
   if (kind === 'spotify') {
     return (
       <span className="embedmark" style={{ background: '#1DB954' }}>

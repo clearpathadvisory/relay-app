@@ -162,7 +162,15 @@ export default async function PublicPage({ params }: { params: { username: strin
           {page.display_name || page.username}
         </h1>
         {page.bio && (
-          <p style={{ textAlign: 'center', fontSize: 15, margin: '10px 0 0', color: L.bioColor, lineHeight: 1.55, whiteSpace: 'pre-wrap', ...wrap }}>{page.bio}</p>
+          // Left-aligned, but the block stays the same width as before and is
+          // still centred within the card, so both margins match and the text
+          // sits inside a tidy column instead of a ragged diamond.
+          //
+          // Deliberately NOT narrower than the card: the wrapping points are
+          // unchanged, so the bio occupies exactly the height it did before.
+          // Anything that changes the height here moves every sticker on every
+          // existing page, because sticker y is pixels from the top of the card.
+          <p style={{ textAlign: 'left', fontSize: 15, margin: '10px 0 0', color: L.bioColor, lineHeight: 1.55, whiteSpace: 'pre-wrap', ...wrap }}>{page.bio}</p>
         )}
 
         {socials.length > 0 && (

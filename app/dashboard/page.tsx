@@ -641,6 +641,13 @@ export default function Dashboard() {
       meta = await r.json()
     } catch (e) {}
 
+    // A share-sheet short link (link.deezer.com, spotify.link) has no id in it,
+    // so it can never be recognised as playable. Where the lookup managed to
+    // read the real address out of that page, the real address is what gets
+    // saved — otherwise the link would sit there as a plain button forever and
+    // the owner would have no way of knowing why.
+    if (typeof meta.resolved === 'string' && meta.resolved && detectEmbed(meta.resolved)) u = meta.resolved
+
     let host = u
     try { host = new URL(u).hostname.replace(/^www\./, '') } catch (e) {}
     const finalTitle = title.trim() || meta.title || host

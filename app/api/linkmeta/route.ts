@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { lookup } from 'dns/promises'
 import { isPrivateAddress } from '../../../lib/net'
-import { oembedUrl, tidyTitle, isBandcamp, bandcampPlayer } from '../../../lib/embed'
+import { oembedUrl, tidyTitle, isBandcamp, bandcampPlayer, detectEmbed, isShortLink, resolveShortLink } from '../../../lib/embed'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -169,9 +169,25 @@ export async function POST(req: NextRequest) {
     let embed: { src: string; height: number } | null = null
     if (isBandcamp(current.toString())) embed = bandcampPlayer(html)
 
+    // A share-sheet short link carries no id, so the address the owner pasted
+    // can never be recognised as playable. Where the link came from one of the
+    // known shorteners, the real address is read out of the page it served and
+    // handed back for the dashboard to store instead.
+    //
+    // Two ways it can arrive: a genuine redirect already landed us somewhere
+    // playable, or — the usual case, because these resolve in the browser
+    // rather than with a 301 — it is still in the page.
+    let resolved: string | null = null
+    if (isShortLink(u.toString()) && !detectEmbed(u.toString())) {
+      const landed = current.toString()
+      if (landed !== u.toString() && detectEmbed(landed)) resolved = landed
+      else resolved = resolveShortLink(html)
+    }
+
     return NextResponse.json({
       title,
       favicon: icon || null,
+      resolved,
       embedSrc: embed ? embed.src : null,
       embedHeight: embed ? embed.height : null,
     })

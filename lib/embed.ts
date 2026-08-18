@@ -272,6 +272,84 @@ export function bandcampPlayer(html: string): { src: string; height: number } | 
   }
 }
 
+/**
+ * The share sheets hand out a short link, not an address.
+ *
+ * `link.deezer.com/s/349b5o…` and `spotify.link/hRkBrwub9xb` carry no id at all,
+ * so detectEmbed() has nothing to read and the link lands as an ordinary button.
+ * That is what happened to the first Deezer link added after the nine-service
+ * deploy — the code was right and the address was the wrong shape.
+ *
+ * These are also not ordinary redirects. Spotify's short links resolve in the
+ * browser with JavaScript rather than a 301, and Deezer's are Firebase dynamic
+ * links, which answer a bot with a real page whose head points at the track.
+ * Following the hops is therefore not enough on its own; the page has to be read.
+ */
+const SHORT_HOSTS = [
+  'link.deezer.com', 'deezer.page.link', 'dzr.page.link',
+  'spotify.link', 'link.tospotify.com',
+  'on.soundcloud.com',
+  'tidal.link', 'listen.tidal.link',
+]
+
+export function isShortLink(raw: string | null): boolean {
+  if (!raw) return false
+  let u: URL
+  try { u = new URL(raw) } catch (e) { return false }
+  if (u.protocol !== 'https:' && u.protocol !== 'http:') return false
+  return SHORT_HOSTS.indexOf(host(u)) >= 0
+}
+
+/**
+ * Find the real address inside a short link's page.
+ *
+ * Deliberately narrow. It runs only for the hosts above, and it accepts a
+ * candidate only if detectEmbed() already recognises it — so the worst a hostile
+ * page on one of those hosts can do is point at a service we would have embedded
+ * anyway. It cannot be steered at an arbitrary origin, because an arbitrary
+ * origin is not something detectEmbed returns a player for.
+ *
+ * og:url and the canonical link come first because they are the page's own
+ * statement of what it is. The sweep afterwards is for the Firebase pages, which
+ * keep the destination in a script rather than the head.
+ */
+export function resolveShortLink(html: string): string | null {
+  const candidates: string[] = []
+
+  const head = [
+    /<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']/i,
+    /<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i,
+    /<meta[^>]+name=["']twitter:app:url:iphone["'][^>]+content=["']([^"']+)["']/i,
+  ]
+  for (const re of head) {
+    const m = html.match(re)
+    if (m && m[1]) candidates.push(m[1])
+  }
+
+  // Everything that looks like an address on a service we can play. Capped, so
+  // a very large page cannot turn this into a long scan.
+  // A Firebase page keeps the destination inside a script, as JSON, where every
+  // slash is escaped. A plain sweep finds nothing there, so the escapes are
+  // undone first. This copy is only ever read for candidates.
+  const flat = html
+    .replace(/\\u002F/gi, '/')
+    .replace(/\\u0026/gi, '&')
+    .replace(/\\\//g, '/')
+
+  // Everything that looks like an address on a service we can play. Capped, so
+  // a very large page cannot turn this into a long scan.
+  const sweep = flat.match(/https:\/\/[A-Za-z0-9.\-]+\/[^"'<>\s\\]{1,200}/g) || []
+  for (const raw of sweep.slice(0, 400)) candidates.push(raw)
+
+  for (const raw of candidates) {
+    const cleaned = raw.replace(/&amp;/g, '&').replace(/[.,)]+$/, '')
+    // A short link naming another short link is a loop, not an answer.
+    if (isShortLink(cleaned)) continue
+    if (detectEmbed(cleaned)) return cleaned
+  }
+  return null
+}
+
 /** A player that was resolved once and stored, rather than derived just now. */
 export function storedEmbed(src: string | null, height: number | null): Embed | null {
   if (!src) return null

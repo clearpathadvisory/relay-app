@@ -37,6 +37,12 @@ export default function Dashboard() {
   const [userId, setUserId] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState('')
   const [plan, setPlan] = useState('free')
+  // A comped year has no Stripe subscription behind it, so the renewal date on
+  // this page was blank for exactly the people who most needed to see it — the
+  // giveaway winners. plan_source tells the two apart: 'stripe' renews itself,
+  // 'comp' and 'admin' simply run out on plan_until.
+  const [planUntil, setPlanUntil] = useState<string | null>(null)
+  const [planSource, setPlanSource] = useState<string | null>(null)
   const [page, setPage] = useState<Page | null>(null)
   const [links, setLinks] = useState<Link[]>([])
   const [themes, setThemes] = useState<Theme[]>([])
@@ -115,6 +121,13 @@ export default function Dashboard() {
   const liveTimer = useRef<any>(null)
 
   const isPro = plan === 'pro'
+  // Pro that was given rather than bought: a code redemption or an admin grant.
+  // It ends on its own date and there is no card and no billing portal behind it.
+  const isComped = isPro && (planSource === 'comp' || planSource === 'admin')
+  // 'admin' with no date is the permanent official account; it ends on nothing.
+  const compEnds = isComped && planUntil ? new Date(planUntil) : null
+  const longDate = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  const daysLeft = compEnds ? Math.ceil((compEnds.getTime() - Date.now()) / 86400000) : null
 
   useEffect(() => {
     let cancelled = false
@@ -147,8 +160,8 @@ export default function Dashboard() {
       const { data: th } = await supabase.from('themes').select('*').order('sort_order')
       setThemes((th || []) as Theme[])
       if (uid) {
-        const { data: pr } = await supabase.from('profiles').select('plan').eq('id', uid).maybeSingle()
-        if (pr) setPlan(pr.plan)
+        const { data: pr } = await supabase.from('profiles').select('plan, plan_until, plan_source').eq('id', uid).maybeSingle()
+        if (pr) { setPlan(pr.plan); setPlanUntil(pr.plan_until || null); setPlanSource(pr.plan_source || null) }
         const { data: pg } = await supabase.from('pages').select('*').eq('owner_id', uid).maybeSingle()
         if (pg) {
           let saved: any = {}
@@ -1793,8 +1806,18 @@ export default function Dashboard() {
                     <li><span>Signed in as</span><span style={{ overflowWrap: 'anywhere' }}>{userEmail || '—'}</span></li>
                     <li><span>Your page</span><span style={{ overflowWrap: 'anywhere' }}>relayme.bio/{page.username}</span></li>
                     <li><span>Page status</span><span>{page.is_published ? 'Live' : 'Not published'}</span></li>
-                    <li><span>Plan</span><span>{isPro ? (sub && sub.price_interval === 'month' ? 'Pro, $8 a month + VAT' : 'Pro, $49.99 a year + VAT') : 'Free'}</span></li>
-                    {isPro && sub && sub.current_period_end && (
+                    <li><span>Plan</span><span>{isPro
+                      ? (isComped
+                          ? 'Pro, on us'
+                          : (sub && sub.price_interval === 'month' ? 'Pro, $8 a month + VAT' : 'Pro, $49.99 a year + VAT'))
+                      : 'Free'}</span></li>
+                    {isComped && compEnds && (
+                      <li>
+                        <span>Pro until</span>
+                        <span>{longDate(compEnds)}{daysLeft !== null && daysLeft >= 0 && daysLeft <= 30 ? ' · ' + (daysLeft === 0 ? 'today' : daysLeft === 1 ? '1 day left' : daysLeft + ' days left') : ''}</span>
+                      </li>
+                    )}
+                    {isPro && !isComped && sub && sub.current_period_end && (
                       <li>
                         <span>{sub.cancel_at_period_end ? 'Pro ends' : 'Renews'}</span>
                         <span>{new Date(sub.current_period_end).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
@@ -1804,7 +1827,16 @@ export default function Dashboard() {
                     <li><span>Total taps</span><span>{totalTaps}</span></li>
                   </ul>
 
-                  {isPro && sub && sub.cancel_at_period_end && (
+                  {isComped && compEnds && (
+                    <p className="bsub" style={{ marginTop: 16, marginBottom: 0 }}>
+                      Your Pro year was given, not billed — there is no card on file and nothing
+                      will be charged. On {longDate(compEnds)} the account goes back to Free.
+                      Your page, your links and your stats all stay exactly as they are; only the
+                      Pro styling reverts. You can subscribe any time before or after that.
+                    </p>
+                  )}
+
+                  {isPro && !isComped && sub && sub.cancel_at_period_end && (
                     <p className="bsub" style={{ marginTop: 16, marginBottom: 0 }}>
                       This subscription is set to end. Your page stays online either way — only the
                       Pro styling reverts.
@@ -1830,7 +1862,19 @@ export default function Dashboard() {
 
                 <div className="block block-plain">
                   <h2 className="bh">Billing</h2>
-                  {isPro ? (
+                  {isComped ? (
+                    <>
+                      <p className="bsub">
+                        Nothing to bill. Your Pro came from a code rather than a card, so there is
+                        no subscription to manage{compEnds ? ' and nothing to cancel before ' + longDate(compEnds) : ''}.
+                        If you want to carry on afterwards, you can start a subscription here.
+                      </p>
+                      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                        <button className="btn ghost" onClick={() => startCheckout('year')} disabled={busy}>Subscribe — $49.99 a year</button>
+                        <button className="btn ghost" onClick={() => startCheckout('month')} disabled={busy}>$8 a month</button>
+                      </div>
+                    </>
+                  ) : isPro ? (
                     <>
                       <p className="bsub">
                         Change your card, download invoices, switch between monthly and yearly, or cancel.

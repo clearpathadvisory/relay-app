@@ -1224,7 +1224,8 @@ export default function Dashboard() {
                           {l.kind === 'link'
                             ? [
                                 l.embed_kind
-                                  ? 'Plays here · ' + embedName(l.embed_kind as any)
+                                  ? (isFreeEmbed(l.embed_kind) ? 'Books here · ' : 'Plays here · ')
+                                      + embedName(l.embed_kind as any)
                                   : (isPro && detectEmbed(l.url) ? 'Can play here — tap ▶' : ''),
                                 scheduleState(l) === 'none' ? '' : scheduleLabel(l),
                                 l.click_count + ' taps',

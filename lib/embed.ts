@@ -366,6 +366,11 @@ const SHORT_HOSTS = [
   'spotify.link', 'link.tospotify.com',
   'on.soundcloud.com',
   'tidal.link', 'listen.tidal.link',
+  // Google Calendar's share dialog only offers the short form, so this is not
+  // an edge case - it is what almost everyone will paste. It answers with a
+  // plain 302 to the long /appointments/schedules/ address, which frames; the
+  // short one itself carries X-Frame-Options: SAMEORIGIN and never will.
+  'calendar.app.google',
 ]
 
 export function isShortLink(raw: string | null): boolean {

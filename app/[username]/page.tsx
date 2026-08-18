@@ -162,23 +162,22 @@ export default async function PublicPage({ params }: { params: { username: strin
           {page.display_name || page.username}
         </h1>
         {page.bio && (
-          // Left-aligned, but the block stays the same width as before and is
-          // still centred within the card, so both margins match and the text
-          // sits inside a tidy column instead of a ragged diamond.
-          //
-          // textWrap: balance evens the lines out. Without it a line can fill
-          // to within a pixel of the edge and push its last word down, leaving
-          // an obvious gap on the right and a short orphan line beneath — which
-          // reads as a broken margin even though both margins are identical.
-          // Balance keeps the SAME number of lines, so the height is unchanged.
-          //
-          // Deliberately NOT narrower than the card: the wrapping points move
-          // within the block but the line count does not, so the bio occupies
-          // the height it did before.
-          // Anything that changes the height here moves every sticker on every
-          // existing page, because sticker y is pixels from the top of the card.
-          <p style={{ textAlign: 'left', fontSize: 15, margin: '10px 0 0', color: L.bioColor,
-            lineHeight: 1.55, whiteSpace: 'pre-wrap', textWrap: 'balance', ...wrap }}>{page.bio}</p>
+          // Left-aligned in a column the same width as the buttons below, so
+          // both margins match. NOT narrower: changing the width would rewrap
+          // every bio and change its height, and sticker y is pixels from the
+          // top of the card - so every sticker on every existing page moves.
+          <p style={{
+            textAlign: 'left', fontSize: 15, margin: '10px 0 0', color: L.bioColor,
+            lineHeight: 1.55, whiteSpace: 'pre-wrap',
+            // A creator types short lines, one thought each - they do not count
+            // characters. When one line is a few words too long it wraps, and the
+            // remainder used to sit flush left where it read as a new paragraph.
+            // The hanging indent makes the overflow visibly a continuation of the
+            // line above, so a bio that is slightly too wide still reads as the
+            // list the person wrote instead of a broken one.
+            paddingLeft: 14, textIndent: -14,
+            ...wrap,
+          }}>{page.bio}</p>
         )}
 
         {socials.length > 0 && (

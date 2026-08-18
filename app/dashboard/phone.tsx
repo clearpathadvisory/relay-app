@@ -178,8 +178,18 @@ export function Phone({
               // Matches the public page. This file is a second renderer, not a
               // miniature of the first, so an alignment changed out there has
               // to be changed in here too or the preview quietly lies.
-              <p style={{ textAlign: 'left', fontSize: 15, margin: '10px 0 0', color: L.bioColor,
-                lineHeight: 1.55, whiteSpace: 'pre-wrap', textWrap: 'balance', ...wrap }}>{page.bio}</p>
+              <p style={{
+                textAlign: 'left', fontSize: 15, margin: '10px 0 0', color: L.bioColor,
+                lineHeight: 1.55, whiteSpace: 'pre-wrap',
+                // A creator types short lines, one thought each - they do not count
+                // characters. When one line is a few words too long it wraps, and the
+                // remainder used to sit flush left where it read as a new paragraph.
+                // The hanging indent makes the overflow visibly a continuation of the
+                // line above, so a bio that is slightly too wide still reads as the
+                // list the person wrote instead of a broken one.
+                paddingLeft: 14, textIndent: -14,
+                ...wrap,
+              }}>{page.bio}</p>
             )}
 
             {socials.length > 0 && (

@@ -175,7 +175,11 @@ export function Phone({
               {page.display_name || page.username}
             </h1>
             {page.bio && (
-              <p style={{ textAlign: 'center', fontSize: 15, margin: '10px 0 0', color: L.bioColor, lineHeight: 1.55, whiteSpace: 'pre-wrap', ...wrap }}>{page.bio}</p>
+              // Matches the public page. This file is a second renderer, not a
+              // miniature of the first, so an alignment changed out there has
+              // to be changed in here too or the preview quietly lies.
+              <p style={{ textAlign: 'left', fontSize: 15, margin: '10px 0 0', color: L.bioColor,
+                lineHeight: 1.55, whiteSpace: 'pre-wrap', textWrap: 'balance', ...wrap }}>{page.bio}</p>
             )}
 
             {socials.length > 0 && (

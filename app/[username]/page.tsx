@@ -166,11 +166,19 @@ export default async function PublicPage({ params }: { params: { username: strin
           // still centred within the card, so both margins match and the text
           // sits inside a tidy column instead of a ragged diamond.
           //
-          // Deliberately NOT narrower than the card: the wrapping points are
-          // unchanged, so the bio occupies exactly the height it did before.
+          // textWrap: balance evens the lines out. Without it a line can fill
+          // to within a pixel of the edge and push its last word down, leaving
+          // an obvious gap on the right and a short orphan line beneath — which
+          // reads as a broken margin even though both margins are identical.
+          // Balance keeps the SAME number of lines, so the height is unchanged.
+          //
+          // Deliberately NOT narrower than the card: the wrapping points move
+          // within the block but the line count does not, so the bio occupies
+          // the height it did before.
           // Anything that changes the height here moves every sticker on every
           // existing page, because sticker y is pixels from the top of the card.
-          <p style={{ textAlign: 'left', fontSize: 15, margin: '10px 0 0', color: L.bioColor, lineHeight: 1.55, whiteSpace: 'pre-wrap', ...wrap }}>{page.bio}</p>
+          <p style={{ textAlign: 'left', fontSize: 15, margin: '10px 0 0', color: L.bioColor,
+            lineHeight: 1.55, whiteSpace: 'pre-wrap', textWrap: 'balance', ...wrap }}>{page.bio}</p>
         )}
 
         {socials.length > 0 && (

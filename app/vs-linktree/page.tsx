@@ -30,7 +30,7 @@ const ROWS: { label: string; relay: string; rt: Tone; other: string; ot: Tone; o
   { label: 'Your own image on every link', relay: 'Included in Pro', rt: 'yes', other: 'Yes', ot: 'yes' },
   { label: 'Links on a schedule', relay: 'Included in Pro', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },
   { label: 'Email capture', relay: 'Included in Pro, confirmed opt-in', rt: 'yes', other: 'Yes', ot: 'yes', ours: true },
-  { label: 'Music and video embeds', relay: 'Nine services, in Pro, click to play', rt: 'yes', other: 'Yes', ot: 'yes', ours: true },
+  { label: 'Music and video embeds', relay: '9 services, in Pro, click to play', rt: 'yes', other: 'Yes', ot: 'yes', ours: true },
   { label: 'Booking calendar on the page', relay: 'Cal.com, Calendly, Google \u2014 free plan', rt: 'yes', other: 'Link out only', ot: 'no', ours: true },
   { label: 'Stickers on your page', relay: '81, included in Pro', rt: 'yes', other: 'Yes, free', ot: 'yes' },
   { label: 'Visitor countries', relay: 'Included in Pro', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },

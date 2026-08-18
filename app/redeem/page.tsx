@@ -98,7 +98,7 @@ export default function Redeem() {
           <h1>Claim your year of Pro</h1>
           <p>
             Enter the code from your giveaway message. One code, one account,
-            twelve months.
+            12 months.
           </p>
 
           <label className="ahint" htmlFor="code" style={{ display: 'block', marginTop: 24 }}>Your code</label>

@@ -164,7 +164,7 @@ export default function Home() {
                 <li>Background image</li>
                 <li>Your own image on every link</li>
                 <li>Links that appear and disappear on a schedule</li>
-                <li>Music and video that plays on your page &mdash; nine services, from Spotify and YouTube to TIDAL, Deezer, Mixcloud and Audiomack</li>
+                <li>Music and video that plays on your page &mdash; 9 services, from Spotify and YouTube to TIDAL, Deezer, Mixcloud and Audiomack</li>
                 <li>Collect email addresses, and take the list with you</li>
                 <li>81 stickers to decorate your page</li>
                 <li>Which countries your visitors come from</li>
@@ -199,7 +199,7 @@ export default function Home() {
                 <li>Background image</li>
                 <li>Your own image on every link</li>
                 <li>Links that appear and disappear on a schedule</li>
-                <li>Music and video that plays on your page &mdash; nine services, from Spotify and YouTube to TIDAL, Deezer, Mixcloud and Audiomack</li>
+                <li>Music and video that plays on your page &mdash; 9 services, from Spotify and YouTube to TIDAL, Deezer, Mixcloud and Audiomack</li>
                 <li>Collect email addresses, and take the list with you</li>
                 <li>81 stickers to decorate your page</li>
                 <li>Which countries your visitors come from</li>

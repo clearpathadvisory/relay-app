@@ -1531,7 +1531,7 @@ export default function Dashboard() {
                   </div>
                   {ctr !== null && (
                     <p className="bsub" style={{ margin: '16px 0 0' }}>
-                      <strong>{ctr}% of visitors tapped something</strong> in the last thirty days.
+                      <strong>{ctr}% of visitors tapped something</strong> in the last 30 days.
                       {ctr < 20 ? ' Fewer links, or a clearer main one, usually lifts that.' : ' That is a page doing its job.'}
                     </p>
                   )}
@@ -1578,7 +1578,7 @@ export default function Dashboard() {
 
                 <div className="block block-sun">
                   <h2 className="bh">Where they come from</h2>
-                  <p className="bsub">Referrers and devices, last thirty days.</p>
+                  <p className="bsub">Referrers and devices, last 30 days.</p>
                   <div className="statgrid">
                     <div className="stat"><p className="statnum">{mobile}</p><p className="statlab">on a phone</p></div>
                     <div className="stat"><p className="statnum">{desktop}</p><p className="statlab">on a computer</p></div>

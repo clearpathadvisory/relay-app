@@ -4,7 +4,7 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import { supabase, Theme, Link, Page, Social, FONTS } from '../../lib/supabase'
 import { SOCIALS, SocialIcon, socialHref, socialName } from '../socialicons'
 import { scheduleState, scheduleLabel } from '../../lib/schedule'
-import { detectEmbed, embedName } from '../../lib/embed'
+import { detectEmbed, embedName, embedColor } from '../../lib/embed'
 import { Blob, Star, Robot, Bear, Rocket, Squiggle } from '../blob'
 import { BlobMark } from '../blobmark'
 import { Phone } from './phone'
@@ -1175,7 +1175,7 @@ export default function Dashboard() {
                           onClick={() => { setConfirmLink(null); setScheduleFor(null); setProNote(null); isPro ? setThumbFor(thumbFor === l.id ? null : l.id) : setProNote({ id: l.id, text: 'Your own image on a link is part of Pro.' }) }}>
                           {l.embed_kind && !l.image_url
                             ? <span className="fav kindmark" style={{
-                                background: l.embed_kind === 'youtube' ? '#FF0000' : l.embed_kind === 'spotify' ? '#1DB954' : '#FF5500',
+                                background: embedColor(l.embed_kind),
                                 color: '#fff', fontSize: 11,
                               }} aria-hidden="true">▶</span>
                             : (l.image_url || l.favicon_url)
@@ -1355,8 +1355,8 @@ export default function Dashboard() {
                           Anything with an address: a shop, a booking page, a newsletter, a
                           profile.{' '}
                           {isPro
-                            ? 'YouTube, Spotify, Apple Music, SoundCloud and Bandcamp can play on your page instead of sending people away.'
-                            : 'On Pro, YouTube, Spotify, Apple Music, SoundCloud and Bandcamp play on your page instead of sending people away.'}
+                            ? 'Music and video — YouTube, Spotify, Apple Music, TIDAL, Deezer, SoundCloud, Bandcamp, Mixcloud, Audiomack — can play on your page instead of sending people away.'
+                            : 'On Pro, music and video from YouTube, Spotify, Apple Music, TIDAL, Deezer, SoundCloud, Bandcamp, Mixcloud and Audiomack play on your page instead of sending people away.'}
                         </p>
                         <input className="field" placeholder="https://..." value={url}
                           onChange={(e) => setUrl(e.target.value)}

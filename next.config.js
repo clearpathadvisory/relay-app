@@ -4,7 +4,7 @@ const { withSentryConfig } = require('@sentry/nextjs')
 // Content-Security-Policy. This is the browser-side counterpart to the
 // server-side checks: even if markup injection ever slipped past escaping,
 // the browser refuses to run foreign scripts, send data to foreign hosts,
-// or frame anything outside the three embed providers.
+// or frame anything outside the embed providers listed below.
 //
 // The audit that produced this walked every external reference in the app:
 //  - scripts: none external. Next.js needs its own inline bootstrap scripts,
@@ -16,7 +16,8 @@ const { withSentryConfig } = require('@sentry/nextjs')
 //    blob: is the local preview before an avatar/thumb upload finishes.
 //  - connect: the Supabase project (auth, database, storage uploads).
 //    Sentry is tunnelled through /monitoring, which is 'self'.
-//  - frames: the click-to-load embeds, nothing else.
+//  - frames: the click-to-load embeds, nothing else. One host per
+//    service, and a second for Mixcloud because its widget redirects.
 //  - fonts are self-hosted (fontsource), so font-src stays 'self'.
 // Dev only: Next's dev tooling evaluates code at runtime, so 'unsafe-eval'
 // is appended when not in production. It is never sent from Vercel.
@@ -37,6 +38,14 @@ const csp = [
     'https://w.soundcloud.com',
     'https://embed.music.apple.com',
     'https://bandcamp.com',
+    'https://embed.tidal.com',
+    'https://widget.deezer.com',
+    // Mixcloud serves the widget from www and has begun redirecting it to a
+    // dedicated host. A redirect is a fresh frame navigation, so the
+    // destination needs listing too or the player goes blank on the hop.
+    'https://www.mixcloud.com',
+    'https://player-widget.mixcloud.com',
+    'https://audiomack.com',
   ].join(' '),
   "object-src 'none'",
   "base-uri 'self'",

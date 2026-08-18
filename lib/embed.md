@@ -1,24 +1,35 @@
-# Apple Music and Bandcamp embeds
+# Embeds
 
-Five services now play on the page: YouTube, Spotify, SoundCloud, **Apple Music**
-and **Bandcamp**.
+Nine services now play on the page: YouTube, Spotify, SoundCloud, Apple Music,
+Bandcamp, and — added in this pass — **TIDAL**, **Deezer**, **Mixcloud** and
+**Audiomack**.
 
 ---
 
-## Why the two were not the same job
+## The shapes these four take
 
-**Apple Music is a hostname swap.** `music.apple.com/us/album/thriller/269572838`
-becomes `embed.music.apple.com/us/album/thriller/269572838`. Same path, same
-query — and the query matters, because `?i=` is what distinguishes one song
-inside an album from the whole album. `detectEmbed()` stays a pure function of
-the URL.
+**TIDAL renames the type on the way across.** `tidal.com/track/64978614` becomes
+`embed.tidal.com/tracks/64978614` — plural, not singular. Albums, playlists and
+videos do the same. A playlist id is a uuid rather than a number, so the id test
+branches on the type instead of being one regex. `listen.tidal.com` and the
+`/browse/` prefix the web player adds are both accepted.
 
-**Bandcamp is not.** Its player is
-`bandcamp.com/EmbeddedPlayer/album=1234567890/…`, and that number **appears
-nowhere in the public address**. It lives in the page's own `og:video` tag. So
-it has to be looked up once and kept.
+**Deezer carries an optional storefront.** `/us/track/123` and `/track/123` are
+the same record, so the first segment is skipped when it is two letters. The
+widget is asked for `light` explicitly: every theme on a page draws its own
+ground, and Deezer's dark player punches a black rectangle through a pale card.
 
-That is the whole reason this needed a migration and seven files rather than one.
+**Mixcloud takes the address, not an id.** The show's own path goes into the
+widget as a parameter. The trailing slash is not decoration — without it the
+widget returns an empty player. A profile URL on its own is deliberately not
+embeddable; it needs at least a user and a show.
+
+**Audiomack reorders the same three pieces.** Public `/artist/song/slug` becomes
+`/embed/song/artist/slug`. Older links put the type first and both shapes are
+still handed out, so both are read.
+
+None of the four needs a stored value. All are pure functions of the URL, like
+everything except Bandcamp.
 
 ---
 
@@ -26,63 +37,77 @@ That is the whole reason this needed a migration and seven files rather than one
 
 | File | Destination |
 |---|---|
-| `FIX-49__lib__embed.ts` | `lib/embed.ts` |
-| `FIX-46__lib__supabase.ts` | `lib/supabase.ts` |
-| `FIX-52__app_api_linkmeta__route.ts` | `app/api/linkmeta/route.ts` |
-| `FIX-43__app_dashboard__page.tsx` | `app/dashboard/page.tsx` |
-| `FIX-44__app_dashboard__phone.tsx` | `app/dashboard/phone.tsx` |
-| `FIX-50__app_username__embedcard.tsx` | `app/[username]/embedcard.tsx` |
-| `FIX-51__app_username__row.tsx` | `app/[username]/row.tsx` |
+| `FIX-53__lib__embed.ts` | `lib/embed.ts` |
+| `FIX-54__next.config.js` | `next.config.js` |
+| `FIX-55__app_username__embedcard.tsx` | `app/[username]/embedcard.tsx` |
+| `FIX-56__app_dashboard__phone.tsx` | `app/dashboard/phone.tsx` |
+| `FIX-57__app_dashboard__page.tsx` | `app/dashboard/page.tsx` |
+| `FIX-58__lib__embed.md` | `lib/embed.md` |
 
-**`lib/supabase.ts` is not optional.** The `Link` type is hand-written, so
-`embed_src` stays invisible to TypeScript until it is listed there and the build
-fails — the same trap as `avatar_poster_url` earlier. It also still carries that
-field, so this file supersedes the earlier copy.
-
-Database columns `links.embed_src` and `links.embed_height` are already added.
+`lib/supabase.ts` needs nothing this time — `embed_kind` is typed `string | null`
+already. The database side is done: the `link_embed_kind` check constraint has
+been widened to the nine values and verified.
 
 ---
 
-## How Bandcamp resolves
+## Two things fixed on the way past
 
-1. Someone pastes `artist.bandcamp.com/album/some-record`
-2. `/api/linkmeta` already fetches that page for the title and icon. It now also
-   reads `og:video` and returns a player URL — **one regex, no extra request**
-3. The dashboard stores it on the link as `embed_src`
-4. The public page prefers the derived embed and falls back to the stored one
+**`oembedUrl()` used to end in a bare SoundCloud return.** Anything that was not
+YouTube, Spotify or Apple Music fell off the end and asked SoundCloud to describe
+it — which, the moment a fifth kind existed, would have meant handing SoundCloud
+a Deezer address and taking whatever came back. Each kind is now named, and
+unknown kinds return null and fall through to the ordinary og:title path.
 
-**The player is rebuilt rather than used verbatim.** Bandcamp's default is a
-large dark artwork block, and a page of neat rows does not want one dropped into
-the middle. It is re-emitted with a white ground, your violet as the link colour,
-transparency on, and small artwork — a track at 120px, an album at 470px with its
-tracklist.
+**The preview kept its own colour table.** `phone.tsx` held a second copy of the
+service colours, so a new service would have shipped and shown up orange in the
+dashboard preview. There is now one table, `embedColor()` in `lib/embed.ts`, read
+by the public card, the dashboard row and the preview alike.
 
-## What is guarded
+---
 
-`storedEmbed()` re-validates before rendering, so a value that somehow reached
-the database still cannot load a frame from anywhere but `bandcamp.com`.
-
-Tested and rejected:
+## What was guarded
 
 | Input | Result |
 |---|---|
-| `evil-bandcamp.com.attacker.io/album/x` | not Bandcamp |
-| `og:video` pointing at `attacker.io` | no player |
-| `og:video` on the right host, wrong path | no player |
-| `artist.bandcamp.com/merch/t-shirt` | not a release, ignored |
-| `music.apple.com/us/album/thriller` (no id) | no player |
-| `music.apple.com/album/x/123` (no storefront) | no player |
+| `tidal.com.attacker.io/track/123` | not TIDAL |
+| `deezer.com.evil.io/track/123` | not Deezer |
+| `evil-audiomack.com/x/song/y` | not Audiomack |
+| `tidal.com/track/abc` | no numeric id, ignored |
+| `deezer.com/us/track/abc` | no numeric id, ignored |
+| `tidal.com/browse/artist/12345` | artist has no embed, ignored |
+| `mixcloud.com/someuser/` | a profile, not a show |
+| `mixcloud.com/widget/iframe/?feed=x` | the widget itself, refused |
+| `audiomack.com/someartist` | a profile, not a release |
+
+YouTube, Spotify, SoundCloud, Apple Music and Bandcamp were re-checked against
+the same run and are unchanged.
+
+---
+
+## The CSP has five new entries, not four
+
+`frame-src` gains `embed.tidal.com`, `widget.deezer.com`, `audiomack.com` — and
+**both** `www.mixcloud.com` and `player-widget.mixcloud.com`. Mixcloud serves the
+widget from `www` and has begun redirecting it to a dedicated host; a redirect is
+a fresh frame navigation, so the destination needs listing too or the player goes
+blank on the hop with nothing in the console.
 
 ---
 
 ## After deploying
 
-Add a Bandcamp album to your own page and check it plays. **Links added before
-this deploy will not have an `embed_src`** — there is no backfill, because
-resolving them means fetching every Bandcamp page already saved. Re-adding the
-link is the fix, and it affects nobody yet.
+Add one of each to your own page and play it. TIDAL and Deezer only give a
+30-second preview to a visitor who is not signed in to that service, which is the
+service's rule and not something the page can change.
+
+Heights are the published or observed figures — a TIDAL track at 128, an album at
+400; Deezer 180 and 400; a Mixcloud show at 120; an Audiomack song at 252. If any
+player arrives with a scrollbar or a band of dead space, the number to change is
+in `detectEmbed()` and nowhere else.
 
 ## Still not embeddable
 
-Tidal, Deezer, Mixcloud, Audiomack. Tidal and Deezer are both hostname swaps like
-Apple Music and would be small additions if anyone asks for them.
+Nothing on the earlier list. Anything added next follows the same six places:
+`lib/embed.ts` · the `link_embed_kind` check constraint · `frame-src` in
+`next.config.js` · the mark in `app/[username]/embedcard.tsx` · the colour in
+`embedColor()` · the copy in `app/dashboard/page.tsx`.

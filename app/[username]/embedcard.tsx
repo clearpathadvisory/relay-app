@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Link } from '../../lib/supabase'
-import { detectEmbed, storedEmbed, embedName, EmbedKind } from '../../lib/embed'
+import { detectEmbed, storedEmbed, embedName, embedColor, EmbedKind } from '../../lib/embed'
 
 // Only one thing plays at a time. Each card announces when it opens and every
 // other card closes itself, which unmounts the frame and stops the sound —
@@ -44,6 +44,46 @@ function ServiceMark({ kind }: { kind: EmbedKind }) {
       </span>
     )
   }
+  if (kind === 'tidal') {
+    return (
+      <span className="embedmark" style={{ background: embedColor(kind) }}>
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M12 5.6 14.5 8.1 12 10.6 9.5 8.1Z" fill="#FFFFFF" />
+          <path d="M12 13.4 14.5 15.9 12 18.4 9.5 15.9Z" fill="#FFFFFF" />
+        </svg>
+      </span>
+    )
+  }
+  if (kind === 'deezer') {
+    return (
+      <span className="embedmark" style={{ background: embedColor(kind) }}>
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <rect x="6" y="7.6" width="12" height="2.3" rx="1.15" fill="#FFFFFF" />
+          <rect x="6" y="11.4" width="12" height="2.3" rx="1.15" fill="#FFFFFF" />
+          <rect x="6" y="15.2" width="12" height="2.3" rx="1.15" fill="#FFFFFF" />
+        </svg>
+      </span>
+    )
+  }
+  if (kind === 'mixcloud') {
+    return (
+      <span className="embedmark" style={{ background: embedColor(kind) }}>
+        <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true">
+          <path d="M8.4 16h7.9a2.9 2.9 0 0 0 .2-5.8 4.4 4.4 0 0 0-8.4-1A3.4 3.4 0 0 0 8.4 16Z" fill="#FFFFFF" />
+        </svg>
+      </span>
+    )
+  }
+  if (kind === 'audiomack') {
+    return (
+      <span className="embedmark" style={{ background: embedColor(kind) }}>
+        <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true">
+          <circle cx="12" cy="12" r="6" fill="none" stroke="#FFFFFF" strokeWidth="1.9" />
+          <path d="M10.6 9.5 14.5 12 10.6 14.5Z" fill="#FFFFFF" />
+        </svg>
+      </span>
+    )
+  }
   if (kind === 'spotify') {
     return (
       <span className="embedmark" style={{ background: '#1DB954' }}>
@@ -70,7 +110,7 @@ function ServiceMark({ kind }: { kind: EmbedKind }) {
 }
 
 // Click to load, deliberately. A page nobody has interacted with makes no
-// request to YouTube, Spotify or SoundCloud at all — the poster is drawn from
+// request to YouTube, Spotify, TIDAL or anywhere else at all — the poster is drawn from
 // the page's own theme, and the frame only exists once a visitor asks for it.
 export function EmbedCard({ link, look }: { link: Link; look: any }) {
   const [open, setOpen] = useState(false)
@@ -133,7 +173,10 @@ export function EmbedCard({ link, look }: { link: Link; look: any }) {
         height={embed.height}
         loading="lazy"
         allow={
-          embed.kind === 'applemusic'
+          // Apple, TIDAL and Deezer serve DRM audio and need encrypted-media
+          // delegated with an explicit allowlist rather than the bare keyword,
+          // or the player loads and then refuses to start.
+          embed.kind === 'applemusic' || embed.kind === 'tidal' || embed.kind === 'deezer'
             ? 'autoplay *; encrypted-media *; clipboard-write; picture-in-picture'
             : 'accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture'
         }

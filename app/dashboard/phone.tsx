@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { Theme, Link, Page, Social, resolveLook } from '../../lib/supabase'
 import { scheduleState } from '../../lib/schedule'
-import { detectEmbed, embedName, EmbedKind } from '../../lib/embed'
+import { detectEmbed, embedName, embedColor, EmbedKind } from '../../lib/embed'
 import { SocialIcon } from '../socialicons'
 import { BlobMark } from '../blobmark'
 import { Placed, REF_CARD_W } from '../stickers'
@@ -30,16 +30,10 @@ import { StickerEdit } from '../stickeredit'
  */
 
 // Public geometry: a 520px column inside 20px of card padding.
-// The dot each service puts on its own play row. Kept here rather than
-// imported from the public component because that one is a client component
-// with its own state; only the colours are wanted.
-const MARK_BG: Record<string, string> = {
-  youtube: '#FF0000',
-  spotify: '#1DB954',
-  soundcloud: '#FF5500',
-  applemusic: '#FA2D48',
-  bandcamp: '#1DA0C3',
-}
+// The dot each service puts on its own play row used to be a second copy of
+// the public component's colours here, which meant adding a service in one
+// place and finding the preview still orange. embedColor() in lib/embed is now
+// the only table, and this file reads it like everything else does.
 
 const PAGE_PAD = 20
 const PAGE_W = REF_CARD_W + PAGE_PAD * 2      // 560
@@ -227,7 +221,7 @@ export function Phone({
                     }}>
                       <span style={{
                         flexShrink: 0, width: 30, height: 30, borderRadius: 9,
-                        background: MARK_BG[kind] || '#7C5CE6', display: 'flex',
+                        background: embedColor(kind), display: 'flex',
                         alignItems: 'center', justifyContent: 'center',
                       }}>
                         <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">

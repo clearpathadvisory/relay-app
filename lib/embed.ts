@@ -3,9 +3,30 @@
 // Nothing here reaches a third party on its own. The public page draws a poster
 // from this data and only loads the frame after a visitor clicks it, so a page
 // that has never been interacted with still makes no request to YouTube,
-// Spotify or SoundCloud. That is the whole reason the detection lives in a pure
-// function rather than in the component.
-export type EmbedKind = 'youtube' | 'spotify' | 'soundcloud' | 'applemusic' | 'bandcamp'
+// Spotify, SoundCloud or anywhere else. That is the whole reason the detection
+// lives in a pure function rather than in the component.
+export type EmbedKind =
+  | 'youtube' | 'spotify' | 'soundcloud' | 'applemusic' | 'bandcamp'
+  | 'tidal' | 'deezer' | 'mixcloud' | 'audiomack'
+
+// The dot each service wears on its play row. Kept beside the detection rather
+// than in a component, because three surfaces draw it — the public card, the
+// dashboard row and the preview — and three copies of a colour drift.
+const MARK_BG: Record<EmbedKind, string> = {
+  youtube: '#FF0000',
+  spotify: '#1DB954',
+  soundcloud: '#FF5500',
+  applemusic: '#FA2D48',
+  bandcamp: '#1DA0C3',
+  tidal: '#000000',
+  deezer: '#A238FF',
+  mixcloud: '#5000FF',
+  audiomack: '#FFA200',
+}
+
+export function embedColor(kind: string | null): string {
+  return (kind && MARK_BG[kind as EmbedKind]) || '#FF5500'
+}
 
 export type Embed = { kind: EmbedKind; src: string; height: number }
 
@@ -78,6 +99,94 @@ export function detectEmbed(raw: string | null): Embed | null {
     }
   }
 
+  // Tidal, like Apple Music, publishes a parallel embed host — but it also
+  // renames the type on the way: /track/123 becomes /tracks/123. Playlists are
+  // a uuid rather than a number, which is why the id test is not one regex.
+  if (h === 'tidal.com' || h === 'listen.tidal.com') {
+    const parts = u.pathname.split('/').filter(Boolean)
+    // /browse/ is what the web player puts in front of a shared address
+    const at = parts[0] === 'browse' ? 1 : 0
+    const type = parts[at]
+    const id = parts[at + 1]
+    const seg: Record<string, string> = {
+      track: 'tracks', album: 'albums', playlist: 'playlists', video: 'videos', mix: 'mix',
+    }
+    const numeric = /^\d{3,}$/.test(id || '')
+    const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || '')
+    const idOk = type === 'playlist' ? uuid : type === 'mix' ? /^[A-Za-z0-9]{6,40}$/.test(id || '') : numeric
+    if (type && seg[type] && idOk) {
+      const single = type === 'track'
+      return {
+        kind: 'tidal',
+        src: 'https://embed.tidal.com/' + seg[type] + '/' + id,
+        // A track is one row; a video wants picture; a list needs its rows.
+        height: single ? 128 : type === 'video' ? 280 : 400,
+      }
+    }
+  }
+
+  // Deezer's addresses carry an optional storefront segment — /us/track/123 and
+  // /track/123 are the same thing — and the widget wants only the tail of it.
+  if (h === 'deezer.com') {
+    const parts = u.pathname.split('/').filter(Boolean)
+    const at = parts[0] && /^[a-z]{2}$/.test(parts[0]) ? 1 : 0
+    const type = parts[at]
+    const id = parts[at + 1]
+    const allowed = ['track', 'album', 'playlist', 'artist', 'show', 'episode']
+    if (type && id && allowed.indexOf(type) >= 0 && /^\d{3,}$/.test(id)) {
+      const single = type === 'track' || type === 'episode'
+      return {
+        kind: 'deezer',
+        // light, because every theme this sits inside draws its own ground and
+        // Deezer's dark widget punches a black rectangle through a pale card
+        src: 'https://widget.deezer.com/widget/light/' + type + '/' + id + '?tracklist=true&radius=true',
+        height: single ? 180 : 400,
+      }
+    }
+  }
+
+  // Mixcloud takes the show's own address as a parameter rather than an id, so
+  // the transform is an encode rather than a lookup. The trailing slash is not
+  // decoration — the widget returns an empty player without it.
+  if (h === 'mixcloud.com') {
+    const parts = u.pathname.split('/').filter(Boolean)
+    if (parts.length >= 2 && parts[0] !== 'widget' && parts[0] !== 'discover') {
+      const list = parts[1] === 'playlists'
+      const feed = '/' + parts.slice(0, list ? 3 : 2).join('/') + '/'
+      if (!list || parts.length >= 3) {
+        return {
+          kind: 'mixcloud',
+          src: 'https://www.mixcloud.com/widget/iframe/?hide_cover=1&light=1&feed=' + encodeURIComponent(feed),
+          height: list ? 400 : 120,
+        }
+      }
+    }
+  }
+
+  // Audiomack keeps the same three pieces and reorders them: the public
+  // /artist/song/slug becomes /embed/song/artist/slug. Older links put the type
+  // first, and both shapes are still handed out, so both are read.
+  if (h === 'audiomack.com') {
+    const parts = u.pathname.split('/').filter(Boolean)
+    const types = ['song', 'album', 'playlist']
+    let type = ''
+    let artist = ''
+    let slug = ''
+    if (parts.length >= 3 && types.indexOf(parts[1]) >= 0) {
+      artist = parts[0]; type = parts[1]; slug = parts[2]
+    } else if (parts.length >= 3 && types.indexOf(parts[0]) >= 0) {
+      type = parts[0]; artist = parts[1]; slug = parts[2]
+    }
+    const ok = /^[A-Za-z0-9._-]{1,80}$/
+    if (type && ok.test(artist) && ok.test(slug)) {
+      return {
+        kind: 'audiomack',
+        src: 'https://audiomack.com/embed/' + type + '/' + artist + '/' + slug,
+        height: type === 'song' ? 252 : 400,
+      }
+    }
+  }
+
   if (h === 'soundcloud.com' && u.pathname.split('/').filter(Boolean).length >= 2) {
     return {
       kind: 'soundcloud',
@@ -94,6 +203,10 @@ export function embedName(kind: EmbedKind): string {
   if (kind === 'spotify') return 'Spotify'
   if (kind === 'applemusic') return 'Apple Music'
   if (kind === 'bandcamp') return 'Bandcamp'
+  if (kind === 'tidal') return 'TIDAL'
+  if (kind === 'deezer') return 'Deezer'
+  if (kind === 'mixcloud') return 'Mixcloud'
+  if (kind === 'audiomack') return 'Audiomack'
   return 'SoundCloud'
 }
 
@@ -181,8 +294,15 @@ export function oembedUrl(raw: string): string | null {
   // Apple publishes no oEmbed endpoint. Returning null sends the lookup down
   // the ordinary HTML path, which reads og:title — and tidyTitle already
   // strips the "- Apple Music" tail from it.
-  if (e.kind === 'applemusic') return null
-  return 'https://soundcloud.com/oembed?format=json&url=' + target
+  if (e.kind === 'soundcloud') return 'https://soundcloud.com/oembed?format=json&url=' + target
+  // Apple publishes no oEmbed endpoint, and neither do TIDAL, Deezer, Mixcloud
+  // or Audiomack in a form worth depending on. Returning null sends the lookup
+  // down the ordinary HTML path, which reads og:title — and tidyTitle already
+  // strips each site's tail from it.
+  //
+  // This used to end in a bare `return soundcloud`, so any kind added later
+  // would have quietly asked SoundCloud to describe a Deezer address.
+  return null
 }
 
 // Sites append their own name to a title. "Never Gonna Give You Up - YouTube"
@@ -193,6 +313,10 @@ export function tidyTitle(title: string, host: string): string {
     / [-|–—] YouTube$/i, / on Spotify$/i, / \| Spotify$/i,
     / by .+ \| Free Listening on SoundCloud$/i, / \| SoundCloud$/i,
     / [-|–—] Apple Music$/i,
+    / on TIDAL$/i, / [-|–—] TIDAL$/i, / \| TIDAL$/i,
+    / [-|–—] (?:song and lyrics )?(?:by .+ \| )?Deezer$/i, / \| Deezer$/i,
+    / by .+ \| Mixcloud$/i, / \| Mixcloud$/i, / [-|–—] Mixcloud$/i,
+    / by .+ \| Audiomack$/i, / \| Audiomack$/i, / [-|–—] Audiomack$/i,
   ]
   for (const re of tails) t = t.replace(re, '')
   t = t.trim()

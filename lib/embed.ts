@@ -8,6 +8,7 @@
 export type EmbedKind =
   | 'youtube' | 'spotify' | 'soundcloud' | 'applemusic' | 'bandcamp'
   | 'tidal' | 'deezer' | 'mixcloud' | 'audiomack'
+  | 'calcom' | 'calendly'
 
 // The dot each service wears on its play row. Kept beside the detection rather
 // than in a component, because three surfaces draw it — the public card, the
@@ -22,6 +23,18 @@ const MARK_BG: Record<EmbedKind, string> = {
   deezer: '#A238FF',
   mixcloud: '#5000FF',
   audiomack: '#FFA200',
+  calcom: '#1A1A1A',
+  calendly: '#006BFF',
+}
+
+// Booking is deliberately outside the Pro wall. Every other inline player is a
+// Pro feature, but a freelancer choosing a link-in-bio picks the one that lets
+// people book a call — gating it would gate the reason they arrive. The Pro
+// upsell stays where it is: stickers, animated avatar, scheduled links, email.
+const FREE_EMBEDS = ['calcom', 'calendly']
+
+export function isFreeEmbed(kind: string | null): boolean {
+  return !!kind && FREE_EMBEDS.indexOf(kind) >= 0
 }
 
 export function embedColor(kind: string | null): string {
@@ -187,6 +200,44 @@ export function detectEmbed(raw: string | null): Embed | null {
     }
   }
 
+  // Booking. Both of these frame happily — Calendly answers with
+  // X-Frame-Options: ALLOWALL and cal.com sends no frame restriction at all —
+  // which is worth stating because an embed that refuses to frame fails silently
+  // with a blank rectangle and nothing in the console.
+  //
+  // Unlike the music services there is no id to extract: the page IS the
+  // booking, so the address passes through nearly unchanged.
+  if (h === 'cal.com' || h === 'app.cal.com') {
+    const parts = u.pathname.split('/').filter(Boolean)
+    // /user, /user/event, or /team/slug/event
+    const reserved = ['auth', 'api', 'signup', 'login', 'embed', 'docs', 'pricing', 'apps', 'event-types']
+    if (parts.length >= 1 && parts.length <= 3 && reserved.indexOf(parts[0]) < 0
+        && /^[A-Za-z0-9._-]{1,60}$/.test(parts[0])) {
+      const path = parts.join('/')
+      return {
+        kind: 'calcom',
+        // month_view is the layout that fits a narrow column; the default
+        // switches to a wide two-pane view and gets cut off in a 520px card.
+        src: 'https://cal.com/' + path + '?embed=true&layout=month_view',
+        height: 640,
+      }
+    }
+  }
+
+  if (h === 'calendly.com') {
+    const parts = u.pathname.split('/').filter(Boolean)
+    const reserved = ['app', 'api', 'event_types', 'pages', 'signup', 'login']
+    if (parts.length >= 1 && parts.length <= 3 && reserved.indexOf(parts[0]) < 0
+        && /^[A-Za-z0-9._-]{1,60}$/.test(parts[0])) {
+      return {
+        kind: 'calendly',
+        src: 'https://calendly.com/' + parts.join('/')
+             + '?hide_gdpr_banner=1&hide_landing_page_details=1&background_color=ffffff',
+        height: 660,
+      }
+    }
+  }
+
   if (h === 'soundcloud.com' && u.pathname.split('/').filter(Boolean).length >= 2) {
     return {
       kind: 'soundcloud',
@@ -207,6 +258,8 @@ export function embedName(kind: EmbedKind): string {
   if (kind === 'deezer') return 'Deezer'
   if (kind === 'mixcloud') return 'Mixcloud'
   if (kind === 'audiomack') return 'Audiomack'
+  if (kind === 'calcom') return 'Cal.com'
+  if (kind === 'calendly') return 'Calendly'
   return 'SoundCloud'
 }
 
@@ -395,6 +448,7 @@ export function tidyTitle(title: string, host: string): string {
     / [-|–—] (?:song and lyrics )?(?:by .+ \| )?Deezer$/i, / \| Deezer$/i,
     / by .+ \| Mixcloud$/i, / \| Mixcloud$/i, / [-|–—] Mixcloud$/i,
     / by .+ \| Audiomack$/i, / \| Audiomack$/i, / [-|–—] Audiomack$/i,
+    / \| Cal\.com$/i, / [-|–—] Cal\.com$/i, / [-|–—] Calendly$/i, / \| Calendly$/i,
   ]
   for (const re of tails) t = t.replace(re, '')
   t = t.trim()

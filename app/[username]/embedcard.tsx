@@ -44,6 +44,20 @@ function ServiceMark({ kind }: { kind: EmbedKind }) {
       </span>
     )
   }
+  if (kind === 'calcom' || kind === 'calendly') {
+    return (
+      <span className="embedmark" style={{ background: embedColor(kind) }}>
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <rect x="4.5" y="6" width="15" height="13" rx="2.6" fill="none"
+                stroke="#FFFFFF" strokeWidth="1.9" />
+          <path d="M4.5 10h15" stroke="#FFFFFF" strokeWidth="1.9" />
+          <path d="M8.6 4.6v2.8M15.4 4.6v2.8" stroke="#FFFFFF" strokeWidth="1.9"
+                strokeLinecap="round" />
+          <circle cx="12" cy="14.4" r="1.7" fill="#FFFFFF" />
+        </svg>
+      </span>
+    )
+  }
   if (kind === 'tidal') {
     return (
       <span className="embedmark" style={{ background: embedColor(kind) }}>
@@ -128,6 +142,9 @@ export function EmbedCard({ link, look }: { link: Link; look: any }) {
 
   if (!embed) return null
   const name = embedName(embed.kind)
+  // "Play Book a call from Cal.com" is nonsense. Booking gets its own verb.
+  const isBooking = embed.kind === 'calcom' || embed.kind === 'calendly'
+  const verb = isBooking ? 'Open' : 'Play'
 
   // A pill radius is right for a button and wrong for a video: it crops the
   // picture into an oval. Frames get a sane corner whatever the theme asks for.
@@ -141,7 +158,7 @@ export function EmbedCard({ link, look }: { link: Link; look: any }) {
           setOpen(true)
         }}
         className="embedposter"
-        aria-label={'Play ' + link.title + ' from ' + name}
+        aria-label={verb + ' ' + link.title + ' from ' + name}
         style={{
           background: look.buttonBg,
           color: look.buttonText,
@@ -153,9 +170,9 @@ export function EmbedCard({ link, look }: { link: Link; look: any }) {
         <ServiceMark kind={embed.kind} />
         <span className="embedmeta">
           <span className="embedtitle">{link.title}</span>
-          <span className="embedsource">Plays here · {name}</span>
+          <span className="embedsource">{isBooking ? 'Book here' : 'Plays here'} · {name}</span>
         </span>
-        <span className="embedgo" style={{ background: look.accentBg, color: look.accentText }} aria-hidden="true">▶</span>
+        <span className="embedgo" style={{ background: look.accentBg, color: look.accentText }} aria-hidden="true">{isBooking ? '\u2192' : '\u25B6'}</span>
       </button>
     )
   }
@@ -165,7 +182,8 @@ export function EmbedCard({ link, look }: { link: Link; look: any }) {
       <div className="embedbar" style={{ color: look.buttonText }}>
         <ServiceMark kind={embed.kind} />
         <span className="embedtitle">{link.title}</span>
-        <button className="embedclose" onClick={() => setOpen(false)} aria-label={'Stop ' + link.title}>✕</button>
+        <button className="embedclose" onClick={() => setOpen(false)}
+          aria-label={(isBooking ? 'Close ' : 'Stop ') + link.title}>✕</button>
       </div>
       <iframe
         src={embed.src + (embed.kind === 'youtube' ? '?autoplay=1' : '')}

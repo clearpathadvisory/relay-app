@@ -46,6 +46,12 @@ const csp = [
     'https://www.mixcloud.com',
     'https://player-widget.mixcloud.com',
     'https://audiomack.com',
+    // Booking. Both frame without complaint today; if either ever starts
+    // sending frame-ancestors the card goes blank with no error, so that is the
+    // first thing to check if bookings stop rendering.
+    'https://cal.com',
+    'https://app.cal.com',
+    'https://calendly.com',
   ].join(' '),
   "object-src 'none'",
   "base-uri 'self'",

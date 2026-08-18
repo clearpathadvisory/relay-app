@@ -4,7 +4,7 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import { supabase, Theme, Link, Page, Social, FONTS } from '../../lib/supabase'
 import { SOCIALS, SocialIcon, socialHref, socialName } from '../socialicons'
 import { scheduleState, scheduleLabel } from '../../lib/schedule'
-import { detectEmbed, embedName, embedColor } from '../../lib/embed'
+import { detectEmbed, embedName, embedColor, isFreeEmbed } from '../../lib/embed'
 import { Blob, Star, Robot, Bear, Rocket, Squiggle } from '../blob'
 import { BlobMark } from '../blobmark'
 import { Phone } from './phone'
@@ -550,7 +550,7 @@ export default function Dashboard() {
     const { error } = await supabase.from('links').insert({
       page_id: page.id, kind: 'link', title: meta.title || host, url: u,
       position: links.length, favicon_url: meta.favicon || null, site_title: null,
-      embed_kind: isPro && playable ? playable.kind : null,
+      embed_kind: playable && (isPro || isFreeEmbed(playable.kind)) ? playable.kind : null,
     })
     setAdding(false)
     if (error) { setErr(error.message); return }
@@ -590,11 +590,15 @@ export default function Dashboard() {
   }
 
   async function toggleEmbed(linkId: string) {
-    if (!isPro) { setErr('Playing a link inline is a Pro feature.'); return }
     const row = links.filter((l) => l.id === linkId)[0]
     if (!row) return
     const playable = detectEmbed(row.url)
     if (!playable) { setErr('That link is not something we can play here.'); return }
+    // Booking is free; every other inline player is Pro. Checked after the
+    // detection rather than before, so the message is about the right thing.
+    if (!isPro && !isFreeEmbed(playable.kind)) {
+      setErr('Playing a link inline is a Pro feature.'); return
+    }
 
     const next = row.embed_kind ? null : playable.kind
     setErr('')
@@ -664,7 +668,8 @@ export default function Dashboard() {
     const { error } = await supabase.from('links').insert({
       page_id: page.id, kind: 'link', title: finalTitle, url: u, position: links.length,
       favicon_url: meta.favicon || null, site_title: null,
-      embed_kind: isPro && canPlay ? (playable ? playable.kind : 'bandcamp') : null,
+      embed_kind: canPlay && (isPro || (playable && isFreeEmbed(playable.kind)))
+        ? (playable ? playable.kind : 'bandcamp') : null,
       embed_src: stored ? stored.src : null,
       embed_height: stored ? stored.height : null,
     })
@@ -1375,8 +1380,8 @@ export default function Dashboard() {
                           Anything with an address: a shop, a booking page, a newsletter, a
                           profile.{' '}
                           {isPro
-                            ? 'Music and video — YouTube, Spotify, Apple Music, TIDAL, Deezer, SoundCloud, Bandcamp, Mixcloud, Audiomack — can play on your page instead of sending people away.'
-                            : 'On Pro, music and video from YouTube, Spotify, Apple Music, TIDAL, Deezer, SoundCloud, Bandcamp, Mixcloud and Audiomack play on your page instead of sending people away.'}
+                            ? 'Music and video — YouTube, Spotify, Apple Music, TIDAL, Deezer, SoundCloud, Bandcamp, Mixcloud, Audiomack — can play on your page instead of sending people away. A Cal.com or Calendly link opens its booking calendar right here.'
+                            : 'A Cal.com or Calendly link opens its booking calendar right on your page — that one is free. On Pro, music and video from YouTube, Spotify, Apple Music, TIDAL, Deezer, SoundCloud, Bandcamp, Mixcloud and Audiomack play there too.'}
                         </p>
                         <input className="field" placeholder="https://..." value={url}
                           onChange={(e) => setUrl(e.target.value)}

@@ -30,12 +30,13 @@ const ROWS: { label: string; relay: string; rt: Tone; other: string; ot: Tone; o
   { label: 'Your own image on every link', relay: 'Included in Pro', rt: 'yes', other: 'Yes', ot: 'yes' },
   { label: 'Links on a schedule', relay: 'Included in Pro', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },
   { label: 'Email capture', relay: 'Included in Pro, confirmed opt-in', rt: 'yes', other: 'Yes', ot: 'yes', ours: true },
-  { label: 'Music and video embeds', relay: 'Included in Pro, click to play', rt: 'yes', other: 'Yes', ot: 'yes', ours: true },
+  { label: 'Music and video embeds', relay: 'Nine services, in Pro, click to play', rt: 'yes', other: 'Yes', ot: 'yes', ours: true },
+  { label: 'Booking calendar on the page', relay: 'Cal.com, Calendly, Google \u2014 free plan', rt: 'yes', other: 'Link out only', ot: 'no', ours: true },
   { label: 'Stickers on your page', relay: '81, included in Pro', rt: 'yes', other: 'Yes, free', ot: 'yes' },
   { label: 'Visitor countries', relay: 'Included in Pro', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },
   { label: 'Export your own stats', relay: 'Included in Pro, spreadsheet file', rt: 'yes', other: 'Higher tier', ot: 'yes', ours: true },
   { label: 'Your own domain', relay: 'No', rt: 'no', other: 'Yes, on higher tiers', ot: 'yes' },
-  { label: 'Payments and tipping', relay: 'No', rt: 'no', other: 'Yes', ot: 'yes' },
+  { label: 'Payments and tipping', relay: 'No \u2014 but a paid booking works', rt: 'no', other: 'Yes', ot: 'yes' },
 ]
 
 function Mark({ tone }: { tone: Tone }) {
@@ -110,9 +111,9 @@ export default function VsLinktree() {
         <div className="legal" style={{ maxWidth: 760, marginTop: 44 }}>
           <h2>Who should pick which</h2>
           <p>
-            <strong>Take Linktree</strong> if you need to sell or take tips straight from the page,
-            or if you want your own domain in front of it. Those are real features and we do not
-            have them.
+            <strong>Take Linktree</strong> if you need to sell products or take tips straight from
+            the page, or if you want your own domain in front of it. Those are real features and we
+            do not have them.
           </p>
           <p>
             <strong>Take RelayMe</strong> if you want a page that looks made rather than generated, if
@@ -120,12 +121,21 @@ export default function VsLinktree() {
             better than the alternative, or if it matters to you that your visitors&rsquo; addresses
             are not handed to a font network and an analytics company on the way in.
           </p>
+          <p>
+            If you take bookings, the calendar is the reason to look here. Paste a Cal.com, Calendly
+            or Google appointment link and the calendar opens on your page rather than throwing
+            somebody at another site. That one is on the free plan. Where the booking itself is paid,
+            Calendly collects the money on its own side &mdash; so a paid consultation runs through a
+            free RelayMe page without us handling a penny of it.
+          </p>
 
           <h2>The honest gaps</h2>
           <p>
-            A custom domain is not planned for this year. Payments are not planned at all &mdash;
-            taking money on behalf of other people is a regulated business and not one we intend to
-            enter.
+            A custom domain is not planned for this year. Taking payments ourselves is not planned
+            at all &mdash; handling money on behalf of other people is a regulated business and not
+            one we intend to enter. The booking embeds are not a way around that: the calendar runs
+            on Cal.com, Calendly or Google, and if a booking is paid, that company takes the payment
+            and carries the obligations. We render the page it sits on.
           </p>
 
           <div className="legalend">

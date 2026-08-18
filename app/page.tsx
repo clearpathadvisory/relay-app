@@ -96,7 +96,8 @@ export default function Home() {
               Your bio deserves better than a sad grey link
             </h1>
             <p className="herosub">
-              Build a page people actually want to tap. Unlimited links on every plan, your own photo, and a proper preview of every site you point to.
+              Build a page people actually want to tap. Music and video play where they sit, a booking
+              calendar opens without sending anyone away, and unlimited links come on every plan.
             </p>
             <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
               <a href="/login" className="btn">Grab your name →</a>
@@ -128,6 +129,7 @@ export default function Home() {
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'rgba(27,13,68,.7)' }}>Enough to publish a real page.</p>
               <ul className="feat">
                 <li>Unlimited links</li>
+                <li>A booking calendar on your page &mdash; Cal.com, Calendly or Google</li>
                 <li>Your own photo and bio</li>
                 <li>A row of social icons</li>
                 <li>5 themes, 1 font</li>
@@ -162,7 +164,7 @@ export default function Home() {
                 <li>Background image</li>
                 <li>Your own image on every link</li>
                 <li>Links that appear and disappear on a schedule</li>
-                <li>Music and video that plays on your page</li>
+                <li>Music and video that plays on your page &mdash; nine services, from Spotify and YouTube to TIDAL, Deezer, Mixcloud and Audiomack</li>
                 <li>Collect email addresses, and take the list with you</li>
                 <li>81 stickers to decorate your page</li>
                 <li>Which countries your visitors come from</li>
@@ -197,7 +199,7 @@ export default function Home() {
                 <li>Background image</li>
                 <li>Your own image on every link</li>
                 <li>Links that appear and disappear on a schedule</li>
-                <li>Music and video that plays on your page</li>
+                <li>Music and video that plays on your page &mdash; nine services, from Spotify and YouTube to TIDAL, Deezer, Mixcloud and Audiomack</li>
                 <li>Collect email addresses, and take the list with you</li>
                 <li>81 stickers to decorate your page</li>
                 <li>Which countries your visitors come from</li>

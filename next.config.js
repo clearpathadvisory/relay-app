@@ -52,6 +52,7 @@ const csp = [
     'https://cal.com',
     'https://app.cal.com',
     'https://calendly.com',
+    'https://calendar.google.com',
   ].join(' '),
   "object-src 'none'",
   "base-uri 'self'",

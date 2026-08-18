@@ -1381,7 +1381,7 @@ export default function Dashboard() {
                           profile.{' '}
                           {isPro
                             ? 'Music and video — YouTube, Spotify, Apple Music, TIDAL, Deezer, SoundCloud, Bandcamp, Mixcloud, Audiomack — can play on your page instead of sending people away. A Cal.com or Calendly link opens its booking calendar right here.'
-                            : 'A Cal.com or Calendly link opens its booking calendar right on your page — that one is free. On Pro, music and video from YouTube, Spotify, Apple Music, TIDAL, Deezer, SoundCloud, Bandcamp, Mixcloud and Audiomack play there too.'}
+                            : 'A Cal.com, Calendly or Google Calendar booking link opens its calendar right on your page — that one is free. On Pro, music and video from YouTube, Spotify, Apple Music, TIDAL, Deezer, SoundCloud, Bandcamp, Mixcloud and Audiomack play there too.'}
                         </p>
                         <input className="field" placeholder="https://..." value={url}
                           onChange={(e) => setUrl(e.target.value)}

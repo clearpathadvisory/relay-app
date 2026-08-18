@@ -8,7 +8,7 @@
 export type EmbedKind =
   | 'youtube' | 'spotify' | 'soundcloud' | 'applemusic' | 'bandcamp'
   | 'tidal' | 'deezer' | 'mixcloud' | 'audiomack'
-  | 'calcom' | 'calendly'
+  | 'calcom' | 'calendly' | 'gcal'
 
 // The dot each service wears on its play row. Kept beside the detection rather
 // than in a component, because three surfaces draw it — the public card, the
@@ -25,13 +25,14 @@ const MARK_BG: Record<EmbedKind, string> = {
   audiomack: '#FFA200',
   calcom: '#1A1A1A',
   calendly: '#006BFF',
+  gcal: '#1A73E8',
 }
 
 // Booking is deliberately outside the Pro wall. Every other inline player is a
 // Pro feature, but a freelancer choosing a link-in-bio picks the one that lets
 // people book a call — gating it would gate the reason they arrive. The Pro
 // upsell stays where it is: stickers, animated avatar, scheduled links, email.
-const FREE_EMBEDS = ['calcom', 'calendly']
+const FREE_EMBEDS = ['calcom', 'calendly', 'gcal']
 
 export function isFreeEmbed(kind: string | null): boolean {
   return !!kind && FREE_EMBEDS.indexOf(kind) >= 0
@@ -224,6 +225,23 @@ export function detectEmbed(raw: string | null): Embed | null {
     }
   }
 
+  // Google's appointment schedules frame as well — no X-Frame-Options and no
+  // frame-ancestors — but only the full /appointments/schedules/ address does.
+  // The calendar.app.google short link answers SAMEORIGIN and would render a
+  // blank box, so it is left as an ordinary button rather than half-working.
+  if (h === 'calendar.google.com') {
+    const m = u.pathname.match(/\/appointments\/schedules\/([A-Za-z0-9_-]{8,})/)
+    if (m) {
+      return {
+        kind: 'gcal',
+        // gv=true is Google's own embed flag; without it the page renders its
+        // full chrome inside the frame.
+        src: 'https://calendar.google.com/calendar/appointments/schedules/' + m[1] + '?gv=true',
+        height: 620,
+      }
+    }
+  }
+
   if (h === 'calendly.com') {
     const parts = u.pathname.split('/').filter(Boolean)
     const reserved = ['app', 'api', 'event_types', 'pages', 'signup', 'login']
@@ -231,9 +249,13 @@ export function detectEmbed(raw: string | null): Embed | null {
         && /^[A-Za-z0-9._-]{1,60}$/.test(parts[0])) {
       return {
         kind: 'calendly',
+        // hide_event_type_details drops Calendly's own title block — the card's
+        // bar already shows the title, so it was the same words twice and about
+        // 230px of the reason the frame needed an inner scrollbar. Duration and
+        // price still appear at the confirmation step.
         src: 'https://calendly.com/' + parts.join('/')
-             + '?hide_gdpr_banner=1&hide_landing_page_details=1&background_color=ffffff',
-        height: 660,
+             + '?hide_gdpr_banner=1&hide_event_type_details=1&background_color=ffffff',
+        height: 620,
       }
     }
   }
@@ -260,6 +282,7 @@ export function embedName(kind: EmbedKind): string {
   if (kind === 'audiomack') return 'Audiomack'
   if (kind === 'calcom') return 'Cal.com'
   if (kind === 'calendly') return 'Calendly'
+  if (kind === 'gcal') return 'Google Calendar'
   return 'SoundCloud'
 }
 

@@ -44,7 +44,7 @@ function ServiceMark({ kind }: { kind: EmbedKind }) {
       </span>
     )
   }
-  if (kind === 'calcom' || kind === 'calendly') {
+  if (kind === 'calcom' || kind === 'calendly' || kind === 'gcal') {
     return (
       <span className="embedmark" style={{ background: embedColor(kind) }}>
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -144,6 +144,7 @@ export function EmbedCard({ link, look }: { link: Link; look: any }) {
   const name = embedName(embed.kind)
   // "Play Book a call from Cal.com" is nonsense. Booking gets its own verb.
   const isBooking = embed.kind === 'calcom' || embed.kind === 'calendly'
+    || embed.kind === 'gcal'
   const verb = isBooking ? 'Open' : 'Play'
 
   // A pill radius is right for a button and wrong for a video: it crops the

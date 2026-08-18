@@ -158,7 +158,7 @@ export default function Terms() {
           <p>
             Subject to that: RelayMe is provided as it is; we are not liable for indirect or
             consequential loss, lost profits, or lost data beyond what we can restore from routine
-            backups; and our total liability in any twelve-month period is limited to the greater of
+            backups; and our total liability in any 12-month period is limited to the greater of
             the amount you paid us in that period, or $50.
           </p>
           <p>We are not responsible for the content of websites your links point to.</p>

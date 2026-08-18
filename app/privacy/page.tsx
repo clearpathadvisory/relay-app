@@ -204,7 +204,7 @@ export default function Privacy() {
             <li><strong>Account and page data</strong> — for as long as your account exists.</li>
             <li><strong>After you delete your account</strong> — removed within 30 days, other than anything we must keep for tax or accounting.</li>
             <li><strong>Tap records</strong> — 24 months, then deleted.</li>
-            <li><strong>Payment records</strong> — five years from the end of the relevant tax year, as Polish accounting law requires.</li>
+            <li><strong>Payment records</strong> — 5 years from the end of the relevant tax year, as Polish accounting law requires.</li>
           </ul>
 
           <h2>11. Your rights</h2>

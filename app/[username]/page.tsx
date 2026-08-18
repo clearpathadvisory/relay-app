@@ -169,13 +169,16 @@ export default async function PublicPage({ params }: { params: { username: strin
           <p style={{
             textAlign: 'left', fontSize: 15, margin: '10px 0 0', color: L.bioColor,
             lineHeight: 1.55, whiteSpace: 'pre-wrap',
-            // A creator types short lines, one thought each - they do not count
-            // characters. When one line is a few words too long it wraps, and the
-            // remainder used to sit flush left where it read as a new paragraph.
-            // The hanging indent makes the overflow visibly a continuation of the
-            // line above, so a bio that is slightly too wide still reads as the
-            // list the person wrote instead of a broken one.
-            paddingLeft: 14, textIndent: -14,
+            // The bio sits in its own column, inset 18px on both sides, the same
+            // inset the button labels below sit at. Every line - typed or wrapped -
+            // starts and ends inside that column, so the block reads as one tidy
+            // rectangle rather than text drifting wider than the buttons under it.
+            //
+            // A creator types short lines, one per thought, and does not count
+            // characters. A line too long still wraps - nothing can prevent that on
+            // a 430px card - but it wraps inside the same column, which is what
+            // makes it look deliberate.
+            paddingLeft: 18, paddingRight: 18,
             ...wrap,
           }}>{page.bio}</p>
         )}

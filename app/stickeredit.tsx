@@ -17,9 +17,14 @@ import { Placed, STICKER_BY_ID, stickerSrc, MAX_STICKERS, X_MAX, Y_MAX, W_MIN, W
 
 type Mode = 'move' | 'size' | null
 
-// How close to the centre line a drag has to get before it snaps, in card
-// pixels — the same unit sticker x is stored in.
-const SNAP_X = 6
+// How close to the centre line a drag has to get before it snaps, in CARD
+// pixels — the unit sticker x is stored in, not screen pixels.
+//
+// That distinction matters: the preview draws the 520px card at roughly half
+// size, so this figure is about halved again by the time a finger feels it.
+// The first attempt used 6, which came out around 3 screen pixels and could
+// not be found on purpose, let alone by accident.
+const SNAP_X = 18
 
 export function StickerEdit({
   stickers, setStickers, commit, selected, setSelected, scale = 1,
@@ -193,9 +198,13 @@ export function StickerEdit({
     >
       {guide && (
         <span style={{
-          position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1,
-          transform: 'translateX(-0.5px)', background: 'var(--violet)',
-          opacity: .55, pointerEvents: 'none',
+          position: 'absolute', left: '50%', top: 0, bottom: 0, width: 2,
+          transform: 'translateX(-1px)', background: 'var(--violet)',
+          // Solid rather than faint: this is the confirmation that the sticker
+          // has locked to the centre, so it has to be unmistakable at preview
+          // size, where a hairline at 55% opacity all but disappears.
+          opacity: .9, pointerEvents: 'none',
+          boxShadow: '0 0 0 1px rgba(255,255,255,.55)',
         }} />
       )}
 

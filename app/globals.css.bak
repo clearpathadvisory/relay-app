@@ -103,7 +103,7 @@ textarea.field { resize: none; min-height: 104px; line-height: 1.5; }
   background: none; border: none; font-family: inherit; font-weight: 600; color: var(--muted);
   padding: 9px 4px; border-radius: 14px; cursor: pointer; width: 74px; font-size: 11px;
 }
-@media (hover: hover) and (pointer: fine) { .navitem:hover { background: var(--ink-06); } }
+.navitem:hover { background: var(--ink-06); }
 .navitem.on { background: rgba(124,92,230,.12); color: var(--ink); }
 .navitem.on .navicon { background: var(--ink); color: var(--on-ink); }
 .navicon {
@@ -603,12 +603,9 @@ a.topurl {
   display: inline-flex; align-items: center; gap: 7px;
   transition: background .14s ease, color .14s ease;
 }
+a.topurl:hover { background: rgba(124,92,230,.14); color: var(--violet); }
 .topurlgo { font-size: 12px; opacity: .55; }
-@media (hover: hover) and (pointer: fine) { a.topurl:hover { background: rgba(124,92,230,.14); color: var(--violet); }
-a.topurl:hover .topurlgo { opacity: 1; } }
-/* Same treatment .thumbpen already gets: on touch there is no hover, so an
-   affordance hidden behind one simply does not exist. */
-@media (hover: none) { .topurlgo { opacity: .9; } }
+a.topurl:hover .topurlgo { opacity: 1; }
 
 /* six rail items now, so they need to be a touch tighter on a phone */
 @media (max-width: 700px) {
@@ -621,13 +618,6 @@ a.topurl:hover .topurlgo { opacity: 1; } }
 
 /* --- the starred link gives a small wave every three seconds --- */
 .jiggle { animation: jiggle 3s ease-in-out infinite; transform-origin: center; will-change: transform; }
-
-/* On the public page the wave is an attention cue a visitor sees once or
-   twice. In the dashboard preview the same element sits in front of someone
-   for twenty minutes, where perpetual motion is a distraction rather than a
-   cue. Three passes demonstrates the feature, then it settles. It replays
-   whenever the starred link changes, which is exactly when you want to see it. */
-.phoneframe .jiggle { animation-iteration-count: 3; }
 
 @keyframes jiggle {
   0%, 84%, 100% { transform: none; }
@@ -1195,7 +1185,7 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
   padding: 11px; margin: -11px 0; color: var(--ink); border-radius: 12px;
   transition: color .12s ease, background .12s ease;
 }
-@media (hover: hover) and (pointer: fine) { .footsoc:hover { color: var(--violet); background: rgba(119,86,226,.10); } }
+.footsoc:hover { color: var(--violet); background: rgba(119,86,226,.10); }
 .footcredit { display: inline-flex; align-items: center; gap: 12px; }
 .footlinks { display: inline-flex; align-items: center; gap: 12px; }
 
@@ -1395,7 +1385,7 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
   display: inline-block; padding: 8px 15px; border-radius: 999px; font-size: 14px;
   font-weight: 600; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
 }
-@media (hover: hover) and (pointer: fine) { .bfilter:hover { border-color: var(--violet); } }
+.bfilter:hover { border-color: var(--violet); }
 .bfilter.on { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
 
 .bgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; margin-top: 26px; }
@@ -1403,7 +1393,7 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
   display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line);
   border-radius: 22px; overflow: hidden; color: var(--ink); transition: border-color .15s ease, transform .15s ease;
 }
-@media (hover: hover) and (pointer: fine) { .bcard:hover { border-color: var(--violet); transform: translateY(-2px); } }
+.bcard:hover { border-color: var(--violet); transform: translateY(-2px); }
 .bcard-wide { grid-column: 1 / -1; }
 .bcover { width: 100%; height: auto; display: block; aspect-ratio: 1200 / 630; object-fit: cover; background: #F3F0FB; }
 .bcardbody { padding: 18px 20px 22px; }
@@ -1466,7 +1456,7 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 .btoc ul { margin: 0; padding-left: 18px; }
 .btoc li { font-size: 14.5px; line-height: 1.6; margin-bottom: 5px; }
 .btoc a { color: var(--ink); font-weight: 600; }
-@media (hover: hover) and (pointer: fine) { .btoc a:hover { color: var(--violet); } }
+.btoc a:hover { color: var(--violet); }
 
 .bfaq { margin-bottom: 18px; }
 .bfaqq { font-weight: 800; color: var(--ink); margin-bottom: 4px !important; }
@@ -1538,7 +1528,7 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
   background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
   padding: 14px 16px; margin-bottom: 8px; cursor: pointer; font: inherit;
 }
-@media (hover: hover) and (pointer: fine) { .arowcard:hover { border-color: var(--violet); } }
+.arowcard:hover { border-color: var(--violet); }
 .atitle { font-weight: 700; color: var(--ink); font-size: 15.5px; }
 .ameta { font-size: 13px; color: var(--muted); margin-left: auto; }
 .astat {
@@ -1642,7 +1632,7 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
   padding: 26px 24px 22px; border-radius: 24px; border: 1.5px solid transparent;
   transition: transform .15s ease;
 }
-@media (hover: hover) and (pointer: fine) { .revcard:hover { transform: translateY(-3px); } }
+.revcard:hover { transform: translateY(-3px); }
 
 /* One tint per card so a row never repeats itself, all drawn from the theme
    palette rather than invented for this section. */
@@ -1697,6 +1687,6 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
   background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px;
   cursor: pointer; padding: 8px; transition: transform .12s ease, border-color .12s ease;
 }
-@media (hover: hover) and (pointer: fine) { .stkpick:hover { transform: translateY(-2px); border-color: var(--violet); } }
+.stkpick:hover { transform: translateY(-2px); border-color: var(--violet); }
 .stkpick img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
 

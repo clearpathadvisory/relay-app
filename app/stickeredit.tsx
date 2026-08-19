@@ -26,6 +26,11 @@ type Mode = 'move' | 'size' | null
 // not be found on purpose, let alone by accident.
 const SNAP_X = 18
 
+// How close a drag has to come to the exact mirror of another sticker before
+// it locks onto it. Wider than the centre snap because it is a harder target -
+// the user is aiming at a position they cannot see until the ghost appears.
+const SNAP_MIRROR = 26
+
 export function StickerEdit({
   stickers, setStickers, commit, selected, setSelected, scale = 1,
 }: {
@@ -48,9 +53,11 @@ export function StickerEdit({
 }) {
   const wrap = useRef<HTMLDivElement | null>(null)
   const drag = useRef<any>(null)
-  // Shown only while a drag is actually on the centre line, so it reads as
-  // feedback rather than decoration.
+  // Shown only while a drag is in progress, so these read as feedback rather
+  // than decoration. `guide` is the centre line; `mirror` is where the sticker
+  // would sit if it were reflected to the other side of the card.
   const [guide, setGuide] = useState(false)
+  const [mirror, setMirror] = useState<{ x: number; y: number; w: number; s: string; snapped: boolean } | null>(null)
   const [, force] = useState(0)
 
   // Deleting with the keyboard is what people try first once something is
@@ -149,11 +156,24 @@ export function StickerEdit({
       if (snapped) nx = 0
       setGuide(snapped)
 
-      next[d.i] = {
-        ...d.orig,
-        x: nx,
-        y: clamp(d.orig.y + (py - d.startY), half, Math.min(Y_MAX, r.height / scale - half)),
-      }
+      const ny = clamp(d.orig.y + (py - d.startY), half, Math.min(Y_MAX, r.height / scale - half))
+
+      // The mirror. A sticker beside a centred display name only ever looks
+      // right in a pair — one alone makes the name read as though it has been
+      // shoved sideways, which is what people report as a bug even though the
+      // name has not moved a pixel and cannot: the layer is out of flow.
+      //
+      // So show where its twin would go, and let a drop within reach of that
+      // spot land exactly on it. Making the balanced version easy to build is
+      // the only honest fix, because moving the text is the one thing that
+      // must not happen.
+      const partner = stickers.findIndex((o, j) => j !== d.i && Math.abs(o.y - ny) < 26
+        && Math.abs(o.x + nx) <= SNAP_MIRROR && Math.sign(o.x) !== Math.sign(nx))
+      if (partner >= 0 && nx !== 0) nx = -stickers[partner].x
+
+      setMirror(nx === 0 ? null : { x: -nx, y: ny, w: d.orig.w, s: d.orig.s, snapped: partner >= 0 })
+
+      next[d.i] = { ...d.orig, x: nx, y: ny }
     } else if (d.mode === 'size') {
       // Distance from the sticker's centre to the pointer drives the width, so
       // the corner handle follows the finger instead of drifting away from it.
@@ -172,6 +192,8 @@ export function StickerEdit({
 
   function end(e: React.PointerEvent) {
     const d = drag.current
+    setGuide(false)
+    setMirror(null)
     if (!d || d.pointerId !== e.pointerId) return
     drag.current = null
     // Save the position the gesture finished on. Everything up to this point
@@ -206,6 +228,25 @@ export function StickerEdit({
           opacity: .9, pointerEvents: 'none',
           boxShadow: '0 0 0 1px rgba(255,255,255,.55)',
         }} />
+      )}
+
+      {mirror && (
+        <img
+          src={stickerSrc(mirror.s)} alt="" draggable={false}
+          style={{
+            position: 'absolute',
+            left: `clamp(${mirror.w / 2}px, calc(50% + ${mirror.x}px), calc(100% - ${mirror.w / 2}px))`,
+            top: mirror.y + 'px',
+            width: mirror.w + 'px',
+            transform: 'translate(-50%, -50%)',
+            // Faint when it is only a suggestion, near-solid once the drag has
+            // locked onto it, so the difference between "you could" and "you
+            // have" is visible without reading anything.
+            opacity: mirror.snapped ? 0.62 : 0.24,
+            filter: mirror.snapped ? 'none' : 'grayscale(1)',
+            pointerEvents: 'none', userSelect: 'none',
+          }}
+        />
       )}
 
       {stickers.map((st, i) => {

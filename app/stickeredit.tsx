@@ -17,6 +17,10 @@ import { Placed, STICKER_BY_ID, stickerSrc, MAX_STICKERS, X_MAX, Y_MAX, W_MIN, W
 
 type Mode = 'move' | 'size' | null
 
+// How close to the centre line a drag has to get before it snaps, in card
+// pixels — the same unit sticker x is stored in.
+const SNAP_X = 6
+
 export function StickerEdit({
   stickers, setStickers, commit, selected, setSelected, scale = 1,
 }: {
@@ -39,6 +43,9 @@ export function StickerEdit({
 }) {
   const wrap = useRef<HTMLDivElement | null>(null)
   const drag = useRef<any>(null)
+  // Shown only while a drag is actually on the centre line, so it reads as
+  // feedback rather than decoration.
+  const [guide, setGuide] = useState(false)
   const [, force] = useState(0)
 
   // Deleting with the keyboard is what people try first once something is
@@ -123,9 +130,23 @@ export function StickerEdit({
       // not by refusing the placement here.
       const half = d.orig.w / 2
       const xLim = Math.min(X_MAX, r.width / scale / 2 - half)
+      let nx = clamp(d.orig.x + (px - d.startX), -xLim, xLim)
+
+      // Snap to the card's centre line. A sticker dropped beside the display
+      // name is read as part of it, so a few pixels off centre makes the NAME
+      // look crooked even though the name has not moved at all — it cannot,
+      // the layer is absolutely positioned. Rather than explain that, make
+      // centring the easy thing to land on.
+      //
+      // 6px is deliberately small: enough to catch someone aiming for centre,
+      // not enough to fight someone placing a sticker just off to one side.
+      const snapped = Math.abs(nx) <= SNAP_X
+      if (snapped) nx = 0
+      setGuide(snapped)
+
       next[d.i] = {
         ...d.orig,
-        x: clamp(d.orig.x + (px - d.startX), -xLim, xLim),
+        x: nx,
         y: clamp(d.orig.y + (py - d.startY), half, Math.min(Y_MAX, r.height / scale - half)),
       }
     } else if (d.mode === 'size') {
@@ -170,6 +191,14 @@ export function StickerEdit({
         pointerEvents: 'none',
       }}
     >
+      {guide && (
+        <span style={{
+          position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1,
+          transform: 'translateX(-0.5px)', background: 'var(--violet)',
+          opacity: .55, pointerEvents: 'none',
+        }} />
+      )}
+
       {stickers.map((st, i) => {
         const meta = STICKER_BY_ID[st.s]
         if (!meta) return null

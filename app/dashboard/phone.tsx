@@ -171,7 +171,7 @@ export function Phone({
               ) : initials}
             </div>
 
-            <h1 style={{ textAlign: 'center', fontSize: 23, margin: 0, fontWeight: 700, color: L.nameColor, ...wrap }}>
+            <h1 style={{ textAlign: 'center', fontSize: 25, margin: 0, fontWeight: 800, color: L.nameColor, ...wrap }}>
               {page.display_name || page.username}
             </h1>
             {page.bio && (
@@ -179,17 +179,11 @@ export function Phone({
               // miniature of the first, so an alignment changed out there has
               // to be changed in here too or the preview quietly lies.
               <p style={{
-                textAlign: 'left', fontSize: 15, margin: '10px 0 0', color: L.bioColor,
-                lineHeight: 1.55, whiteSpace: 'pre-wrap',
-                // The bio sits in its own column, inset 18px on both sides, the same
-                // inset the button labels below sit at. Every line - typed or wrapped -
-                // starts and ends inside that column, so the block reads as one tidy
-                // rectangle rather than text drifting wider than the buttons under it.
-                //
-                // A creator types short lines, one per thought, and does not count
-                // characters. A line too long still wraps - nothing can prevent that on
-                // a 430px card - but it wraps inside the same column, which is what
-                // makes it look deliberate.
+                // Must match the public page exactly. This file is a second
+                // renderer, not a miniature of the first, so a change out there
+                // has to be made in here too or the preview quietly lies.
+                textAlign: 'center', fontSize: 15, margin: '10px 0 0', fontWeight: 600,
+                color: L.bioColor, lineHeight: 1.55, whiteSpace: 'pre-wrap',
                 paddingLeft: 18, paddingRight: 18,
                 ...wrap,
               }}>{page.bio}</p>

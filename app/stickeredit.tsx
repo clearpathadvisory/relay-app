@@ -17,20 +17,6 @@ import { Placed, STICKER_BY_ID, stickerSrc, MAX_STICKERS, X_MAX, Y_MAX, W_MIN, W
 
 type Mode = 'move' | 'size' | null
 
-// How close to the centre line a drag has to get before it snaps, in CARD
-// pixels — the unit sticker x is stored in, not screen pixels.
-//
-// That distinction matters: the preview draws the 520px card at roughly half
-// size, so this figure is about halved again by the time a finger feels it.
-// The first attempt used 6, which came out around 3 screen pixels and could
-// not be found on purpose, let alone by accident.
-const SNAP_X = 18
-
-// How close a drag has to come to the exact mirror of another sticker before
-// it locks onto it. Wider than the centre snap because it is a harder target -
-// the user is aiming at a position they cannot see until the ghost appears.
-const SNAP_MIRROR = 26
-
 export function StickerEdit({
   stickers, setStickers, commit, selected, setSelected, scale = 1,
 }: {
@@ -53,11 +39,6 @@ export function StickerEdit({
 }) {
   const wrap = useRef<HTMLDivElement | null>(null)
   const drag = useRef<any>(null)
-  // Shown only while a drag is in progress, so these read as feedback rather
-  // than decoration. `guide` is the centre line; `mirror` is where the sticker
-  // would sit if it were reflected to the other side of the card.
-  const [guide, setGuide] = useState(false)
-  const [mirror, setMirror] = useState<{ x: number; y: number; w: number; s: string; snapped: boolean } | null>(null)
   const [, force] = useState(0)
 
   // Deleting with the keyboard is what people try first once something is
@@ -142,38 +123,11 @@ export function StickerEdit({
       // not by refusing the placement here.
       const half = d.orig.w / 2
       const xLim = Math.min(X_MAX, r.width / scale / 2 - half)
-      let nx = clamp(d.orig.x + (px - d.startX), -xLim, xLim)
-
-      // Snap to the card's centre line. A sticker dropped beside the display
-      // name is read as part of it, so a few pixels off centre makes the NAME
-      // look crooked even though the name has not moved at all — it cannot,
-      // the layer is absolutely positioned. Rather than explain that, make
-      // centring the easy thing to land on.
-      //
-      // 6px is deliberately small: enough to catch someone aiming for centre,
-      // not enough to fight someone placing a sticker just off to one side.
-      const snapped = Math.abs(nx) <= SNAP_X
-      if (snapped) nx = 0
-      setGuide(snapped)
-
-      const ny = clamp(d.orig.y + (py - d.startY), half, Math.min(Y_MAX, r.height / scale - half))
-
-      // The mirror. A sticker beside a centred display name only ever looks
-      // right in a pair — one alone makes the name read as though it has been
-      // shoved sideways, which is what people report as a bug even though the
-      // name has not moved a pixel and cannot: the layer is out of flow.
-      //
-      // So show where its twin would go, and let a drop within reach of that
-      // spot land exactly on it. Making the balanced version easy to build is
-      // the only honest fix, because moving the text is the one thing that
-      // must not happen.
-      const partner = stickers.findIndex((o, j) => j !== d.i && Math.abs(o.y - ny) < 26
-        && Math.abs(o.x + nx) <= SNAP_MIRROR && Math.sign(o.x) !== Math.sign(nx))
-      if (partner >= 0 && nx !== 0) nx = -stickers[partner].x
-
-      setMirror(nx === 0 ? null : { x: -nx, y: ny, w: d.orig.w, s: d.orig.s, snapped: partner >= 0 })
-
-      next[d.i] = { ...d.orig, x: nx, y: ny }
+      next[d.i] = {
+        ...d.orig,
+        x: clamp(d.orig.x + (px - d.startX), -xLim, xLim),
+        y: clamp(d.orig.y + (py - d.startY), half, Math.min(Y_MAX, r.height / scale - half)),
+      }
     } else if (d.mode === 'size') {
       // Distance from the sticker's centre to the pointer drives the width, so
       // the corner handle follows the finger instead of drifting away from it.
@@ -192,8 +146,6 @@ export function StickerEdit({
 
   function end(e: React.PointerEvent) {
     const d = drag.current
-    setGuide(false)
-    setMirror(null)
     if (!d || d.pointerId !== e.pointerId) return
     drag.current = null
     // Save the position the gesture finished on. Everything up to this point
@@ -218,37 +170,6 @@ export function StickerEdit({
         pointerEvents: 'none',
       }}
     >
-      {guide && (
-        <span style={{
-          position: 'absolute', left: '50%', top: 0, bottom: 0, width: 2,
-          transform: 'translateX(-1px)', background: 'var(--violet)',
-          // Solid rather than faint: this is the confirmation that the sticker
-          // has locked to the centre, so it has to be unmistakable at preview
-          // size, where a hairline at 55% opacity all but disappears.
-          opacity: .9, pointerEvents: 'none',
-          boxShadow: '0 0 0 1px rgba(255,255,255,.55)',
-        }} />
-      )}
-
-      {mirror && (
-        <img
-          src={stickerSrc(mirror.s)} alt="" draggable={false}
-          style={{
-            position: 'absolute',
-            left: `clamp(${mirror.w / 2}px, calc(50% + ${mirror.x}px), calc(100% - ${mirror.w / 2}px))`,
-            top: mirror.y + 'px',
-            width: mirror.w + 'px',
-            transform: 'translate(-50%, -50%)',
-            // Faint when it is only a suggestion, near-solid once the drag has
-            // locked onto it, so the difference between "you could" and "you
-            // have" is visible without reading anything.
-            opacity: mirror.snapped ? 0.62 : 0.24,
-            filter: mirror.snapped ? 'none' : 'grayscale(1)',
-            pointerEvents: 'none', userSelect: 'none',
-          }}
-        />
-      )}
-
       {stickers.map((st, i) => {
         const meta = STICKER_BY_ID[st.s]
         if (!meta) return null

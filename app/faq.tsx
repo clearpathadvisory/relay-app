@@ -7,7 +7,7 @@ export const FAQS = [
   },
   {
     q: 'What do I get for paying?',
-    a: 'All 47 themes including doodles and seasonal sets, all 8 fonts, your own 4-colour palette, a background image, your own image on every link, links that appear and disappear on a schedule, music and video that plays on your page, collecting email addresses, 81 stickers to decorate your page, seeing which countries your visitors come from, downloading your stats as a spreadsheet, and the option to take the RelayMe badge off your page. $49.99 a year, or $8 a month. VAT is added at checkout at your country\u2019s rate, and a business can enter a VAT number to have it reverse-charged.',
+    a: 'All 47 themes including doodles and seasonal sets, all 8 fonts, your own 4-colour palette, a background image, your own image on every link, links that appear and disappear on a schedule, music and video that plays on your page, collecting email addresses, 94 stickers to decorate your page, seeing which countries your visitors come from, downloading your stats as a spreadsheet, and the option to take the RelayMe badge off your page. $49.99 a year, or $8 a month. VAT is added at checkout at your country\u2019s rate, and a business can enter a VAT number to have it reverse-charged.',
   },
   {
     q: 'Can I try the paid features before I pay?',

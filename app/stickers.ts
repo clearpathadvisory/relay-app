@@ -31,6 +31,8 @@ export const STICKERS: Sticker[] = [
   { id: 'cs-flower-11', cat: 'Nature', ar: 0.9 },
   { id: 'cs-flower-12', cat: 'Nature', ar: 1.0 },
   { id: 'cs-flower-2', cat: 'Nature', ar: 1.053 },
+  { id: 'butterfly-2', cat: 'Nature', ar: 1.163 },
+  { id: 'doughnut-plant', cat: 'Nature', ar: 0.662 },
   { id: 'cs-flower-6', cat: 'Nature', ar: 1.0 },
   { id: 'flower-windmill-nature', cat: 'Nature', ar: 1.0 },
   { id: 'shape-leaves-nature-fan', cat: 'Nature', ar: 0.904 },
@@ -64,6 +66,12 @@ export const STICKERS: Sticker[] = [
   { id: '20250806-0137-glossy-rubber-duck-simple-', cat: 'Characters', ar: 0.911 },
   { id: 'monsters', cat: 'Characters', ar: 0.769 },
   { id: 'monsters-1', cat: 'Characters', ar: 1.616 },
+  { id: 'pizza-guy', cat: 'Characters', ar: 0.728 },
+  { id: 'sausage', cat: 'Characters', ar: 1.345 },
+  { id: 'smile-2', cat: 'Characters', ar: 1.23 },
+  { id: 'smile-3', cat: 'Characters', ar: 1.017 },
+  { id: 'ufo', cat: 'Characters', ar: 1.275 },
+  { id: 'zhong', cat: 'Characters', ar: 1.066 },
   { id: 'halloween-stickers', cat: 'Halloween', ar: 0.941 },
   { id: 'halloween-stickers-1', cat: 'Halloween', ar: 1.092 },
   { id: 'halloween-stickers-10', cat: 'Halloween', ar: 1.009 },
@@ -97,6 +105,11 @@ export const STICKERS: Sticker[] = [
   { id: 'shape-vase-ton', cat: 'Misc', ar: 0.868 },
   { id: 'square-frame', cat: 'Misc', ar: 1.0 },
   { id: 'square-stamp-2', cat: 'Misc', ar: 1.0 },
+  { id: 'boom', cat: 'Misc', ar: 1.245 },
+  { id: 'dev-mode', cat: 'Misc', ar: 1.649 },
+  { id: 'good-vibes-1', cat: 'Misc', ar: 1.441 },
+  { id: 'good-vibes-2', cat: 'Misc', ar: 1.115 },
+  { id: 'mug', cat: 'Misc', ar: 0.966 },
 ]
 
 export const STICKER_BY_ID: Record<string, Sticker> =

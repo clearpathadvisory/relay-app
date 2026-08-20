@@ -369,7 +369,7 @@ textarea.field { resize: none; min-height: 104px; line-height: 1.5; }
 .statrownum { flex: 0 0 44px; text-align: right; font-size: 14px; font-weight: 700; }
 
 /* --- homepage: fluid hero --- */
-.hero { display: grid; grid-template-columns: minmax(0,1.15fr) 260px; gap: 30px; align-items: center; position: relative; overflow: visible; }
+.hero { display: grid; grid-template-columns: minmax(0,1.15fr) 337px; gap: 30px; align-items: center; position: relative; overflow: visible; }
 .heroart { display: contents; }
 .herotitle { font-size: clamp(30px, 7.4vw, 52px); line-height: 1.05; margin: 18px 0 0; letter-spacing: -0.035em; font-weight: 800; }
 .herosub { font-size: clamp(15.5px, 3.6vw, 18px); line-height: 1.6; color: rgba(27,13,68,.7); margin: 16px 0 24px; max-width: 500px; }
@@ -1726,48 +1726,53 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
    overlapping the case. Painting the screen last would put the page in front
    of the thumb.
 
-   The percentages are measured from the keyed file, not guessed, so the screen
-   lands exactly in the hole.
+   The file is cropped to its own content. The original carried about 18% of
+   empty height above the phone, which the grid then had to make room for: the
+   hero column grew, the text beside it centred against all that height, and
+   the section opened up a band of dead space above the headline. Cropping the
+   air out shortened the column by roughly 110px and closed the gap.
+
+   The percentages are measured from the cropped file, not guessed, so the
+   screen lands exactly in the hole.
 
    --handn is the only knob, and it is UNITLESS on purpose: the scale below
    divides by the screen's design width, and CSS cannot divide one length by
    another. Width gets its px by multiplying.
 
-   360 is a compromise, not an arbitrary number. The source photo is 480px of
-   real detail. Shown at 360 CSS px a 2x display asks for 720, so about two
-   thirds of what it wants — soft, but skin and shadow carry that far better
-   than text would, which is exactly why the screen is markup and not part of
-   the image. Bigger looks more impressive and softer: at 511px, the width that
-   would match the old drawn phone's screen, it drops to under half.
+   337 keeps the screen at the same 162px it was before the crop, so nothing
+   inside changed size. The source holds 480px of real detail, so at 337 CSS px
+   a 2x display gets about 71% of what it asks for — soft, but skin and shadow
+   carry that far better than text would, which is exactly why the screen is
+   markup and not part of the image.
 --------------------------------------------------------------------------- */
 .handmock {
-  --handn: 360;
+  --handn: 337;
   position: relative;
   width: calc(var(--handn) * 1px);
-  aspect-ratio: 480 / 770;   /* the photo's own ratio, so it never letterboxes */
+  aspect-ratio: 896 / 1248;   /* the cropped file's own ratio */
 }
 .handimg {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   display: block; pointer-events: none;
   /* the shadow belongs to the hand, not to a rectangle around it */
-  filter: drop-shadow(0 26px 34px rgba(27, 13, 68, .28));
+  filter: drop-shadow(0 22px 30px rgba(27, 13, 68, .26));
 }
 .handscreen {
   position: absolute;
-  left: 42.083%; top: 20.779%;
-  width: 45%; height: 61.039%;
+  left: 38.616%; top: 2.244%;
+  width: 48.214%; height: 75.321%;
   overflow: hidden;
-  border-radius: 7.4% / 3.4%;   /* the case corner, in the screen's own units */
+  border-radius: 7% / 3.4%;   /* the case corner, in the screen's own units */
 }
 /* The page is laid out at the screen's design width and then scaled, so the
    type keeps its proportions instead of reflowing at every breakpoint.
-   0.45 is the screen's share of the photo's width, from the box above. */
+   0.48214 is the screen's share of the photo's width, from the box above. */
 .handscreeninner {
   width: 216px;
-  transform: scale(calc(var(--handn) * 0.45 / 216));
+  transform: scale(calc(var(--handn) * 0.48214 / 216));
   transform-origin: top left;
 }
 
 @media (max-width: 900px) { .handmock { --handn: 300; } }
-@media (max-width: 420px) { .handmock { --handn: 250; } }
+@media (max-width: 420px) { .handmock { --handn: 262; } }

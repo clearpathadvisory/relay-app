@@ -1700,3 +1700,57 @@ button, a, label, select, input[type=color] { touch-action: manipulation; }
 @media (hover: hover) and (pointer: fine) { .stkpick:hover { transform: translateY(-2px); border-color: var(--violet); } }
 .stkpick img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
 
+
+/* ---------------------------------------------------------------------------
+   Hero: a photographed hand holding a phone, with a LIVE screen inside it.
+
+   The photo is keyed so its screen is transparent. The markup screen is placed
+   first and the photo painted over it — that order is what keeps the fingers
+   overlapping the case. Painting the screen last would put the page in front
+   of the thumb.
+
+   The percentages are measured from the keyed file, not guessed, so the screen
+   lands exactly in the hole.
+
+   --handn is the only knob, and it is UNITLESS on purpose: the scale below
+   divides by the screen's design width, and CSS cannot divide one length by
+   another. Width gets its px by multiplying.
+
+   360 is a compromise, not an arbitrary number. The source photo is 480px of
+   real detail. Shown at 360 CSS px a 2x display asks for 720, so about two
+   thirds of what it wants — soft, but skin and shadow carry that far better
+   than text would, which is exactly why the screen is markup and not part of
+   the image. Bigger looks more impressive and softer: at 511px, the width that
+   would match the old drawn phone's screen, it drops to under half.
+--------------------------------------------------------------------------- */
+.handmock {
+  --handn: 360;
+  position: relative;
+  width: calc(var(--handn) * 1px);
+  aspect-ratio: 480 / 770;   /* the photo's own ratio, so it never letterboxes */
+}
+.handimg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block; pointer-events: none;
+  /* the shadow belongs to the hand, not to a rectangle around it */
+  filter: drop-shadow(0 26px 34px rgba(27, 13, 68, .28));
+}
+.handscreen {
+  position: absolute;
+  left: 42.083%; top: 20.779%;
+  width: 45%; height: 61.039%;
+  overflow: hidden;
+  border-radius: 7.4% / 3.4%;   /* the case corner, in the screen's own units */
+}
+/* The page is laid out at the screen's design width and then scaled, so the
+   type keeps its proportions instead of reflowing at every breakpoint.
+   0.45 is the screen's share of the photo's width, from the box above. */
+.handscreeninner {
+  width: 216px;
+  transform: scale(calc(var(--handn) * 0.45 / 216));
+  transform-origin: top left;
+}
+
+@media (max-width: 900px) { .handmock { --handn: 300; } }
+@media (max-width: 420px) { .handmock { --handn: 250; } }

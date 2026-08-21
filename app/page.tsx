@@ -249,7 +249,10 @@ export default function Home() {
             ))}
           </div>
           <p style={{ marginTop: 20, fontSize: 15, color: 'rgba(27,13,68,.7)' }}>
-            Coming from somewhere else? <a href="/vs-linktree" style={{ color: 'var(--violet)', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: 2 }}>RelayMe next to Linktree</a>.
+            Coming from somewhere else?{' '}
+            <a href="/vs-linktree" style={{ color: 'var(--violet)', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: 2 }}>RelayMe next to Linktree</a>
+            {' '}or{' '}
+            <a href="/vs-stan" style={{ color: 'var(--violet)', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: 2 }}>next to Stan Store</a>.
           </p>
         </section>
 
@@ -285,6 +288,12 @@ export default function Home() {
             </span>
             <span className="footlinks">
               <a href="/blog">Blog</a>
+              {/* Both comparisons in the footer as well as under the FAQ. A
+                  reader still shortlisting scrolls to the bottom looking for
+                  exactly this, and the two pages are the only ones on the site
+                  written for somebody who has not decided yet. */}
+              <a href="/vs-linktree">vs Linktree</a>
+              <a href="/vs-stan">vs Stan</a>
               <a href="/privacy">Privacy</a>
               <a href="/terms">Terms</a>
               <Star color="#F0A2FD" size={15} />
